@@ -337,7 +337,7 @@ tbody tr:hover td{background:var(--bg3)}
   <div class="sb-logo">
     <div class="sb-tag">Sales OS</div>
     <div class="sb-name" id="sbName">ДМ2 Мост-2</div>
-    <div class="sb-period" id="sbPeriod">Квітень 2026</div>
+    <div class="sb-period" id="sbPeriod">–</div>
   </div>
   <nav class="nav">
     <div class="ni active" data-v="overview" onclick="go('overview')">
@@ -401,7 +401,7 @@ tbody tr:hover td{background:var(--bg3)}
 <header class="mob-header">
   <div class="mob-logo">
     <div class="mob-logo-t" id="mobName">ДМ2 Мост-2</div>
-    <div class="mob-logo-s" id="mobPeriod">Квітень 2026</div>
+    <div class="mob-logo-s" id="mobPeriod">–</div>
   </div>
   <button onclick="toggleTheme()" style="padding:6px 10px;border-radius:var(--r);border:1px solid var(--bd2);background:transparent;color:var(--t2);font-size:16px;cursor:pointer;line-height:1" id="mobThemeBtn">☀️</button>
   <label class="mob-up">
@@ -452,7 +452,7 @@ tbody tr:hover td{background:var(--bg3)}
   <div class="page-head">
     <div>
       <div class="page-title" id="pageTitle">Огляд магазину</div>
-      <div class="page-sub" id="pageSub">01.04 – 17.04.2026 · ДМ2 Мост-2</div>
+      <div class="page-sub" id="pageSub">Завантажте звіт</div>
     </div>
     <button class="btn hide-mobile" onclick="window.print()">Друк / PDF</button>
   </div>
@@ -808,6 +808,24 @@ function parseFile(ab){
   const wb=XLSX.read(ab,{type:'array'});
   const ws=wb.Sheets[wb.SheetNames[0]];
   const rows=XLSX.utils.sheet_to_json(ws,{header:1,defval:''});
+  // Extract period from header rows (row 15-17 contain dates like "01.04.26 - 19.04.26")
+  let filePeriod='';
+  for(let i=0;i<25;i++){
+    for(let c=0;c<9;c++){
+      const v=String(rows[i]?rows[i][c]:'').trim();
+      if(/\d{2}\.\d{2}\.\d{2,4}\s*[-–]\s*\d{2}\.\d{2}\.\d{2,4}/.test(v)){
+        filePeriod=v.replace('- ','– ').replace(' -',' –');
+        break;
+      }
+    }
+    if(filePeriod)break;
+  }
+  // Also look at file header row 0 for report title with date
+  if(!filePeriod){
+    const r0=String(rows[0]?rows[0][0]:'');
+    const m=r0.match(/\d{2}\.\d{2}\.\d{4}/);
+    if(m)filePeriod=m[0];
+  }
   const sm={};
   for(let i=18;i<rows.length;i++){
     const r=rows[i];
@@ -836,7 +854,7 @@ function parseFile(ab){
     revVs:avg(s.rv),aspVs:avg(s.av),unitsVs:avg(s.uv),
     cats:Object.entries(s.cats).map(([cat,v])=>({cat,biz:v.biz,rev:v.rev,units:v.units,revVs:avg(v.rv),aspVs:avg(v.av)})).sort((a,b)=>b.rev-a.rev)
   })).sort((a,b)=>b.revenue-a.revenue);
-  return{sellers:assignTiers(sellers),cats:buildCatIndex(sellers)};
+  return{sellers:assignTiers(sellers),cats:buildCatIndex(sellers),period:filePeriod};
 }
 
 // ═══════════════════════════════════════════════════════════════
@@ -1455,7 +1473,10 @@ function parseAccFile(ab){
   const gl=glHead>=0?sectionRows(glHead):{avgRow:-1,dm2Row:-1,sellers:{}};
   const tv=tvHead>=0?sectionRows(tvHead):{avgRow:-1,dm2Row:-1,sellers:{}};
 
-  const period=gs(0,0).replace('Щоденний звіт магазинів по АСС і Home на ','').replace('Щоденний звіт магазинів по АСС і Home','').trim()||'';
+  // Extract period from ACC file header (row 0 has "Щоденний звіт магазинів по АСС і Home на 20.04.2026 11:25")
+  const headerStr=gs(0,0);
+  const dateMatch=headerStr.match(/(\d{2}\.\d{2}\.\d{4})/);
+  const period=dateMatch?'Щоденний звіт АСС · '+dateMatch[1]:headerStr.replace('Щоденний звіт магазинів по АСС і Home на ','').replace('Щоденний звіт магазинів по АСС і Home','').trim()||'';
 
   // Benchmarks
   const bench={
@@ -1930,21 +1951,39 @@ function toggleCheckMob(k,name){
 // RENDER
 // ═══════════════════════════════════════════════════════════════
 function render(){
-  renderKPI();
-  closeMobOverlay();
+  try{
+    renderKPI();
+  }catch(e){
+    console.error('renderKPI error:',e);
+    const kr=document.getElementById('kpiRow');
+    if(kr)kr.innerHTML='';
+  }
+  try{closeMobOverlay();}catch(e){}
   const titles={overview:'Огляд магазину',sellers:'Продавці',categories:'Категорії',plan:'План дій',rhythm:'Ритм тижня',focus:'Фокус дня',matrix:'Матриця продавців',insights:'Автоінсайти',quality:'Якість продажів'};
-  document.getElementById('pageTitle').textContent=titles[S.view]||'';
+  const pt=document.getElementById('pageTitle');
+  if(pt)pt.textContent=titles[S.view]||'';
   const el=document.getElementById('content');
-  el.className='anim';void el.offsetWidth;
-  if(S.view==='overview')el.innerHTML=renderOverview();
-  else if(S.view==='sellers')el.innerHTML=renderSellers();
-  else if(S.view==='categories')el.innerHTML=renderCategories();
-  else if(S.view==='plan')el.innerHTML=renderPlan();
-  else if(S.view==='rhythm')el.innerHTML=renderRhythm();
-  else if(S.view==='focus')el.innerHTML=renderFocus();
-  else if(S.view==='matrix')el.innerHTML=renderMatrix();
-  else if(S.view==='insights')el.innerHTML=renderInsights();
-  else if(S.view==='quality')el.innerHTML=renderQuality();
+  if(!el)return;
+  try{
+    el.className='anim';void el.offsetWidth;
+    if(S.view==='overview')el.innerHTML=renderOverview();
+    else if(S.view==='sellers')el.innerHTML=renderSellers();
+    else if(S.view==='categories')el.innerHTML=renderCategories();
+    else if(S.view==='plan')el.innerHTML=renderPlan();
+    else if(S.view==='rhythm')el.innerHTML=renderRhythm();
+    else if(S.view==='focus')el.innerHTML=renderFocus();
+    else if(S.view==='matrix')el.innerHTML=renderMatrix();
+    else if(S.view==='insights')el.innerHTML=renderInsights();
+    else if(S.view==='quality')el.innerHTML=renderQuality();
+  }catch(e){
+    console.error('render error (view='+S.view+'):',e);
+    el.innerHTML=`<div style="padding:32px;color:#ff6b6b;font-family:monospace;font-size:13px;background:rgba(255,107,107,.08);border-radius:10px;border:1px solid rgba(255,107,107,.3)">
+      <div style="font-size:15px;font-weight:700;margin-bottom:8px">Помилка відображення</div>
+      <div>${e.message}</div>
+      <div style="margin-top:12px;font-size:11px;color:#9eaabf">Перевірте консоль браузера (F12) для деталей</div>
+      <div style="margin-top:10px"><button onclick="clearFileData();location.reload()" style="padding:7px 14px;border-radius:8px;border:1px solid rgba(255,107,107,.4);background:rgba(255,107,107,.12);color:#ff6b6b;cursor:pointer;font-family:inherit">Очистити кеш і перезавантажити</button></div>
+    </div>`;
+  }
 }
 
 // ═══════════════════════════════════════════════════════════════
@@ -1996,6 +2035,14 @@ function clearFileData(){
 }
 function loadState(){
   try{
+    // Version guard - clear stale cache on app update
+    const APP_VER='v6';
+    const cachedVer=localStorage.getItem('dm2_app_ver');
+    if(cachedVer&&cachedVer!==APP_VER){
+      // New version deployed - clear file cache to avoid structure mismatch
+      clearFileData();
+    }
+    localStorage.setItem('dm2_app_ver',APP_VER);
     const c=localStorage.getItem('dm2_checks_v3');if(c)S.checks=JSON.parse(c);
     const r=localStorage.getItem(getWeekKey());if(r)S.rhythmChecks=JSON.parse(r);
     const t=localStorage.getItem('dm2_theme');if(t)S.theme=t;
@@ -2006,18 +2053,23 @@ function loadFileData(){
   try{
     const fd=localStorage.getItem('dm2_filedata_v1');
     if(fd){
-      const{sellers,cats,period}=JSON.parse(fd);
-      if(sellers&&sellers.length){
-        S.sellers=assignTiers(sellers);
-        S.cats=cats||buildCatIndex(S.sellers);
-        if(period){
-          ['sbPeriod','mobPeriod'].forEach(id=>{const e=document.getElementById(id);if(e)e.textContent=period;});
-          document.getElementById('pageSub').textContent=period+' · '+S.sellers.length+' продавців';
-        }
+      const parsed=JSON.parse(fd);
+      const{sellers,cats,period}=parsed;
+      // Validate structure before using
+      if(sellers&&Array.isArray(sellers)&&sellers.length&&sellers[0].revenue!==undefined){
+        S.sellers=assignTiers(sellers.map(s=>({...s})));
+        S.cats=Array.isArray(cats)?cats:buildCatIndex(S.sellers);
+        const periodStr=period||'';
+        ['sbPeriod','mobPeriod'].forEach(id=>{const e=document.getElementById(id);if(e)e.textContent=periodStr||'Збережений звіт';});
+        const ps=document.getElementById('pageSub');
+        if(ps)ps.textContent=(periodStr||'Збережений звіт')+' · '+S.sellers.length+' продавців';
         return true;
       }
     }
-  }catch(e){console.warn('loadFileData error:',e);}
+  }catch(e){
+    console.warn('loadFileData error:',e);
+    clearFileData(); // Clear corrupt data
+  }
   return false;
 }
 
@@ -2044,12 +2096,14 @@ function handleFile(file){
   const reader=new FileReader();
   reader.onload=ev=>{
     try{
-      const{sellers,cats}=parseFile(new Uint8Array(ev.target.result));
+      const{sellers,cats,period}=parseFile(new Uint8Array(ev.target.result));
       if(!sellers.length){toast('Не знайдено даних. Перевірте формат.','err');return;}
       S.sellers=sellers;S.cats=cats;S.selSeller=null;S.selCat=null;
+      // Use extracted period; fallback to filename
       const name=file.name.replace(/\.(xlsx|xls)$/i,'');
-      ['sbPeriod','mobPeriod'].forEach(id=>{const e=document.getElementById(id);if(e)e.textContent=name;});
-      document.getElementById('pageSub').textContent=`${name} · ${sellers.length} продавців`;
+      const displayPeriod=period||name;
+      ['sbPeriod','mobPeriod'].forEach(id=>{const e=document.getElementById(id);if(e)e.textContent=displayPeriod;});
+      document.getElementById('pageSub').textContent=`${displayPeriod} · ${sellers.length} продавців`;
       saveFileData();
       toast(`Завантажено: ${sellers.length} продавців · Збережено у браузері`,'ok');
       render();
