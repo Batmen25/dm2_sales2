@@ -1,0 +1,2174 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
+<title>ДМ2 Мост-2 — Sales OS</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg0:#080b14;--bg1:#0d1120;--bg2:#141829;--bg3:#1b2238;--bg4:#222d46;
+  --bd:rgba(255,255,255,.09);--bd2:rgba(255,255,255,.17);--bd3:rgba(255,255,255,.26);
+  --t1:#edf0fa;--t2:#9eaabf;--t3:#586075;
+  --blue:#5b9bff;--blue-bg:rgba(91,155,255,.15);--blue-bd:rgba(91,155,255,.38);
+  --green:#36d98c;--green-bg:rgba(54,217,140,.14);--green-bd:rgba(54,217,140,.38);
+  --amber:#fbbf24;--amber-bg:rgba(251,191,36,.14);--amber-bd:rgba(251,191,36,.38);
+  --red:#ff6b6b;--red-bg:rgba(255,107,107,.14);--red-bd:rgba(255,107,107,.38);
+  --purple:#b197fc;--purple-bg:rgba(177,151,252,.14);--purple-bd:rgba(177,151,252,.38);
+  --sidebar:248px;--r:10px;--r2:12px;--r3:16px;--bnav:68px;
+}
+[data-theme="light"]{
+  --bg0:#f0f3f9;--bg1:#ffffff;--bg2:#fafbfe;--bg3:#edf0f7;--bg4:#e0e5f0;
+  --bd:rgba(0,0,0,.07);--bd2:rgba(0,0,0,.13);--bd3:rgba(0,0,0,.20);
+  --t1:#0f1623;--t2:#344155;--t3:#64748b;
+  --blue:#2563eb;--blue-bg:rgba(37,99,235,.08);--blue-bd:rgba(37,99,235,.28);
+  --green:#059669;--green-bg:rgba(5,150,105,.08);--green-bd:rgba(5,150,105,.28);
+  --amber:#b45309;--amber-bg:rgba(180,83,9,.08);--amber-bd:rgba(180,83,9,.28);
+  --red:#dc2626;--red-bg:rgba(220,38,38,.08);--red-bd:rgba(220,38,38,.28);
+  --purple:#7c3aed;--purple-bg:rgba(124,58,237,.08);--purple-bd:rgba(124,58,237,.28);
+}
+html,body{height:100%;background:var(--bg0);color:var(--t1);font-family:'Outfit',system-ui,sans-serif;font-size:15px;line-height:1.65;overflow-x:hidden;transition:background .25s,color .25s}
+
+/* ═══ SIDEBAR (desktop) ═══ */
+.sidebar{position:fixed;top:0;left:0;width:var(--sidebar);height:100vh;background:var(--bg1);border-right:1px solid var(--bd);display:flex;flex-direction:column;z-index:100}
+.sb-logo{padding:24px 20px 20px;border-bottom:1px solid var(--bd)}
+.sb-tag{font-size:10px;letter-spacing:3px;color:var(--blue);font-family:'IBM Plex Mono',monospace;font-weight:600;margin-bottom:6px;opacity:.85}
+.sb-name{font-size:17px;font-weight:700;letter-spacing:-.4px;color:var(--t1)}
+.sb-period{font-size:11px;color:var(--t3);margin-top:4px;font-family:'IBM Plex Mono',monospace}
+.nav{flex:1;padding:12px 10px;overflow-y:auto}
+.ni{display:flex;align-items:center;gap:11px;padding:10px 13px;border-radius:var(--r);cursor:pointer;color:var(--t3);font-size:14px;font-weight:500;transition:all .15s;margin-bottom:3px;border:1px solid transparent;user-select:none;letter-spacing:-.1px}
+.ni:hover{background:var(--bg3);color:var(--t1);border-color:var(--bd)}
+.ni.active{background:var(--blue-bg);color:var(--blue);border-color:var(--blue-bd);font-weight:600}
+.ni svg{width:16px;height:16px;flex-shrink:0;opacity:.7}
+.ni.active svg{opacity:1}
+.sb-foot{padding:14px;border-top:1px solid var(--bd)}
+.up-zone{border:1px dashed var(--bd2);border-radius:var(--r);padding:14px 12px;text-align:center;cursor:pointer;transition:all .2s;display:block;width:100%}
+.up-zone:hover,.up-zone.drag{background:var(--blue-bg);border-color:var(--blue-bd)}
+.up-zone input{display:none}
+.sb-keys{font-size:11px;color:var(--t3);text-align:center;margin-top:10px;line-height:1.5;opacity:.7}
+.sb-clear{font-size:11px;color:var(--t3);text-align:center;margin-top:6px;cursor:pointer;opacity:.6;transition:opacity .15s;text-decoration:none;display:block}
+.sb-clear:hover{opacity:1;color:var(--red)}
+
+/* ═══ THEME TOGGLE ═══ */
+.theme-btn{display:flex;align-items:center;gap:9px;width:100%;padding:9px 13px;border-radius:var(--r);border:1px solid var(--bd);background:transparent;color:var(--t2);font-size:13px;font-weight:500;cursor:pointer;font-family:'Outfit',sans-serif;margin-bottom:10px;transition:all .15s}
+.theme-btn:hover{background:var(--bg3);color:var(--t1);border-color:var(--bd2)}
+.theme-icon{font-size:14px}
+
+/* ═══ MATRIX ═══ */
+.matrix-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch}
+.matrix-table{border-collapse:collapse;font-size:13px;min-width:600px}
+.matrix-table th{padding:9px 12px;font-size:10px;font-weight:700;letter-spacing:.4px;color:var(--t3);text-transform:uppercase;border-bottom:1px solid var(--bd2);white-space:nowrap;background:var(--bg3)}
+.matrix-table .rh{font-size:13px;font-weight:600;color:var(--t1);white-space:nowrap;padding:10px 14px;border-bottom:1px solid var(--bd);background:var(--bg2);position:sticky;left:0;z-index:2}
+.mc{width:58px;height:44px;text-align:center;vertical-align:middle;border:1px solid rgba(0,0,0,.15);cursor:default;font-family:'IBM Plex Mono',monospace;font-size:11px;font-weight:700;transition:filter .15s}
+.mc:hover{filter:brightness(1.25)}
+.mc-none{background:var(--bg4);color:var(--t3)}
+.matrix-legend{display:flex;gap:14px;align-items:center;flex-wrap:wrap;margin-bottom:14px;font-size:12px;color:var(--t3)}
+.ml-swatch{width:14px;height:14px;border-radius:4px;display:inline-block}
+
+/* ═══ INSIGHTS ═══ */
+.insight-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:20px}
+.insight-card{background:var(--bg2);border:1px solid var(--bd);border-radius:var(--r3);padding:18px 20px;border-left:3px solid;transition:border-color .15s}
+.insight-card:hover{border-top-color:var(--bd2);border-right-color:var(--bd2);border-bottom-color:var(--bd2)}
+.insight-label{font-size:11px;font-weight:600;letter-spacing:.4px;color:var(--t3);text-transform:uppercase;margin-bottom:8px}
+.insight-main{font-size:15px;font-weight:700;color:var(--t1);line-height:1.4;margin-bottom:6px}
+.insight-sub{font-size:13px;color:var(--t2);line-height:1.55}
+.star-row{display:flex;align-items:center;gap:12px;padding:12px 18px;border-bottom:1px solid var(--bd)}
+.star-row:last-child{border-bottom:none}
+.star-medal{font-size:18px;width:32px;text-align:center;flex-shrink:0}
+.star-info{flex:1}
+.star-name{font-size:14px;font-weight:600;color:var(--t1)}
+.star-cat{font-size:12px;color:var(--t2);margin-top:2px}
+
+@media(max-width:768px){.insight-grid{grid-template-columns:1fr}}
+
+/* ═══ MOBILE HEADER ═══ */
+.mob-header{display:none;position:fixed;top:0;left:0;right:0;height:56px;background:var(--bg1);border-bottom:1px solid var(--bd);z-index:100;align-items:center;padding:0 16px;gap:12px}
+.mob-logo{flex:1}
+.mob-logo-t{font-size:14px;font-weight:700}
+.mob-logo-s{font-size:10px;color:var(--t3);font-family:'IBM Plex Mono',monospace}
+.mob-up{padding:6px 12px;border-radius:var(--r);border:1px solid var(--bd2);background:transparent;color:var(--t2);font-size:11px;font-weight:500;cursor:pointer;font-family:'Outfit',sans-serif;white-space:nowrap}
+.mob-up input{display:none}
+
+/* ═══ BOTTOM NAV (mobile) ═══ */
+.bnav{display:none;position:fixed;bottom:0;left:0;right:0;height:var(--bnav);background:var(--bg1);border-top:1px solid var(--bd2);z-index:100;align-items:stretch}
+.bnav-item{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;cursor:pointer;color:var(--t3);font-size:10px;font-weight:600;letter-spacing:.3px;text-transform:uppercase;transition:color .15s;border:none;background:transparent;font-family:'Outfit',sans-serif}
+.bnav-item.active{color:var(--blue)}
+.bnav-item svg{width:20px;height:20px}
+.bnav-item.active svg{filter:drop-shadow(0 0 7px rgba(91,155,255,.6))}
+
+/* ═══ MAIN ═══ */
+.main{margin-left:var(--sidebar);min-height:100vh;padding:36px 40px;padding-bottom:24px}
+.page-head{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:28px;flex-wrap:wrap;gap:14px}
+.page-title{font-size:24px;font-weight:700;letter-spacing:-.5px;color:var(--t1)}
+.page-sub{font-size:13px;color:var(--t3);margin-top:5px}
+.btn{padding:7px 14px;border-radius:var(--r);border:1px solid var(--bd2);background:transparent;color:var(--t2);font-size:12px;font-weight:500;cursor:pointer;font-family:'Outfit',sans-serif;transition:all .15s}
+.btn:hover{background:var(--bg3);color:var(--t1)}
+
+/* ═══ TOAST ═══ */
+.toast{position:fixed;bottom:80px;right:20px;z-index:999;padding:13px 18px;border-radius:var(--r2);font-size:13px;font-weight:500;transform:translateY(20px);opacity:0;transition:all .3s cubic-bezier(.34,1.56,.64,1);pointer-events:none;border:1px solid;max-width:320px;line-height:1.4}
+.toast.show{transform:translateY(0);opacity:1}
+.toast.ok{background:#0c2018;color:var(--green);border-color:var(--green-bd)}
+.toast.err{background:#200c0c;color:var(--red);border-color:var(--red-bd)}
+.toast.info{background:#0c1420;color:var(--blue);border-color:var(--blue-bd)}
+
+/* ═══ KPI ═══ */
+.kpi-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;margin-bottom:28px}
+.kpi{background:var(--bg2);border:1px solid var(--bd);border-radius:var(--r3);padding:18px 20px;position:relative;overflow:hidden;transition:border-color .15s}
+.kpi:hover{border-color:var(--bd2)}
+.kpi::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:var(--a,var(--blue));opacity:.9}
+.kpi-l{font-size:11px;letter-spacing:.5px;color:var(--t3);font-weight:600;text-transform:uppercase;margin-bottom:10px}
+.kpi-v{font-size:22px;font-weight:700;font-family:'IBM Plex Mono',monospace;color:var(--t1);line-height:1.1}
+.kpi-s{font-size:12px;color:var(--t3);margin-top:7px;line-height:1.4}
+
+/* ═══ CARD ═══ */
+.card{background:var(--bg2);border:1px solid var(--bd);border-radius:var(--r3);overflow:hidden;margin-bottom:14px}
+.card-h{padding:14px 20px;border-bottom:1px solid var(--bd);display:flex;align-items:center;justify-content:space-between;gap:12px}
+.card-t{font-size:12px;font-weight:700;color:var(--t1);letter-spacing:.2px}
+
+/* ═══ TABLE ═══ */
+table{width:100%;border-collapse:collapse}
+th{padding:11px 16px;text-align:left;font-size:11px;font-weight:600;letter-spacing:.3px;color:var(--t3);text-transform:uppercase;border-bottom:1px solid var(--bd2);background:var(--bg3)}
+td{padding:12px 16px;border-bottom:1px solid var(--bd);vertical-align:middle;font-size:14px;line-height:1.4}
+tbody tr:last-child td{border-bottom:none}
+tbody tr{cursor:pointer;transition:background .1s}
+tbody tr:nth-child(even) td{background:rgba(255,255,255,.02)}
+tbody tr:hover td{background:var(--bg3)}
+[data-theme="light"] tbody tr:nth-child(even) td{background:rgba(0,0,0,.018)}
+
+/* ═══ TIER ═══ */
+.tier{display:inline-flex;align-items:center;justify-content:center;width:26px;height:26px;border-radius:7px;font-size:12px;font-weight:700;font-family:'IBM Plex Mono',monospace;flex-shrink:0}
+.tA{background:var(--green-bg);color:var(--green);border:1px solid var(--green-bd)}
+.tB{background:var(--blue-bg);color:var(--blue);border:1px solid var(--blue-bd)}
+.tC{background:var(--amber-bg);color:var(--amber);border:1px solid var(--amber-bd)}
+.tD{background:var(--red-bg);color:var(--red);border:1px solid var(--red-bd)}
+
+/* ═══ VS ═══ */
+.vs{font-family:'IBM Plex Mono',monospace;font-size:12px;font-weight:600;padding:3px 9px;border-radius:5px;white-space:nowrap;display:inline-block;letter-spacing:.2px}
+.vp{background:var(--green-bg);color:var(--green);border:1px solid var(--green-bd)}
+.vn{background:var(--red-bg);color:var(--red);border:1px solid var(--red-bd)}
+.vz{background:var(--bg4);color:var(--t3);border:1px solid var(--bd)}
+.mbar{display:flex;align-items:center;gap:8px}
+.mbar-t{flex:1;height:6px;background:var(--bg4);border-radius:3px;min-width:50px;overflow:hidden}
+.mbar-f{height:6px;border-radius:3px;transition:width .5s ease}
+.rmono{font-family:'IBM Plex Mono',monospace;font-size:13px;font-weight:600}
+.rbar{height:5px;background:var(--bg4);border-radius:3px;margin-top:5px;overflow:hidden}
+.rbar-f{height:5px;background:var(--blue);border-radius:3px}
+
+/* ═══ SPLIT / PANELS ═══ */
+.split{display:grid;grid-template-columns:220px 1fr;gap:16px;align-items:start}
+.list-panel{background:var(--bg2);border:1px solid var(--bd);border-radius:var(--r2);overflow:hidden;position:sticky;top:0;max-height:calc(100vh - 64px);overflow-y:auto}
+.list-head{padding:12px 16px;border-bottom:1px solid var(--bd2);font-size:11px;font-weight:600;letter-spacing:.3px;color:var(--t2);text-transform:uppercase;background:var(--bg3)}
+.li{padding:12px 16px;cursor:pointer;border-bottom:1px solid var(--bd);border-left:3px solid transparent;transition:all .12s}
+.li:last-child{border-bottom:none}
+.li:hover{background:var(--bg3)}
+.li.sel{background:var(--bg3);border-left-color:var(--blue)}
+.li-name{font-size:14px;font-weight:500;color:var(--t1)}
+.li-sub{font-size:12px;color:var(--t3);font-family:'IBM Plex Mono',monospace;margin-top:3px}
+
+/* ═══ SELLER PROFILE ═══ */
+.profile{background:var(--bg2);border:1px solid var(--bd);border-radius:var(--r3);padding:22px 24px;margin-bottom:14px}
+.pname{font-size:22px;font-weight:700;letter-spacing:-.5px;margin-bottom:8px;color:var(--t1)}
+.pm-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--bd2);border:1px solid var(--bd);border-radius:10px;overflow:hidden;margin:18px 0}
+.pm-item{background:var(--bg2);padding:16px 18px}
+.pm-l{font-size:11px;letter-spacing:.3px;color:var(--t3);text-transform:uppercase;font-weight:600;margin-bottom:7px}
+.pm-v{font-size:20px;font-weight:700;font-family:'IBM Plex Mono',monospace;color:var(--t1)}
+.vs-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+.vs-lbl{font-size:11px;color:var(--t3);letter-spacing:.3px;text-transform:uppercase;margin-bottom:7px;font-weight:600}
+.cat-row{display:flex;align-items:center;gap:10px;padding:11px 20px;border-bottom:1px solid var(--bd)}
+.cat-row:last-child{border-bottom:none}
+.cat-name{flex:1;font-size:13px;color:var(--t1)}
+.cat-rev{font-family:'IBM Plex Mono',monospace;font-size:12px;color:var(--t2);min-width:90px;text-align:right;font-weight:600}
+
+/* ═══ PLAN ═══ */
+.plan-prog-wrap{background:var(--bg2);border:1px solid var(--bd);border-radius:var(--r2);padding:16px 20px;margin-bottom:14px}
+.plan-prog{height:6px;background:var(--bg4);border-radius:3px;margin:10px 0 8px;overflow:hidden}
+.plan-prog-f{height:6px;border-radius:3px;background:var(--green);transition:width .5s ease}
+.day-block{background:var(--bg2);border:1px solid var(--bd);border-radius:var(--r2);overflow:hidden;margin-bottom:10px}
+.day-h{padding:12px 18px;background:var(--bg3);border-bottom:1px solid var(--bd);display:flex;align-items:center;justify-content:space-between}
+.day-lbl{font-size:12px;font-weight:700;letter-spacing:.4px;color:var(--t1);text-transform:uppercase}
+.day-body{padding:10px 14px}
+.action{display:flex;align-items:flex-start;gap:12px;padding:11px 13px;border-radius:9px;border:1px solid var(--bd);margin-bottom:8px;cursor:pointer;transition:all .12s}
+.action:last-child{margin-bottom:0}
+.action:hover{border-color:var(--bd2);background:var(--bg3)}
+.action.done{opacity:.35}
+.action.done .atxt{text-decoration:line-through}
+.chk{width:18px;height:18px;border-radius:5px;border:1.5px solid var(--bd2);flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:10px;color:#fff;margin-top:2px;transition:all .15s}
+.chk.on{background:var(--green);border-color:var(--green)}
+.abadge{font-size:10px;font-weight:700;padding:3px 8px;border-radius:5px;display:inline-block;margin-bottom:5px;letter-spacing:.3px;text-transform:uppercase}
+.atxt{font-size:13px;color:var(--t2);line-height:1.6}
+
+/* ═══ WEEKLY RHYTHM ═══ */
+.rhythm-grid{display:flex;flex-direction:column;gap:10px}
+.rday{background:var(--bg2);border:1px solid var(--bd);border-radius:var(--r2);overflow:hidden}
+.rday-head{padding:14px 18px;border-bottom:1px solid var(--bd);display:flex;align-items:center;gap:12px;cursor:pointer;user-select:none}
+.rday-icon{font-size:20px;width:36px;height:36px;display:flex;align-items:center;justify-content:center;background:var(--bg3);border-radius:8px;flex-shrink:0}
+.rday-name{font-size:15px;font-weight:700;color:var(--t1);letter-spacing:-.2px}
+.rday-focus{font-size:13px;color:var(--t2);margin-top:3px}
+.rday-prog{margin-left:auto;font-size:12px;font-family:'IBM Plex Mono',monospace;color:var(--t3);font-weight:600}
+.rday-body{padding:14px 18px}
+.rday-section{margin-bottom:14px}
+.rday-section:last-child{margin-bottom:0}
+.rday-s-title{font-size:11px;font-weight:700;letter-spacing:.4px;color:var(--t3);text-transform:uppercase;margin-bottom:10px;padding-bottom:6px;border-bottom:1px solid var(--bd)}
+.rtask{display:flex;align-items:flex-start;gap:12px;padding:10px 13px;border-radius:9px;border:1px solid var(--bd);margin-bottom:8px;cursor:pointer;transition:all .12s}
+.rtask:last-child{margin-bottom:0}
+.rtask:hover{border-color:var(--bd2);background:var(--bg3)}
+.rtask.done{opacity:.38}
+.rtask.done .rtask-txt{text-decoration:line-through;color:var(--t3)}
+.rtask-txt{font-size:13px;color:var(--t2);line-height:1.6;flex:1}
+.rnote{display:flex;align-items:flex-start;gap:8px;padding:10px 12px;background:var(--blue-bg);border:1px solid var(--blue-bd);border-radius:8px;margin-top:10px}
+.rnote-icon{font-size:13px;flex-shrink:0;margin-top:1px}
+.rnote-txt{font-size:11px;color:var(--blue);line-height:1.55}
+.rexample{padding:10px 14px;background:var(--bg3);border-left:3px solid var(--amber);border-radius:0 6px 6px 0;font-size:12px;color:var(--t2);line-height:1.6;font-style:italic;margin-top:8px}
+.rday-mini-prog{height:3px;background:var(--bg4);border-radius:2px;margin-top:8px;overflow:hidden}
+.rday-mini-prog-f{height:3px;border-radius:2px;background:var(--green);transition:width .4s ease}
+.week-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;flex-wrap:wrap;gap:10px}
+.week-info{font-size:11px;color:var(--t3)}
+.week-reset{padding:5px 12px;border-radius:var(--r);border:1px solid var(--red-bd);background:transparent;color:var(--red);font-size:11px;cursor:pointer;font-family:'Outfit',sans-serif}
+.week-progress{background:var(--bg2);border:1px solid var(--bd);border-radius:var(--r3);padding:18px 22px;margin-bottom:16px;display:grid;grid-template-columns:1fr auto;gap:12px;align-items:center}
+.wp-bar{height:8px;background:var(--bg4);border-radius:4px;overflow:hidden;margin-top:10px}
+.wp-bar-f{height:8px;border-radius:4px;background:linear-gradient(90deg,var(--blue),var(--green));transition:width .6s ease}
+
+/* ═══ FOCUS ═══ */
+.focus-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.fc{background:var(--bg2);border:1px solid var(--bd);border-radius:var(--r3);padding:18px 20px;transition:border-color .15s,background .15s}
+.fc:hover{border-color:var(--bd2);background:var(--bg3)}
+.fbadge{font-size:10px;font-weight:700;padding:4px 10px;border-radius:5px;letter-spacing:.3px;text-transform:uppercase;display:inline-block;margin-bottom:10px}
+.fname{font-size:14px;font-weight:600;margin-bottom:5px;color:var(--t1)}
+.fsub{font-size:13px;color:var(--t2);line-height:1.6}
+.flink{margin-top:10px;font-size:12px;color:var(--blue);cursor:pointer;font-weight:600;display:inline-block}
+
+/* ═══ SEARCH ═══ */
+.search-wrap{position:relative;margin-bottom:12px}
+.search{width:100%;padding:9px 14px 9px 36px;border-radius:var(--r);border:1px solid var(--bd);background:var(--bg2);color:var(--t1);font-size:13px;font-family:'Outfit',sans-serif;outline:none;transition:border .15s}
+.search:focus{border-color:var(--bd2)}
+.search::placeholder{color:var(--t3)}
+.search-icon{position:absolute;left:12px;top:50%;transform:translateY(-50%);color:var(--t3);pointer-events:none}
+.pills{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px}
+.pill{padding:5px 12px;border-radius:20px;border:1px solid var(--bd);background:transparent;color:var(--t3);font-size:11px;font-weight:500;cursor:pointer;font-family:'Outfit',sans-serif;transition:all .12s}
+.pill:hover{border-color:var(--bd2);color:var(--t1)}
+.pill.on{background:var(--blue-bg);border-color:var(--blue-bd);color:var(--blue)}
+
+/* ═══ MOBILE OVERLAY (seller detail) ═══ */
+.mob-overlay{display:none;position:fixed;top:56px;left:0;right:0;bottom:var(--bnav);background:var(--bg0);z-index:90;overflow-y:auto;padding:16px;animation:slideIn .2s ease}
+@keyframes slideIn{from{transform:translateX(20px);opacity:0}to{transform:translateX(0);opacity:1}}
+.mob-back{display:flex;align-items:center;gap:8px;margin-bottom:16px;color:var(--blue);font-size:13px;font-weight:500;cursor:pointer;border:none;background:transparent;font-family:'Outfit',sans-serif}
+
+/* ═══ MISC ═══ */
+.empty{color:var(--t3);font-size:14px;padding:48px;text-align:center;line-height:1.6}
+.anim{animation:fadeUp .28s ease both}
+@keyframes fadeUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+::-webkit-scrollbar{width:4px;height:4px}
+::-webkit-scrollbar-thumb{background:var(--bg4);border-radius:2px}
+
+/* ═══ RESPONSIVE ═══ */
+@media(max-width:768px){
+  .sidebar{display:none}
+  .mob-header{display:flex}
+  .bnav{display:flex}
+  .main{margin-left:0;padding:72px 14px calc(var(--bnav) + 16px);min-height:100vh}
+  .kpi-grid{grid-template-columns:repeat(2,1fr);gap:8px}
+  .kpi{padding:12px}
+  .kpi-v{font-size:16px}
+  .split{grid-template-columns:1fr}
+  .list-panel{position:static;max-height:none}
+  .focus-grid{grid-template-columns:1fr}
+  .page-head{margin-bottom:16px}
+  .page-title{font-size:18px}
+  .mob-overlay{display:none}
+  .mob-overlay.visible{display:block}
+  .hide-mobile{display:none!important}
+  .toast{bottom:calc(var(--bnav) + 12px);right:12px}
+  .pm-grid{grid-template-columns:repeat(3,1fr)}
+  .pm-v{font-size:15px}
+  .pname{font-size:17px}
+  table th:nth-child(n+5),table td:nth-child(n+5){display:none}
+}
+@media(min-width:769px){
+  .mob-overlay,.mob-back,.mob-header,.bnav{display:none!important}
+  .detail-panel-wrap{display:block!important}
+}
+/* ═══ QUALITY / PENETRATION ═══ */
+.qtabs{display:flex;gap:4px;margin-bottom:16px}
+.qtab{padding:7px 16px;border-radius:var(--r);border:1px solid var(--bd);background:transparent;color:var(--t3);font-size:13px;font-weight:500;cursor:pointer;font-family:'Outfit',sans-serif;transition:all .15s}
+.qtab.on{background:var(--blue-bg);border-color:var(--blue-bd);color:var(--blue)}
+.pen-section{margin-bottom:20px}
+.pen-section-title{font-size:12px;font-weight:700;letter-spacing:.4px;color:var(--t2);text-transform:uppercase;margin-bottom:12px;display:flex;align-items:center;gap:10px}
+.pen-section-title::after{content:'';flex:1;height:1px;background:var(--bd2)}
+.pen-table{width:100%;border-collapse:collapse;font-size:13px}
+.pen-table th{padding:10px 12px;font-size:10px;font-weight:700;letter-spacing:.3px;color:var(--t3);text-transform:uppercase;border-bottom:1px solid var(--bd2);white-space:nowrap;background:var(--bg3);text-align:center}
+.pen-table th:first-child{text-align:left}
+.pen-table td{padding:10px 12px;border-bottom:1px solid var(--bd);text-align:center;font-family:'IBM Plex Mono',monospace;font-size:13px;font-weight:600}
+.pen-table td:first-child{text-align:left;font-family:'Outfit',sans-serif;font-weight:500;font-size:13px;color:var(--t1)}
+.pen-table td.qty{color:var(--t2);font-weight:500}
+.pen-table tr.bench{background:var(--bg3)}
+.pen-table tr.bench td{color:var(--t3);font-weight:500;font-size:12px;font-family:'Outfit',sans-serif}
+.pen-table tbody tr:hover td{background:var(--bg3)}
+.pen-table tbody tr:nth-child(even) td{background:rgba(255,255,255,.02)}
+.pc-hi{background:rgba(52,211,153,.12);color:#34d399}
+.pc-ok{background:rgba(52,211,153,.06);color:#6ee7b7}
+.pc-avg{background:var(--bg4);color:var(--t2)}
+.pc-lo{background:rgba(248,113,113,.1);color:#f87171}
+.pc-zero{background:var(--bg4);color:var(--t3)}
+.gsheet-connect{background:var(--bg2);border:1px solid var(--bd);border-radius:var(--r2);padding:16px;margin-bottom:16px}
+.gsheet-status{font-size:11px;margin-top:8px;display:flex;align-items:center;gap:6px}
+.gsheet-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0}
+.rev-table{width:100%;border-collapse:collapse;font-size:14px}
+.rev-table th{padding:11px 16px;font-size:11px;font-weight:600;letter-spacing:.3px;color:var(--t3);text-transform:uppercase;border-bottom:1px solid var(--bd2);text-align:right;background:var(--bg3)}
+.rev-table th:first-child,.rev-table th:nth-child(2){text-align:left}
+.rev-table td{padding:12px 16px;border-bottom:1px solid var(--bd);vertical-align:middle}
+.rev-table tbody tr:nth-child(even) td{background:rgba(255,255,255,.02)}
+.rev-table tbody tr:last-child td{border-bottom:none}
+.rev-table tbody tr:hover td{background:var(--bg3)}
+.pct-bar-wrap{display:flex;align-items:center;gap:6px}
+.pct-bar-bg{flex:1;height:5px;background:var(--bg4);border-radius:3px;overflow:hidden;min-width:40px}
+.pct-bar-fill{height:5px;border-radius:3px}
+.target-line{position:relative}
+.mob-acc-upload{display:none}
+@media print{.sidebar,.toast,.bnav,.mob-header{display:none!important}.main{margin-left:0!important;padding:16px!important}}
+</style>
+</head>
+<body>
+
+<!-- ═══ SIDEBAR (desktop) ═══ -->
+<aside class="sidebar">
+  <div class="sb-logo">
+    <div class="sb-tag">Sales OS</div>
+    <div class="sb-name" id="sbName">ДМ2 Мост-2</div>
+    <div class="sb-period" id="sbPeriod">–</div>
+  </div>
+  <nav class="nav">
+    <div class="ni active" data-v="overview" onclick="go('overview')">
+      <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="1" y="1" width="6" height="6" rx="1.2"/><rect x="9" y="1" width="6" height="6" rx="1.2"/><rect x="1" y="9" width="6" height="6" rx="1.2"/><rect x="9" y="9" width="6" height="6" rx="1.2"/></svg>
+      Огляд
+    </div>
+    <div class="ni" data-v="sellers" onclick="go('sellers')">
+      <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="6" cy="5" r="2.5"/><path d="M1 13c0-2.76 2.24-5 5-5s5 2.24 5 5"/><circle cx="12.5" cy="5.5" r="1.8"/><path d="M15 12c0-1.66-1.12-2.5-2.5-2.5"/></svg>
+      Продавці
+    </div>
+    <div class="ni" data-v="categories" onclick="go('categories')">
+      <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 4h12M2 8h12M2 12h12"/><circle cx="5" cy="4" r="1.2" fill="currentColor" stroke="none"/><circle cx="8" cy="8" r="1.2" fill="currentColor" stroke="none"/><circle cx="11" cy="12" r="1.2" fill="currentColor" stroke="none"/></svg>
+      Категорії
+    </div>
+    <div class="ni" data-v="plan" onclick="go('plan')">
+      <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="2" width="12" height="12" rx="1.5"/><path d="M5.5 8l2 2 3.5-3.5"/></svg>
+      План дій
+    </div>
+    <div class="ni" data-v="rhythm" onclick="go('rhythm')">
+      <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="1.5" y="3" width="13" height="11" rx="1.5"/><path d="M5 1v2M11 1v2M1.5 7h13"/><path d="M5 10h2M9 10h2"/></svg>
+      Ритм тижня
+    </div>
+    <div class="ni" data-v="focus" onclick="go('focus')">
+      <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="8" cy="8" r="6"/><circle cx="8" cy="8" r="2.5"/><path d="M8 2v1.5M8 12.5V14M2 8h1.5M12.5 8H14"/></svg>
+      Фокус дня
+    </div>
+    <div class="ni" data-v="matrix" onclick="go('matrix')">
+      <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="1" y="1" width="4" height="4" rx=".8"/><rect x="6" y="1" width="4" height="4" rx=".8"/><rect x="11" y="1" width="4" height="4" rx=".8"/><rect x="1" y="6" width="4" height="4" rx=".8"/><rect x="6" y="6" width="4" height="4" rx=".8"/><rect x="11" y="6" width="4" height="4" rx=".8"/><rect x="1" y="11" width="4" height="4" rx=".8"/><rect x="6" y="11" width="4" height="4" rx=".8"/><rect x="11" y="11" width="4" height="4" rx=".8"/></svg>
+      Матриця
+    </div>
+    <div class="ni" data-v="insights" onclick="go('insights')">
+      <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M8 1v5l3 3"/><circle cx="8" cy="9" r="6"/></svg>
+      Інсайти
+    </div>
+    <div class="ni" data-v="quality" onclick="go('quality')">
+      <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 8h2l2 4 3-8 2 4h3"/></svg>
+      Якість продажів
+    </div>
+  </nav>
+  <div class="sb-foot">
+    <button class="theme-btn" onclick="toggleTheme()">
+      <span class="theme-icon" id="themeIcon">☀️</span>
+      <span id="themeLabel">Світла тема</span>
+    </button>
+    <label class="up-zone" id="dropZone" style="margin-bottom:6px">
+      <input type="file" id="fileInput" accept=".xlsx,.xls">
+      <div style="font-size:12px;color:var(--t2);font-weight:500;cursor:pointer">Продажі (головний)</div>
+      <div style="font-size:10px;color:var(--t3);margin-top:2px">Продажі по категоріях</div>
+    </label>
+    <label class="up-zone" id="dropZoneAcc">
+      <input type="file" id="fileInputAcc" accept=".xlsx,.xls">
+      <div id="accUpLabel" style="font-size:12px;color:var(--t2);font-weight:500;cursor:pointer">АСС/Home звіт</div>
+      <div style="font-size:10px;color:var(--t3);margin-top:2px">Щоденний звіт АСС</div>
+    </label>
+    <div class="sb-keys">Клавіші 1–9 для навігації</div>
+    <button class="sb-clear" onclick="if(confirm('Очистити збережені файли?')){clearFileData();location.reload();}" title="Очистити кеш файлів">🗑 Очистити збережені дані</button>
+  </div>
+</aside>
+
+<!-- ═══ MOBILE HEADER ═══ -->
+<header class="mob-header">
+  <div class="mob-logo">
+    <div class="mob-logo-t" id="mobName">ДМ2 Мост-2</div>
+    <div class="mob-logo-s" id="mobPeriod">–</div>
+  </div>
+  <button onclick="toggleTheme()" style="padding:6px 10px;border-radius:var(--r);border:1px solid var(--bd2);background:transparent;color:var(--t2);font-size:16px;cursor:pointer;line-height:1" id="mobThemeBtn">☀️</button>
+  <label class="mob-up">
+    <input type="file" id="fileInputMobAcc" accept=".xlsx,.xls">
+    АСС
+  </label>
+  <label class="mob-up">
+    <input type="file" id="fileInputMob" accept=".xlsx,.xls">
+    Звіт
+  </label>
+</header>
+
+<!-- ═══ MOBILE OVERLAY (seller/category detail) ═══ -->
+<div class="mob-overlay" id="mobOverlay">
+  <button class="mob-back" onclick="closeMobOverlay()">
+    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M10 3L5 8l5 5"/></svg>
+    Назад
+  </button>
+  <div id="mobOverlayContent"></div>
+</div>
+
+<!-- ═══ BOTTOM NAV ═══ -->
+<nav class="bnav">
+  <button class="bnav-item active" data-v="overview" onclick="go('overview')">
+    <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="1" y="1" width="6" height="6" rx="1.2"/><rect x="9" y="1" width="6" height="6" rx="1.2"/><rect x="1" y="9" width="6" height="6" rx="1.2"/><rect x="9" y="9" width="6" height="6" rx="1.2"/></svg>
+    Огляд
+  </button>
+  <button class="bnav-item" data-v="sellers" onclick="go('sellers')">
+    <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="6" cy="5" r="2.5"/><path d="M1 13c0-2.76 2.24-5 5-5s5 2.24 5 5"/><circle cx="12.5" cy="5.5" r="1.8"/><path d="M15 12c0-1.66-1.12-2.5-2.5-2.5"/></svg>
+    Продавці
+  </button>
+  <button class="bnav-item" data-v="plan" onclick="go('plan')">
+    <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="2" width="12" height="12" rx="1.5"/><path d="M5.5 8l2 2 3.5-3.5"/></svg>
+    План
+  </button>
+  <button class="bnav-item" data-v="rhythm" onclick="go('rhythm')">
+    <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="1.5" y="3" width="13" height="11" rx="1.5"/><path d="M5 1v2M11 1v2M1.5 7h13"/></svg>
+    Ритм
+  </button>
+  <button class="bnav-item" data-v="focus" onclick="go('focus')">
+    <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="8" cy="8" r="6"/><circle cx="8" cy="8" r="2.5"/><path d="M8 2v1.5M8 12.5V14M2 8h1.5M12.5 8H14"/></svg>
+    Фокус
+  </button>
+</nav>
+
+<!-- ═══ MAIN CONTENT ═══ -->
+<main class="main">
+  <div class="page-head">
+    <div>
+      <div class="page-title" id="pageTitle">Огляд магазину</div>
+      <div class="page-sub" id="pageSub">Завантажте звіт</div>
+    </div>
+    <button class="btn hide-mobile" onclick="window.print()">Друк / PDF</button>
+  </div>
+  <div id="kpiRow" class="kpi-grid"></div>
+  <div id="content" class="anim"></div>
+</main>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ═══════════════════════════════════════════════════════════════
+// DATA
+// ═══════════════════════════════════════════════════════════════
+const SHORT={
+  'Зуєва Ольга Андріївна':'Зуєва О.','Кисельов Дмитро Сергійович':'Кисельов Д.',
+  'Гаврихів Роман Вадимович':'Гаврихів Р.','Пачковський Ілля Владиславович':'Пачковський І.',
+  'Фесенко Ярослав Юрійович':'Фесенко Я.','Дудник Анастасія Євгеніївна':'Дудник А.',
+  'Бугас Данило Олександрович':'Бугас Д.','Куценко Майя Сергіївна':'Куценко М.',
+  'Устинова Людмила Олександрівна':'Устинова Л.','Міщук Анастасія Володимирівна':'Міщук А.',
+  'Переяслов Микита Олегович':'Переяслов М.'
+};
+
+const ACTDEF=[
+  {type:'talk',label:'Особиста бесіда',color:'#4f8ef7',bg:'rgba(79,142,247,.15)'},
+  {type:'train',label:'Навчання',color:'#a78bfa',bg:'rgba(167,139,250,.15)'},
+  {type:'test',label:'Тестова консультація',color:'#f5a623',bg:'rgba(245,166,35,.15)'},
+  {type:'coaching',label:'Тренінг',color:'#34d399',bg:'rgba(52,211,153,.15)'},
+  {type:'stock',label:'Контроль залишків',color:'#f87171',bg:'rgba(248,113,113,.15)'}
+];
+
+// ── WEEKLY RHYTHM ──────────────────────────────────────────────
+const WEEK_RHYTHM=[
+  {
+    day:'Понеділок',short:'Пн',icon:'📊',
+    focus:'Аналітика та планування',subtitle:'Фокус: зрозуміти де гроші',
+    sections:[
+      {title:'Що аналізуєш',tasks:[
+        {id:'m1',text:'Продажі минулого тижня — ТОП та антиТОП товари'},
+        {id:'m2',text:'Хто з продавців просів — конкретні цифри та порівняння з бенчмарком'},
+        {id:'m3',text:'Середній чек по кожному продавцю — тренд вгору чи вниз?'},
+        {id:'m4',text:'Аксесуари та допродажі — пенетрація по кожному'}
+      ]},
+      {title:'Що виписуєш',tasks:[
+        {id:'m5',text:'3 проблеми тижня (конкретні, з цифрами)'},
+        {id:'m6',text:'3 точки зростання — де реально є потенціал'}
+      ]},
+      {title:'Що плануєш',tasks:[
+        {id:'m7',text:'Який товар/категорію пушимо цього тижня'},
+        {id:'m8',text:'Які навички качаємо у команді'},
+        {id:'m9',text:'Розподіл завдань на тиждень по продавцях'}
+      ]}
+    ],
+    note:'Не більше 2–3 фокусів на тиждень — інакше увага розсіюється'
+  },
+  {
+    day:'Вівторок',short:'Вт',icon:'🎯',
+    focus:'Навчання команди',subtitle:'Фокус: прокачка навичок',
+    sections:[
+      {title:'Мініт-тренінг 20–30 хвилин',tasks:[
+        {id:'t1',text:'Обрати 1 тему (не більше!) — наприклад: "як продавати комплект"'},
+        {id:'t2',text:'Підготувати конкретний скрипт або формулювання фрази'},
+        {id:'t3',text:'Провести тренінг з усією командою або групою'}
+      ]},
+      {title:'Після тренінгу',tasks:[
+        {id:'t4',text:'Поставити конкретну задачу: кожен робить X допродаж сьогодні'},
+        {id:'t5',text:'Записати хто був присутній, хто засвоїв матеріал'}
+      ]}
+    ],
+    example:'"До телефону одразу беруть стекло і зарядку — це захист і зручність в одному чеку"',
+    note:'Один навик — один тренінг. Не пробуй навчити всьому за раз'
+  },
+  {
+    day:'Середа',short:'Ср',icon:'👁',
+    focus:'Контроль та зворотній зв\'язок',subtitle:'Фокус: впровадження',
+    sections:[
+      {title:'Спостереження в залі',tasks:[
+        {id:'w1',text:'Спостерігати за продавцями — хто застосовує навичку з вівторка?'},
+        {id:'w2',text:'Фіксувати: хто застосовує, хто ні (без оцінки — просто факт)'}
+      ]},
+      {title:'3–5 коротких особистих бесід',tasks:[
+        {id:'w3',text:'Що виходить — закріпити, похвалити конкретно'},
+        {id:'w4',text:'Що заважає — виявити реальну причину, не відмазку'},
+        {id:'w5',text:'Скоригувати підхід для кожного індивідуально'}
+      ]}
+    ],
+    example:'"Ти не пропонуєш другий товар — чому? Давай розберемо конкретну ситуацію"',
+    note:'Не загальні слова — конкретика. Не "треба краще", а "зроби ось так"'
+  },
+  {
+    day:'Четвер',short:'Чт',icon:'📦',
+    focus:'Робота з товаром',subtitle:'Фокус: гроші лежать на полиці',
+    sections:[
+      {title:'Перевірка товару',tasks:[
+        {id:'th1',text:'Наявність топових позицій — що відсутнє, що мало залишилось'},
+        {id:'th2',text:'Вітрина та викладка — чи видно товар, чи виглядає привабливо?'},
+        {id:'th3',text:'Що не продається — є залежані позиції?'}
+      ]},
+      {title:'Дії',tasks:[
+        {id:'th4',text:'Зробити замовлення товару на наступний тиждень'},
+        {id:'th5',text:'Дати задачу продавцям: просувати конкретні позиції'},
+        {id:'th6',text:'Переставити вітрину якщо потрібно'}
+      ]}
+    ],
+    note:'Якщо товару немає — продажів немає. Товарна робота = пряма дія на виторг'
+  },
+  {
+    day:'П\'ятниця',short:'Пт',icon:'🔥',
+    focus:'Посилення продажів',subtitle:'Фокус: вичавити максимум',
+    sections:[
+      {title:'Активація команди',tasks:[
+        {id:'f1',text:'Нагадати команді ціль тижня — конкретну цифру'},
+        {id:'f2',text:'Дати мікро-задачу: "сьогодні кожен продає мінімум 3 аксесуари"'},
+        {id:'f3',text:'Особисто пройтися по кожному — рівень енергії та настрій'}
+      ]},
+      {title:'Елемент гри',tasks:[
+        {id:'f4',text:'Міні-конкурс: хто більше продасть — публічне визнання або бонус'},
+        {id:'f5',text:'Оголосити результати вголос у кінці дня'}
+      ]}
+    ],
+    note:'Публічне визнання працює сильніше, ніж тихе "молодець" наодинці'
+  },
+  {
+    day:'Субота',short:'Сб',icon:'⚡',
+    focus:'Піковий день — контроль та енергія',subtitle:'Фокус: особистий вплив',
+    sections:[
+      {title:'Особисте включення',tasks:[
+        {id:'s1',text:'Сам вийти в зал і допомагати продавати'},
+        {id:'s2',text:'Давати швидкий фідбек прямо в моменті — не чекати вечора'},
+        {id:'s3',text:'Показати приклад: закрити 1–2 складних чеки особисто'}
+      ]},
+      {title:'Бустинг команди',tasks:[
+        {id:'s4',text:'Відмітити хто добре продає прямо зараз — вголос'},
+        {id:'s5',text:'Перевірити завантаженість — потрібна ротація між зонами?'}
+      ]}
+    ],
+    note:'Субота дає 30–40% тижневого виторгу. Твоя присутність реально бустить команду'
+  },
+  {
+    day:'Неділя',short:'Нд',icon:'📋',
+    focus:'Підведення підсумків',subtitle:'Фокус: фіксація та рефлексія',
+    sections:[
+      {title:'Швидкий контроль',tasks:[
+        {id:'su1',text:'Виконані задачі тижня — що зроблено, що ні'},
+        {id:'su2',text:'Хто з продавців молодець цього тижня — зафіксувати'},
+        {id:'su3',text:'Хто просів — яка причина, що робити наступного тижня'}
+      ]},
+      {title:'Підготовка до понеділка',tasks:[
+        {id:'su4',text:'Записати 3 головних інсайти тижня'},
+        {id:'su5',text:'Що змінити в підході наступного тижня'},
+        {id:'su6',text:'Перевірити дашборд: завантажити новий звіт якщо є'}
+      ]}
+    ],
+    note:'5 хвилин рефлексії в неділю = кращий понеділок. Не пропускай цей крок'
+  }
+];
+
+// ── SELLER PLANS ───────────────────────────────────────────────
+const PLANS={
+  'Зуєва О.':[
+    {day:'Пн',actions:[{type:'talk',text:'Обговорити ASP Мультипіч та Кавомашина — нижче бенчмарку'},{type:'stock',text:'Перевірити залишки Philips прасок (лідер категорії)'}]},
+    {day:'Вт',actions:[{type:'train',text:'Навчання апселлу — Кавомашина та Пилосос ручний'}]},
+    {day:'Ср',actions:[{type:'test',text:'Тестова консультація — продаж пилососа вище середньої ціни'}]},
+    {day:'Чт',actions:[{type:'stock',text:'Аудит залишків — Навушники та Мультипіч'}]},
+    {day:'Пт',actions:[{type:'coaching',text:'Тренінг: підвищення ASP Мультипіч — ціль від 4407 до 5000+'}]}
+  ],
+  'Кисельов Д.':[
+    {day:'Пн',actions:[{type:'talk',text:'Кухонна машина — розібрати разом чому просідає'}]},
+    {day:'Вт',actions:[{type:'train',text:'Навчання Bosch/SEB для Кухонних машин'},{type:'stock',text:'Перевірити залишки'}]},
+    {day:'Ср',actions:[{type:'test',text:'Тестова консультація — Акустична система'}]},
+    {day:'Чт',actions:[{type:'coaching',text:'Тренінг: перенести навичку з Навушників на інші категорії'}]},
+    {day:'Пт',actions:[{type:'talk',text:'Підсумки тижня, план на наступний'}]}
+  ],
+  'Гаврихів Р.':[
+    {day:'Пн',actions:[{type:'talk',text:'Багато штук (+37%), але низький ASP 3215 — стратегія апселлу'}]},
+    {day:'Вт',actions:[{type:'train',text:'Преміальний асортимент Мультипіч (Ninja, Philips Airfryer)'}]},
+    {day:'Ср',actions:[{type:'test',text:'Тестова: продаж Philips фену замість базового'}]},
+    {day:'Чт',actions:[{type:'stock',text:'Тример — результат +231%! Тримати наявність'}]},
+    {day:'Пт',actions:[{type:'coaching',text:'Тренінг: продаж за цінністю, а не за ціною'}]}
+  ],
+  'Міщук А.':[
+    {day:'Пн',actions:[{type:'talk',text:'ПРІОРИТЕТ: виторг -58% нижче бенчмарку. Виявити причину'}]},
+    {day:'Вт',actions:[{type:'train',text:'Інтенсивне навчання: Мультипіч + Навушники + Праски'},{type:'test',text:'Тестова консультація одразу після навчання'}]},
+    {day:'Ср',actions:[{type:'coaching',text:'Практична робота в парі зі старшим продавцем'}]},
+    {day:'Чт',actions:[{type:'test',text:'Контрольна тестова — 3 різних категорії'}]},
+    {day:'Пт',actions:[{type:'talk',text:'Підсумки: що покращилось, план на наступний тиждень'}]}
+  ],
+  'Переяслов М.':[
+    {day:'Пн',actions:[{type:'talk',text:'КРИТИЧНО: виторг -64% нижче бенчмарку. Першочергова розмова'}]},
+    {day:'Вт',actions:[{type:'train',text:'Базове навчання: Мультипіч + Навушники'}]},
+    {day:'Ср',actions:[{type:'test',text:'2 тестові консультації під спостереженням'}]},
+    {day:'Чт',actions:[{type:'coaching',text:'Наставництво: тандем з Гаврихівим або Кисельовим'}]},
+    {day:'Пт',actions:[{type:'talk',text:'Якщо немає динаміки — переглянути розстановку'}]}
+  ],
+  default:[
+    {day:'Пн',actions:[{type:'talk',text:'Огляд показників тижня, постановка завдань'}]},
+    {day:'Вт',actions:[{type:'train',text:'Навчання по слабкій категорії'}]},
+    {day:'Ср',actions:[{type:'test',text:'Тестова консультація'}]},
+    {day:'Чт',actions:[{type:'stock',text:'Перевірка залишків ключових категорій'}]},
+    {day:'Пт',actions:[{type:'coaching',text:'Груповий тренінг + підсумки тижня'}]}
+  ]
+};
+
+// ── DEFAULT DATA ────────────────────────────────────────────────
+const DEFAULT_SELLERS=[
+  {name:'Зуєва О.',full:'Зуєва Ольга',revenue:423094,units:96,asp:4407,revVs:.224,aspVs:-.004,unitsVs:.151,cats:[
+    {cat:'Пилосос ручний',biz:'ДП техніка',rev:78754,units:5,revVs:.742,aspVs:.140},{cat:'Праски та прасувальні',biz:'ДП техніка',rev:68527,units:11,revVs:2.357,aspVs:.584},
+    {cat:'Мультипіч',biz:'ДП техніка',rev:48514,units:7,revVs:.339,aspVs:.098},{cat:'Кавомашина',biz:'ДП техніка',rev:45117,units:2,revVs:.072,aspVs:-.067},
+    {cat:'Навушники',biz:'Аксесуари',rev:39019,units:12,revVs:.349,aspVs:.010},{cat:'Зубна щітка електр.',biz:'ДП техніка',rev:23593,units:5,revVs:1.653,aspVs:.463},
+    {cat:'Пилосос традиційний',biz:'ДП техніка',rev:24680,units:4,revVs:.166,aspVs:.096},{cat:'Чайник електр.',biz:'ДП техніка',rev:10967,units:10,revVs:.763,aspVs:-.054},
+    {cat:'Фен',biz:'ДП техніка',rev:11295,units:5,revVs:.288,aspVs:-.104},{cat:'Миша комп.',biz:'Аксесуари',rev:10352,units:8,revVs:.553,aspVs:-.078}
+  ]},
+  {name:'Кисельов Д.',full:'Кисельов Дмитро',revenue:412318,units:96,asp:4295,revVs:.431,aspVs:.261,unitsVs:.166,cats:[
+    {cat:'Навушники',biz:'Аксесуари',rev:79826,units:12,revVs:1.760,aspVs:1.066},{cat:'Мультипіч',biz:'ДП техніка',rev:62212,units:10,revVs:.716,aspVs:-.014},
+    {cat:'Акустична система',biz:'Аксесуари',rev:39607,units:3,revVs:1.339,aspVs:.545},{cat:'Кухонна машина',biz:'ДП техніка',rev:38104,units:5,revVs:.037,aspVs:-.511},
+    {cat:'Фен',biz:'ДП техніка',rev:32146,units:3,revVs:2.665,aspVs:3.249},{cat:'Тример',biz:'ДП техніка',rev:13491,units:6,revVs:1.040,aspVs:.015},
+    {cat:'Миша комп.',biz:'Аксесуари',rev:16131,units:6,revVs:1.421,aspVs:.916},{cat:'Блендер ручний',biz:'ДП техніка',rev:13679,units:5,revVs:.278,aspVs:.071}
+  ]},
+  {name:'Гаврихів Р.',full:'Гаврихів Роман',revenue:376147,units:117,asp:3215,revVs:.465,aspVs:.077,unitsVs:.372,cats:[
+    {cat:'Мультипіч',biz:'ДП техніка',rev:78540,units:11,revVs:1.167,aspVs:.131},{cat:'Пилосос ручний',biz:'ДП техніка',rev:51716,units:3,revVs:.144,aspVs:.248},
+    {cat:'Навушники',biz:'Аксесуари',rev:42343,units:15,revVs:.464,aspVs:-.123},{cat:'Фен',biz:'ДП техніка',rev:27742,units:8,revVs:2.163,aspVs:.375},
+    {cat:'Тример',biz:'ДП техніка',rev:21920,units:9,revVs:2.314,aspVs:.099},{cat:'Чайник електр.',biz:'ДП техніка',rev:15120,units:12,revVs:1.431,aspVs:.087},
+    {cat:'Чохол для моб.',biz:'Аксесуари',rev:12258,units:16,revVs:.938,aspVs:.168},{cat:'Акустична система',biz:'Аксесуари',rev:18499,units:1,revVs:.092,aspVs:1.165}
+  ]},
+  {name:'Пачковський І.',full:'Пачковський Ілля',revenue:368267,units:92,asp:4003,revVs:.161,aspVs:.097,unitsVs:.125,cats:[
+    {cat:'Мультипіч',biz:'ДП техніка',rev:71991,units:8,revVs:.986,aspVs:.426},{cat:'Навушники',biz:'Аксесуари',rev:56744,units:20,revVs:.962,aspVs:-.119},
+    {cat:'Кухонна машина',biz:'ДП техніка',rev:42798,units:2,revVs:.164,aspVs:.375},{cat:'Кавомашина',biz:'ДП техніка',rev:42498,units:1,revVs:.010,aspVs:.758},
+    {cat:'Пилосос робот',biz:'ДП техніка',rev:34999,units:1,revVs:.037,aspVs:.637},{cat:'Зубна щітка електр.',biz:'ДП техніка',rev:21065,units:7,revVs:1.369,aspVs:-.067}
+  ]},
+  {name:'Фесенко Я.',full:'Фесенко Ярослав',revenue:343293,units:83,asp:4136,revVs:.067,aspVs:.092,unitsVs:.037,cats:[
+    {cat:'Навушники',biz:'Аксесуари',rev:52860,units:9,revVs:.828,aspVs:.824},{cat:'Мультипіч',biz:'ДП техніка',rev:42999,units:6,revVs:.186,aspVs:.136},
+    {cat:'Пилосос робот',biz:'ДП техніка',rev:34999,units:1,revVs:.037,aspVs:.637},{cat:'З/пристрій для моб.',biz:'Аксесуари',rev:15441,units:12,revVs:1.073,aspVs:.411},
+    {cat:'Зубна щітка електр.',biz:'ДП техніка',rev:12997,units:2,revVs:.461,aspVs:1.015},{cat:'Тример',biz:'ДП техніка',rev:10933,units:4,revVs:.653,aspVs:.234}
+  ]},
+  {name:'Дудник А.',full:'Дудник Анастасія',revenue:324693,units:121,asp:2683,revVs:.190,aspVs:.059,unitsVs:.213,cats:[
+    {cat:'Мультипіч',biz:'ДП техніка',rev:57020,units:8,revVs:.573,aspVs:.129},{cat:'Праски та прасувальні',biz:'ДП техніка',rev:56288,units:9,revVs:1.758,aspVs:.590},
+    {cat:'Пилосос традиційний',biz:'ДП техніка',rev:32674,units:3,revVs:.544,aspVs:.934},{cat:'Чохол для моб.',biz:'Аксесуари',rev:16373,units:44,revVs:1.588,aspVs:-.433},
+    {cat:'Фен',biz:'ДП техніка',rev:15970,units:5,revVs:.821,aspVs:.266},{cat:'З/пристрій для моб.',biz:'Аксесуари',rev:12947,units:13,revVs:.738,aspVs:.092}
+  ]},
+  {name:'Бугас Д.',full:'Бугас Данило',revenue:251801,units:86,asp:2928,revVs:.032,aspVs:-.094,unitsVs:.076,cats:[
+    {cat:'Пилосос ручний',biz:'ДП техніка',rev:55693,units:4,revVs:.232,aspVs:.008},{cat:'Зубна щітка електр.',biz:'ДП техніка',rev:36841,units:6,revVs:3.142,aspVs:.904},
+    {cat:'Навушники',biz:'Аксесуари',rev:28707,units:16,revVs:-.007,aspVs:-.443},{cat:'Праски та прасувальні',biz:'ДП техніка',rev:26670,units:6,revVs:.307,aspVs:.130},
+    {cat:'Мультипіч',biz:'ДП техніка',rev:23120,units:4,revVs:-.362,aspVs:-.084},{cat:'З/пристрій для моб.',biz:'Аксесуари',rev:11314,units:9,revVs:.519,aspVs:.379}
+  ]},
+  {name:'Куценко М.',full:'Куценко Майя',revenue:250786,units:75,asp:3344,revVs:-.152,aspVs:.068,unitsVs:-.188,cats:[
+    {cat:'Навушники',biz:'Аксесуари',rev:76973,units:16,revVs:1.661,aspVs:.494},{cat:'Пилосос ручний',biz:'ДП техніка',rev:25998,units:2,revVs:-.425,aspVs:-.059},
+    {cat:'Кавомашина',biz:'ДП техніка',rev:23999,units:1,revVs:-.430,aspVs:-.007},{cat:'Мультипіч',biz:'ДП техніка',rev:14897,units:3,revVs:-.589,aspVs:-.214},
+    {cat:'З/пристрій для моб.',biz:'Аксесуари',rev:11929,units:13,revVs:.602,aspVs:.006},{cat:'Миша комп.',biz:'Аксесуари',rev:9493,units:6,revVs:.425,aspVs:.127}
+  ]},
+  {name:'Устинова Л.',full:'Устинова Людмила',revenue:237801,units:67,asp:3549,revVs:-.082,aspVs:.048,unitsVs:-.115,cats:[
+    {cat:'Навушники',biz:'Аксесуари',rev:50538,units:11,revVs:.747,aspVs:.427},{cat:'Праски та прасувальні',biz:'ДП техніка',rev:39488,units:9,revVs:.935,aspVs:.116},
+    {cat:'Пилосос ручний',biz:'ДП техніка',rev:38546,units:3,revVs:-.147,aspVs:-.070},{cat:'Мультипіч',biz:'ДП техніка',rev:22789,units:5,revVs:-.371,aspVs:-.278},
+    {cat:'Тример',biz:'ДП техніка',rev:15275,units:6,revVs:1.310,aspVs:.149},{cat:'Чохол для моб.',biz:'Аксесуари',rev:9700,units:5,revVs:.533,aspVs:1.958}
+  ]},
+  {name:'Міщук А.',full:'Міщук Анастасія',revenue:104787,units:35,asp:2994,revVs:-.578,aspVs:-.205,unitsVs:-.485,cats:[
+    {cat:'Мультипіч',biz:'ДП техніка',rev:28643,units:6,revVs:-.210,aspVs:-.244},{cat:'Навушники',biz:'Аксесуари',rev:24649,units:6,revVs:-.148,aspVs:.276},
+    {cat:'Пилосос традиційний',biz:'ДП техніка',rev:14237,units:3,revVs:-.327,aspVs:-.157},{cat:'Тример',biz:'ДП техніка',rev:7444,units:3,revVs:.126,aspVs:.120},
+    {cat:'Пилосос ручний',biz:'ДП техніка',rev:8549,units:1,revVs:-.811,aspVs:-.381}
+  ]},
+  {name:'Переяслов М.',full:'Переяслов Микита',revenue:50668,units:18,asp:2815,revVs:-.637,aspVs:.131,unitsVs:-.679,cats:[
+    {cat:'Навушники',biz:'Аксесуари',rev:9597,units:3,revVs:-.668,aspVs:-.007},{cat:'Фен',biz:'ДП техніка',rev:8999,units:1,revVs:.026,aspVs:2.568},
+    {cat:'Мультипіч',biz:'ДП техніка',rev:8998,units:1,revVs:-.752,aspVs:.426},{cat:'Праски та прасувальні',biz:'ДП техніка',rev:6876,units:2,revVs:-.663,aspVs:-.126},
+    {cat:'Зубна щітка електр.',biz:'ДП техніка',rev:5338,units:2,revVs:-.400,aspVs:-.172}
+  ]}
+];
+
+// ═══════════════════════════════════════════════════════════════
+// STATE
+// ═══════════════════════════════════════════════════════════════
+const S={
+  view:'overview',sellers:[],cats:[],
+  selSeller:null,selCat:null,
+  tierFilter:'all',bizFilter:'all',search:'',
+  checks:{},rhythmChecks:{},
+  theme:'dark',mobOverlay:false,
+  accData:null,gsheetData:null,
+  gsheetUrl:'https://docs.google.com/spreadsheets/d/1oodpZ_j07v0xBVsenrpyHXoqtXTdTp7v_u37iQEwzZs/edit?gid=897965126',
+  qualityTab:'penetration'
+};
+
+// Категорії що належать до Аксесуарів (решта — ДП техніка)
+const ACC_CATS=new Set(['Навушники','Акустична система',"Миша комп'ютерна",'Миша комп.','Гарнітура комп\'ютерна','Гарнітура комп.','Ігровий маніпулятор','Клавіатура комп\'ютерна','Клавіатура','Кріплення для телевізора','Батарея мобільна','З/пристрій для мобільного пристрою','З/пристрій для моб.','Чохол для мобільного пристрою','Чохол для моб.']);
+const getBiz=cat=>ACC_CATS.has(cat)?'Аксесуари':'ДП техніка';
+
+// Reverse map: short → full (for GSheet matching)
+const SELLER_MAP_REV={
+  'Зуєва О.':'Зуєва Ольга Андріївна',
+  'Кисельов Д.':'Кисельов Дмитро Сергійович',
+  'Гаврихів Р.':'Гаврихів Роман Вадимович',
+  'Пачковський І.':'Пачковський Ілля Владиславович',
+  'Фесенко Я.':'Фесенко Ярослав Юрійович',
+  'Дудник А.':'Дудник Анастасія Євгеніївна',
+  'Бугас Д.':'Бугас Данило Олександрович',
+  'Куценко М.':'Куценко Майя Сергіївна',
+  'Устинова Л.':'Устинова Людмила Олександрівна',
+  'Міщук А.':'Міщук Анастасія Володимирівна',
+  'Переяслов М.':'Переяслов Микита Олегович',
+};
+
+// ═══════════════════════════════════════════════════════════════
+// UTILS
+// ═══════════════════════════════════════════════════════════════
+const fmt=n=>new Intl.NumberFormat('uk-UA').format(Math.round(n));
+const pct=n=>(n==null?'—':(n>=0?'+':'')+Math.round(n*100)+'%');
+const avg=a=>a.length?a.reduce((s,v)=>s+v,0)/a.length:0;
+const tc=t=>({A:'tA',B:'tB',C:'tC',D:'tD'}[t]||'tD');
+const vc=v=>v>=.03?'vp':v<=-.03?'vn':'vz';
+const adef=t=>ACTDEF.find(a=>a.type===t)||ACTDEF[0];
+const isMobile=()=>window.innerWidth<=768;
+
+function assignTiers(arr){
+  const pos=arr.filter(s=>s.revenue>0).sort((a,b)=>b.revenue-a.revenue);
+  const n=pos.length;
+  pos.forEach((s,i)=>{
+    s.tier=i<Math.ceil(n*.36)?'A':i<Math.ceil(n*.55)?'B':i<Math.ceil(n*.82)?'C':'D';
+  });
+  arr.filter(s=>s.revenue<=0).forEach(s=>s.tier='D');
+  return arr;
+}
+
+function buildCatIndex(sellers){
+  const m={};
+  sellers.forEach(s=>(s.cats||[]).forEach(c=>{
+    if(!m[c.cat])m[c.cat]={cat:c.cat,biz:c.biz||getBiz(c.cat),sellers:[]};
+    m[c.cat].sellers.push({name:s.name,full:s.full,rev:c.rev,units:c.units||0,revVs:c.revVs,aspVs:c.aspVs,tier:s.tier});
+  }));
+  return Object.values(m).sort((a,b)=>a.cat.localeCompare(b.cat));
+}
+
+function getWeekKey(){
+  const d=new Date();
+  const start=new Date(d.getFullYear(),0,1);
+  const wk=Math.ceil((((d-start)/86400000)+start.getDay()+1)/7);
+  return `dm2_rw_${d.getFullYear()}_${wk}`;
+}
+
+function toast(msg,type='info'){
+  const el=document.getElementById('toast');
+  el.textContent=msg;el.className='toast '+type+' show';
+  clearTimeout(el._t);el._t=setTimeout(()=>el.classList.remove('show'),3500);
+}
+
+function vsBar(v,max=2){
+  const c=Math.max(-max,Math.min(max,v||0));
+  const p=Math.round(Math.abs(c)/max*100);
+  const col=v>=0?'#34d399':'#f87171';
+  return `<div class="mbar"><div class="mbar-t"><div class="mbar-f" style="width:${p}%;background:${col}"></div></div><span class="vs ${vc(v)}">${pct(v)}</span></div>`;
+}
+
+// ═══════════════════════════════════════════════════════════════
+// PARSE FILE
+// ═══════════════════════════════════════════════════════════════
+function parseFile(ab){
+  const wb=XLSX.read(ab,{type:'array'});
+  const ws=wb.Sheets[wb.SheetNames[0]];
+  const rows=XLSX.utils.sheet_to_json(ws,{header:1,defval:''});
+  // Extract period from header rows (row 15-17 contain dates like "01.04.26 - 19.04.26")
+  let filePeriod='';
+  for(let i=0;i<25;i++){
+    for(let c=0;c<9;c++){
+      const v=String(rows[i]?rows[i][c]:'').trim();
+      if(/\d{2}\.\d{2}\.\d{2,4}\s*[-–]\s*\d{2}\.\d{2}\.\d{2,4}/.test(v)){
+        filePeriod=v.replace('- ','– ').replace(' -',' –');
+        break;
+      }
+    }
+    if(filePeriod)break;
+  }
+  // Also look at file header row 0 for report title with date
+  if(!filePeriod){
+    const r0=String(rows[0]?rows[0][0]:'');
+    const m=r0.match(/\d{2}\.\d{2}\.\d{4}/);
+    if(m)filePeriod=m[0];
+  }
+  const sm={};
+  for(let i=18;i<rows.length;i++){
+    const r=rows[i];
+    if(String(r[7]||'').trim()!=='Прод')continue;
+    const brand=String(r[4]||'').trim();
+    if(brand&&brand!=='nan'&&brand.length>2&&!/^\s+$/.test(brand))continue;
+    const seller=String(r[5]||'').trim();
+    if(!seller||seller.length<3||/^\s+$/.test(seller))continue;
+    const cat=String(r[2]||'').trim();if(!cat)continue;
+    const biz=String(r[3]||'').trim()||getBiz(cat);
+    const rev=parseFloat(r[9])||0,revVs=parseFloat(r[11])||0;
+    const units=parseFloat(r[12])||0,unitsVs=parseFloat(r[14])||0,aspVs=parseFloat(r[17])||0;
+    const sn=SHORT[seller]||seller.split(' ').slice(0,2).join(' ');
+    if(!sm[seller])sm[seller]={name:sn,full:seller,revenue:0,units:0,rv:[],av:[],uv:[],cats:{}};
+    sm[seller].revenue+=rev;sm[seller].units+=units;
+    sm[seller].rv.push(revVs);sm[seller].av.push(aspVs);sm[seller].uv.push(unitsVs);
+    if(rev>0){
+      if(!sm[seller].cats[cat])sm[seller].cats[cat]={rev:0,units:0,rv:[],av:[],biz};
+      sm[seller].cats[cat].rev+=rev;sm[seller].cats[cat].units+=units;
+      sm[seller].cats[cat].rv.push(revVs);sm[seller].cats[cat].av.push(aspVs);
+    }
+  }
+  const sellers=Object.values(sm).map(s=>({
+    name:s.name,full:s.full,revenue:s.revenue,units:s.units,
+    asp:s.units>0?s.revenue/s.units:0,
+    revVs:avg(s.rv),aspVs:avg(s.av),unitsVs:avg(s.uv),
+    cats:Object.entries(s.cats).map(([cat,v])=>({cat,biz:v.biz,rev:v.rev,units:v.units,revVs:avg(v.rv),aspVs:avg(v.av)})).sort((a,b)=>b.rev-a.rev)
+  })).sort((a,b)=>b.revenue-a.revenue);
+  return{sellers:assignTiers(sellers),cats:buildCatIndex(sellers),period:filePeriod};
+}
+
+// ═══════════════════════════════════════════════════════════════
+// SELLER DETAIL HTML (shared between desktop and mobile)
+// ═══════════════════════════════════════════════════════════════
+function sellerDetailHTML(s,sellers){
+  const filtered=(s.cats||[]).filter(c=>S.bizFilter==='all'||c.biz===S.bizFilter);
+  const bizPills=['all','ДП техніка','Аксесуари'].map(b=>{
+    const lbl=b==='all'?'Всі бізнеси':b;
+    return `<button style="padding:4px 12px;border-radius:20px;border:1px solid ${S.bizFilter===b?'var(--blue-bd)':'var(--bd)'};background:${S.bizFilter===b?'var(--blue-bg)':'transparent'};color:${S.bizFilter===b?'var(--blue)':'var(--t3)'};font-size:11px;font-weight:500;cursor:pointer;font-family:'Outfit',sans-serif" onclick="S.bizFilter='${b}';render()">${lbl}</button>`;
+  }).join('');
+  const cats=filtered.map(c=>`
+    <div class="cat-row">
+      <div class="cat-name">${c.cat}<span style="font-size:10px;color:var(--t3);margin-left:6px">${c.biz==='Аксесуари'?'АСС':'ДП'}</span></div>
+      <div style="min-width:36px;text-align:right;font-family:'IBM Plex Mono',monospace;font-size:12px;color:var(--t2)">${c.units||0} шт</div>
+      <div style="width:75px">${vsBar(c.revVs,3)}</div>
+      <div style="width:68px">${vsBar(c.aspVs,3)}</div>
+      <div class="cat-rev">${fmt(c.rev)} ₴</div>
+    </div>`).join('')||`<div class="empty" style="padding:16px">Немає даних або завантажте звіт</div>`;
+
+  const vs=(v,lbl)=>`<div>
+    <div class="vs-lbl">${lbl}</div>
+    ${vsBar(v,2.5)}
+  </div>`;
+
+  // Summary by biz
+  const dp=s.cats.filter(c=>c.biz!=='Аксесуари');
+  const acc=s.cats.filter(c=>c.biz==='Аксесуари');
+  const dpR=dp.reduce((a,c)=>a+c.rev,0),dpU=dp.reduce((a,c)=>a+(c.units||0),0);
+  const accR=acc.reduce((a,c)=>a+c.rev,0),accU=acc.reduce((a,c)=>a+(c.units||0),0);
+
+  return `
+    <div class="profile">
+      <div class="pname">${s.full}</div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:4px">
+        <span class="tier ${tc(s.tier)}" style="width:auto;padding:0 10px">Тир ${s.tier}</span>
+        <span style="font-size:11px;color:var(--t3);display:flex;align-items:center">#${sellers.indexOf(s)+1} рейтинг</span>
+      </div>
+      <div class="pm-grid">
+        <div class="pm-item"><div class="pm-l">Виторг</div><div class="pm-v">${fmt(s.revenue)} ₴</div></div>
+        <div class="pm-item"><div class="pm-l">Штуки</div><div class="pm-v">${s.units}</div></div>
+        <div class="pm-item"><div class="pm-l">Сер. чек</div><div class="pm-v">${fmt(s.asp)} ₴</div></div>
+      </div>
+      <div class="vs-grid">
+        ${vs(s.revVs,'Виторг vs бенчм.')}
+        ${vs(s.aspVs,'ASP vs бенчм.')}
+        ${vs(s.unitsVs,'Штуки vs бенчм.')}
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:12px">
+        <div style="background:var(--bg3);border:1px solid var(--bd);border-radius:8px;padding:10px 12px">
+          <div style="font-size:9px;color:var(--t3);letter-spacing:1px;text-transform:uppercase;margin-bottom:4px">ДП Техніка</div>
+          <div style="font-family:'IBM Plex Mono',monospace;font-size:14px;font-weight:600">${fmt(dpR)} ₴</div>
+          <div style="font-size:11px;color:var(--t3);margin-top:2px">${dpU} шт</div>
+        </div>
+        <div style="background:var(--bg3);border:1px solid var(--bd);border-radius:8px;padding:10px 12px">
+          <div style="font-size:9px;color:var(--t3);letter-spacing:1px;text-transform:uppercase;margin-bottom:4px">Аксесуари</div>
+          <div style="font-family:'IBM Plex Mono',monospace;font-size:14px;font-weight:600">${fmt(accR)} ₴</div>
+          <div style="font-size:11px;color:var(--t3);margin-top:2px">${accU} шт</div>
+        </div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-h">
+        <span class="card-t">Категорії</span>
+        <div style="display:flex;gap:5px">${bizPills}</div>
+      </div>
+      <div style="padding:8px 14px 4px;border-bottom:1px solid var(--bd);display:flex;gap:6px;font-size:9px;color:var(--t3);font-weight:700;letter-spacing:1px;text-transform:uppercase">
+        <div style="flex:1">Категорія</div>
+        <div style="min-width:36px;text-align:right">Шт</div>
+        <div style="width:75px">Вир.vs</div>
+        <div style="width:68px">ASP vs</div>
+        <div style="min-width:80px;text-align:right">Виторг ₴</div>
+      </div>
+      <div>${cats}</div>
+    </div>`;
+}
+
+// ═══════════════════════════════════════════════════════════════
+// VIEWS
+// ═══════════════════════════════════════════════════════════════
+function renderKPI(){
+  const s=S.sellers.filter(x=>x.revenue>0);
+  const totR=s.reduce((a,x)=>a+x.revenue,0);
+  const totU=s.reduce((a,x)=>a+x.units,0);
+  const aspA=totU>0?totR/totU:0;
+  const vsA=s.length?avg(s.map(x=>x.revVs)):0;
+  const d=s.filter(x=>x.tier==='D').length;
+  const defs=[
+    {l:'Виторг',v:fmt(totR)+' ₴',s:'за поточний період',a:'var(--blue)'},
+    {l:'Штуки',v:fmt(totU),s:'продаж',a:'var(--purple)'},
+    {l:'Сер. чек',v:fmt(aspA)+' ₴',s:'грн на шт.',a:'var(--green)'},
+    {l:'Vs бенчмарк',v:pct(vsA),s:'виторг до ср. маг.',a:vsA>=0?'var(--green)':'var(--red)'},
+    {l:'Продавців',v:String(s.length),s:`тир D: ${d}`,a:d>0?'var(--red)':'var(--amber)'}
+  ];
+  document.getElementById('kpiRow').innerHTML=defs.map(k=>`
+    <div class="kpi" style="--a:${k.a}">
+      <div class="kpi-l">${k.l}</div>
+      <div class="kpi-v" style="color:${k.a}">${k.v}</div>
+      <div class="kpi-s">${k.s}</div>
+    </div>`).join('');
+}
+
+function renderOverview(){
+  const sellers=S.sellers.filter(s=>s.revenue>0&&(S.tierFilter==='all'||s.tier===S.tierFilter));
+  const maxR=Math.max(...sellers.map(s=>s.revenue),1);
+  const pills=['all','A','B','C','D'].map(t=>`
+    <button class="pill${S.tierFilter===t?' on':''}" onclick="S.tierFilter='${t}';render()">${t==='all'?'Всі':'Тир '+t}</button>`).join('');
+  const rows=sellers.map((s,i)=>`
+    <tr onclick="sellerClick('${s.name}')">
+      <td style="color:var(--t3);font-family:'IBM Plex Mono',monospace">${i+1}</td>
+      <td>
+        <div style="font-weight:600;font-size:13px">${s.full}</div>
+        <div style="font-size:10px;color:var(--t3);margin-top:2px">${s.name}</div>
+      </td>
+      <td><span class="tier ${tc(s.tier)}">${s.tier}</span></td>
+      <td>
+        <div class="rmono">${fmt(s.revenue)} ₴</div>
+        <div class="rbar"><div class="rbar-f" style="width:${Math.round(s.revenue/maxR*100)}%"></div></div>
+      </td>
+      <td class="rmono hide-mobile" style="color:var(--t2)">${s.units}</td>
+      <td class="rmono hide-mobile" style="color:var(--t2)">${fmt(s.asp)}</td>
+      <td>${vsBar(s.revVs)}</td>
+      <td class="hide-mobile">${vsBar(s.aspVs)}</td>
+    </tr>`).join('');
+  return `
+    <div class="pills">${pills}</div>
+    <div class="card">
+      <div class="card-h"><span class="card-t">Рейтинг продавців</span><span style="font-size:11px;color:var(--t3)">клік → деталі</span></div>
+      <div style="overflow-x:auto">
+        <table>
+          <thead><tr><th>#</th><th>Продавець</th><th>Тир</th><th>Виторг ₴</th><th class="hide-mobile">Шт</th><th class="hide-mobile">ASP</th><th>Виторг vs</th><th class="hide-mobile">ASP vs</th></tr></thead>
+          <tbody>${rows}</tbody>
+        </table>
+      </div>
+    </div>
+    <div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:4px">
+      ${['A','B','C','D'].map(t=>{
+        const lb={A:'Лідери',B:'Вище середнього',C:'Середні',D:'Потребують уваги'};
+        return `<span class="tier ${tc(t)}" style="width:auto;padding:2px 10px;border-radius:5px;font-size:11px">${t} — ${lb[t]}</span>`;
+      }).join('')}
+    </div>`;
+}
+
+function renderSellers(){
+  const sellers=S.sellers.filter(s=>s.revenue>0).sort((a,b)=>b.revenue-a.revenue);
+  const q=S.search.toLowerCase();
+  const filtered=q?sellers.filter(s=>s.full.toLowerCase().includes(q)):sellers;
+  const list=filtered.map(s=>`
+    <div class="li${S.selSeller===s.name?' sel':''}" onclick="sellerClick('${s.name}')">
+      <div style="display:flex;justify-content:space-between;align-items:center">
+        <div class="li-name">${s.full}</div>
+        <span class="tier ${tc(s.tier)}" style="width:20px;height:20px;font-size:10px">${s.tier}</span>
+      </div>
+      <div class="li-sub">${fmt(s.revenue)} ₴ · ${s.units} шт</div>
+    </div>`).join('');
+  const detail=S.selSeller?(()=>{
+    const s=sellers.find(x=>x.name===S.selSeller);
+    return s?sellerDetailHTML(s,sellers):`<div class="empty">Не знайдено</div>`;
+  })():`<div class="empty">← Оберіть продавця</div>`;
+
+  return `
+    <div class="split">
+      <div>
+        <div class="search-wrap">
+          <svg class="search-icon" width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="7" cy="7" r="5"/><path d="M11 11l3 3"/></svg>
+          <input class="search" placeholder="Пошук продавця..." value="${S.search}" oninput="S.search=this.value;render()">
+        </div>
+        <div class="list-panel"><div class="list-head">Продавці</div>${list}</div>
+      </div>
+      <div class="detail-panel-wrap">${detail}</div>
+    </div>`;
+}
+
+function renderCategories(){
+  const allCats=S.cats.length?S.cats:buildCatIndex(S.sellers);
+  if(!allCats.length)return`<div class="empty">Завантажте звіт (.xlsx) для аналізу категорій</div>`;
+  const cats=S.bizFilter==='all'?allCats:allCats.filter(c=>c.biz===S.bizFilter);
+  const bizPills=['all','ДП техніка','Аксесуари'].map(b=>`
+    <button class="pill${S.bizFilter===b?' on':''}" onclick="S.bizFilter='${b}';S.selCat=null;render()">${b==='all'?'Всі бізнеси':b}</button>`).join('');
+  const list=cats.map(c=>`
+    <div class="li${S.selCat===c.cat?' sel':''}" onclick="S.selCat='${c.cat}';render()">
+      <div style="display:flex;justify-content:space-between;align-items:center">
+        <div class="li-name">${c.cat}</div>
+        <span style="font-size:9px;padding:1px 5px;border-radius:3px;${c.biz==='Аксесуари'?'background:var(--purple-bg);color:var(--purple)':'background:var(--blue-bg);color:var(--blue)'}">${c.biz==='Аксесуари'?'АСС':'ДП'}</span>
+      </div>
+      <div class="li-sub">${c.sellers.length} продавців · ${c.sellers.reduce((a,s)=>a+(s.units||0),0)} шт</div>
+    </div>`).join('');
+  let detail=`<div class="empty">← Оберіть категорію</div>`;
+  if(S.selCat){
+    const c=allCats.find(x=>x.cat===S.selCat);
+    if(c){
+      const sorted=[...c.sellers].sort((a,b)=>b.rev-a.rev);
+      const maxU=Math.max(...sorted.map(s=>s.units||0),1);
+      const rows=sorted.map((s,i)=>`
+        <div style="display:flex;align-items:center;gap:8px;padding:9px 14px;border-bottom:1px solid var(--bd)">
+          <div style="font-size:11px;color:var(--t3);font-family:'IBM Plex Mono',monospace;min-width:18px">${i+1}</div>
+          <span class="tier ${tc(s.tier)}" style="width:20px;height:20px;font-size:10px">${s.tier}</span>
+          <div style="flex:1;font-size:12px;font-weight:500">${s.full||s.name}</div>
+          <div style="width:36px;text-align:center">
+            <div style="font-family:'IBM Plex Mono',monospace;font-size:12px;font-weight:600;color:var(--t1)">${s.units||0}</div>
+            <div style="height:3px;background:var(--bg4);border-radius:2px;margin-top:3px;overflow:hidden"><div style="height:3px;background:var(--blue);border-radius:2px;width:${Math.round((s.units||0)/maxU*100)}%"></div></div>
+            <div style="font-size:9px;color:var(--t3)">шт</div>
+          </div>
+          <div style="width:75px">${vsBar(s.revVs,3)}</div>
+          <div style="width:70px">${vsBar(s.aspVs,3)}</div>
+          <div class="rmono hide-mobile" style="font-size:11px;color:var(--t2);min-width:88px;text-align:right">${fmt(s.rev)} ₴</div>
+        </div>`).join('');
+      const totRev=sorted.reduce((a,s)=>a+s.rev,0);
+      const totUnits=sorted.reduce((a,s)=>a+(s.units||0),0);
+      detail=`<div class="card">
+        <div class="card-h">
+          <div>
+            <span class="card-t">${S.selCat}</span>
+            <span style="margin-left:8px;font-size:9px;padding:1px 6px;border-radius:3px;${c.biz==='Аксесуари'?'background:var(--purple-bg);color:var(--purple)':'background:var(--blue-bg);color:var(--blue)'}">${c.biz}</span>
+          </div>
+          <span style="font-size:11px;color:var(--t3)">${fmt(totUnits)} шт · ${fmt(totRev)} ₴</span>
+        </div>
+        <div style="padding:7px 14px;border-bottom:1px solid var(--bd);display:flex;gap:8px;font-size:9px;color:var(--t3);font-weight:700;letter-spacing:1px;text-transform:uppercase">
+          <div style="min-width:38px"></div><div style="flex:1">Продавець</div>
+          <div style="width:36px;text-align:center">Шт</div>
+          <div style="width:75px">Вир.vs</div><div style="width:70px">ASP vs</div>
+          <div class="hide-mobile" style="min-width:88px;text-align:right">Виторг ₴</div>
+        </div>
+        <div>${rows}</div>
+      </div>`;
+    }
+  }
+  return `
+    <div class="pills">${bizPills}</div>
+    <div class="split"><div class="list-panel"><div class="list-head">Категорії</div>${list}</div><div>${detail}</div></div>`;
+}
+
+function renderPlan(){
+  const sellers=S.sellers.filter(s=>s.revenue>0).sort((a,b)=>b.revenue-a.revenue);
+  const list=sellers.map(s=>`
+    <div class="li${S.selSeller===s.name?' sel':''}" onclick="planSelClick('${s.name}')">
+      <div style="display:flex;justify-content:space-between;align-items:center">
+        <div class="li-name">${s.full}</div>
+        <span class="tier ${tc(s.tier)}" style="width:20px;height:20px;font-size:10px">${s.tier}</span>
+      </div>
+    </div>`).join('');
+
+  let detail=`<div class="empty">← Оберіть продавця щоб переглянути план дій на тиждень</div>`;
+  if(S.selSeller){
+    const s=sellers.find(x=>x.name===S.selSeller);
+    const plan=PLANS[S.selSeller]||PLANS.default;
+    const tot=plan.reduce((a,d)=>a+d.actions.length,0);
+    const done=plan.reduce((a,d,di)=>a+d.actions.filter((_,ai)=>S.checks[`${S.selSeller}-${di}-${ai}`]).length,0);
+    const prog=tot>0?Math.round(done/tot*100):0;
+    const days=plan.map((day,di)=>{
+      const items=day.actions.map((a,ai)=>{
+        const k=`${S.selSeller}-${di}-${ai}`,dn=!!S.checks[k],ad=adef(a.type);
+        return `<div class="action${dn?' done':''}" onclick="toggleCheck('${k}')">
+          <div class="chk${dn?' on':''}">${dn?'✓':''}</div>
+          <div><span class="abadge" style="background:${ad.bg};color:${ad.color}">${ad.label}</span><div class="atxt">${a.text}</div></div>
+        </div>`;
+      }).join('');
+      const dc=day.actions.filter((_,ai)=>S.checks[`${S.selSeller}-${di}-${ai}`]).length;
+      return `<div class="day-block">
+        <div class="day-h"><span class="day-lbl">${day.day}</span><span style="font-size:10px;color:var(--t3);font-family:'IBM Plex Mono',monospace">${dc}/${day.actions.length}</span></div>
+        <div class="day-body">${items}</div>
+      </div>`;
+    }).join('');
+    detail=`
+      <div class="plan-prog-wrap">
+        <div style="display:flex;justify-content:space-between;margin-bottom:2px">
+          <span style="font-size:13px;font-weight:600">${s?.full||S.selSeller}</span>
+          <span style="font-size:11px;color:var(--t3);font-family:'IBM Plex Mono',monospace">${done}/${tot} · ${prog}%</span>
+        </div>
+        <div class="plan-prog"><div class="plan-prog-f" style="width:${prog}%"></div></div>
+        <div style="font-size:10px;color:var(--t3)">Прогрес зберігається між сесіями</div>
+      </div>
+      ${days}
+      <div style="display:flex;flex-wrap:wrap;gap:5px;margin-top:8px">
+        ${ACTDEF.map(a=>`<span style="font-size:9px;font-weight:700;padding:3px 8px;border-radius:4px;background:${a.bg};color:${a.color};letter-spacing:.5px;text-transform:uppercase">${a.label}</span>`).join('')}
+      </div>`;
+  }
+  return `<div class="split">
+    <div class="list-panel"><div class="list-head">Оберіть продавця</div>${list}</div>
+    <div class="detail-panel-wrap">${detail}</div>
+  </div>`;
+}
+
+function renderRhythm(){
+  const totAll=WEEK_RHYTHM.reduce((a,d)=>a+d.sections.reduce((b,s)=>b+s.tasks.length,0),0);
+  const doneAll=Object.values(S.rhythmChecks).filter(Boolean).length;
+  const progAll=totAll>0?Math.round(doneAll/totAll*100):0;
+  const wk=getWeekKey().replace('dm2_rw_','');
+  const days=WEEK_RHYTHM.map((day,di)=>{
+    const dayTot=day.sections.reduce((a,s)=>a+s.tasks.length,0);
+    const dayDone=day.sections.reduce((a,s)=>a+s.tasks.filter(t=>S.rhythmChecks[t.id]).length,0);
+    const dayProg=dayTot>0?Math.round(dayDone/dayTot*100):0;
+    const sections=day.sections.map(sec=>`
+      <div class="rday-section">
+        <div class="rday-s-title">${sec.title}</div>
+        ${sec.tasks.map(task=>{
+          const dn=!!S.rhythmChecks[task.id];
+          return `<div class="rtask${dn?' done':''}" onclick="toggleRhythm('${task.id}')">
+            <div class="chk${dn?' on':''}">${dn?'✓':''}</div>
+            <div class="rtask-txt">${task.text}</div>
+          </div>`;
+        }).join('')}
+      </div>`).join('');
+    const ex=day.example?`<div class="rexample">${day.example}</div>`:'';
+    const note=day.note?`<div class="rnote"><div class="rnote-icon">👉</div><div class="rnote-txt">${day.note}</div></div>`:'';
+    return `<div class="rday">
+      <div class="rday-head">
+        <div class="rday-icon">${day.icon}</div>
+        <div>
+          <div class="rday-name">${day.day}</div>
+          <div class="rday-focus">${day.focus}</div>
+          <div class="rday-mini-prog"><div class="rday-mini-prog-f" style="width:${dayProg}%"></div></div>
+        </div>
+        <div class="rday-prog">${dayDone}/${dayTot}</div>
+      </div>
+      <div class="rday-body">${sections}${ex}${note}</div>
+    </div>`;
+  }).join('');
+
+  return `
+    <div class="week-header">
+      <div>
+        <div style="font-size:14px;font-weight:600">Менеджерський ритм тижня</div>
+        <div class="week-info">Тиждень: ${wk} · ${doneAll} з ${totAll} задач виконано</div>
+      </div>
+      <button class="week-reset" onclick="resetRhythm()">Новий тиждень</button>
+    </div>
+    <div class="week-progress">
+      <div>
+        <div style="font-size:12px;font-weight:500">Загальний прогрес тижня</div>
+        <div class="wp-bar"><div class="wp-bar-f" style="width:${progAll}%"></div></div>
+      </div>
+      <div style="font-size:24px;font-weight:700;font-family:'IBM Plex Mono',monospace;color:${progAll>=70?'var(--green)':progAll>=40?'var(--amber)':'var(--red)'}">${progAll}%</div>
+    </div>
+    <div class="rhythm-grid">${days}</div>`;
+}
+
+function renderFocus(){
+  const active=S.sellers.filter(s=>s.revenue>0).sort((a,b)=>a.revVs-b.revVs);
+  const urgent=active.filter(s=>s.tier==='D');
+  const aspWeak=active.filter(s=>s.aspVs<-.1&&s.tier!=='D').slice(0,3);
+  const stars=active.filter(s=>s.revVs>.3&&s.tier==='A').slice(0,2);
+  const allC={};
+  S.sellers.forEach(s=>(s.cats||[]).forEach(c=>{
+    if(!allC[c.cat])allC[c.cat]={cat:c.cat,total:0};
+    allC[c.cat].total+=c.rev;
+  }));
+  const topC=Object.values(allC).sort((a,b)=>b.total-a.total).slice(0,5);
+
+  // Star pairs: best seller+cat combos
+  const pairs=[];
+  S.sellers.forEach(s=>(s.cats||[]).forEach(c=>{if(c.revVs>1.5&&c.rev>5000)pairs.push({seller:s.full,name:s.name,cat:c.cat,revVs:c.revVs,rev:c.rev,units:c.units||0});}));
+  pairs.sort((a,b)=>b.revVs-a.revVs);
+  const medals=['🥇','🥈','🥉','⭐','⭐'];
+
+  const fc=(title,badge,bsty,items,empty)=>`<div>
+    <div style="font-size:10px;font-weight:700;letter-spacing:2px;color:var(--t3);text-transform:uppercase;margin-bottom:8px">${title}</div>
+    ${items.length?items.map(it=>`<div class="fc">
+      <div class="fbadge" style="${bsty}">${badge}</div>
+      <div class="fname">${it.full||it.name}</div>
+      <div class="fsub">${it.sub}</div>
+      ${it.link?`<span class="flink" onclick="${it.link}">Відкрити план дій →</span>`:''}
+    </div>`).join(''):`<div class="fc"><div style="color:var(--t3);font-size:12px">${empty}</div></div>`}
+  </div>`;
+
+  return `<div class="focus-grid">
+    ${fc('Термінові дії','Тир D · Увага','background:var(--red-bg);color:var(--red)',
+      urgent.map(s=>({...s,sub:`Виторг нижче бенчм. на ${pct(Math.abs(s.revVs))}. Особиста бесіда — сьогодні.`,
+        link:`go('plan');S.selSeller='${s.name}';render()`})),'Немає критичних ситуацій')}
+    ${fc('Низький ASP','Увага ASP','background:var(--amber-bg);color:var(--amber)',
+      aspWeak.map(s=>({...s,sub:`ASP vs: ${pct(s.aspVs)}. Рекомендація: тренінг апселлу цього тижня`})),'ASP в нормі')}
+    ${fc('Лідери → наставники','Тир A · Лідер','background:var(--green-bg);color:var(--green)',
+      stars.map(s=>({...s,sub:`Виторг ${pct(s.revVs)} vs бенчм. Може навчати продавців тиру D`})),'Завантажте звіт')}
+    <div>
+      <div style="font-size:10px;font-weight:700;letter-spacing:2px;color:var(--t3);text-transform:uppercase;margin-bottom:8px">Топ категорії</div>
+      <div class="card">
+        ${topC.length?topC.map((c,i)=>`<div style="display:flex;align-items:center;gap:10px;padding:9px 16px;border-bottom:1px solid var(--bd)">
+          <div style="font-size:11px;color:var(--t3);font-family:'IBM Plex Mono',monospace;min-width:18px">${i+1}</div>
+          <div style="flex:1;font-size:12px;font-weight:500">${c.cat}</div>
+          <div class="rmono" style="font-size:11px;color:var(--t2)">${fmt(c.total)} ₴</div>
+        </div>`).join(''):`<div class="empty" style="padding:16px">Завантажте звіт</div>`}
+      </div>
+    </div>
+  </div>
+  ${pairs.length?`
+  <div style="margin-top:16px">
+    <div style="font-size:10px;font-weight:700;letter-spacing:2px;color:var(--t3);text-transform:uppercase;margin-bottom:8px">Зірки тижня — видатні результати в категоріях</div>
+    <div class="card">
+      ${pairs.slice(0,8).map((p,i)=>`<div class="star-row">
+        <div class="star-medal">${medals[i]||'⭐'}</div>
+        <div class="star-info">
+          <div class="star-name">${p.seller}</div>
+          <div class="star-cat">${p.cat} · ${p.units} шт · ${fmt(p.rev)} ₴</div>
+        </div>
+        <span class="vs vp" style="font-size:13px">${pct(p.revVs)}</span>
+      </div>`).join('')}
+    </div>
+  </div>`:''}`;
+}
+
+// ── MATRIX ──────────────────────────────────────────────────────
+function renderMatrix(){
+  const sellers=S.sellers.filter(s=>s.revenue>0).sort((a,b)=>b.revenue-a.revenue);
+  if(!sellers.length)return`<div class="empty">Завантажте звіт для відображення матриці</div>`;
+
+  // Collect all unique categories (filtered by biz)
+  const catSet=new Map();
+  sellers.forEach(s=>(s.cats||[]).forEach(c=>{
+    if(S.bizFilter==='all'||c.biz===S.bizFilter)
+      if(!catSet.has(c.cat))catSet.set(c.cat,{cat:c.cat,biz:c.biz,totalRev:0});
+    if(catSet.has(c.cat))catSet.get(c.cat).totalRev+=c.rev;
+  }));
+  const cats=[...catSet.values()].sort((a,b)=>b.totalRev-a.totalRev).slice(0,16);
+
+  function cellColor(v){
+    if(v==null)return{bg:'var(--bg4)',fg:'var(--t3)'};
+    if(v>=1.5)return{bg:'#064e3b',fg:'#34d399'};
+    if(v>=0.5)return{bg:'#065f46',fg:'#6ee7b7'};
+    if(v>=0.1)return{bg:'#0d3d26',fg:'#86efac'};
+    if(v>=-0.1)return{bg:'var(--bg3)',fg:'var(--t2)'};
+    if(v>=-0.5)return{bg:'#450a0a',fg:'#fca5a5'};
+    if(v>=-0.8)return{bg:'#7f1d1d',fg:'#f87171'};
+    return{bg:'#991b1b',fg:'#fecaca'};
+  }
+
+  const bizPills=['all','ДП техніка','Аксесуари'].map(b=>`
+    <button class="pill${S.bizFilter===b?' on':''}" onclick="S.bizFilter='${b}';render()">${b==='all'?'Всі бізнеси':b}</button>`).join('');
+
+  const header=`<tr><th style="position:sticky;left:0;background:var(--bg2);z-index:3;min-width:110px">Продавець</th>${cats.map(c=>`<th style="max-width:54px;overflow:hidden;writing-mode:vertical-lr;transform:rotate(180deg);height:90px;padding:6px 4px;vertical-align:bottom">${c.cat}</th>`).join('')}</tr>`;
+
+  const rows=sellers.map(s=>{
+    const catMap={};
+    (s.cats||[]).forEach(c=>{catMap[c.cat]=c.revVs;});
+    const cells=cats.map(c=>{
+      const v=catMap[c.cat];
+      if(v==null)return`<td class="mc mc-none">—</td>`;
+      const{bg,fg}=cellColor(v);
+      return`<td class="mc" style="background:${bg};color:${fg}">${v>=0?'+':''}${Math.round(v*100)}%</td>`;
+    }).join('');
+    return`<tr><td class="rh"><div style="font-size:12px;font-weight:600">${s.full}</div><div style="font-size:10px;color:var(--t3)">${pct(s.revVs)} загалом</div></td>${cells}</tr>`;
+  }).join('');
+
+  const legend=[
+    {bg:'#064e3b',fg:'#34d399',l:'> +150%'},
+    {bg:'#065f46',fg:'#6ee7b7',l:'+50% – +150%'},
+    {bg:'#0d3d26',fg:'#86efac',l:'+10% – +50%'},
+    {bg:'var(--bg3)',fg:'var(--t2)',l:'±10% (норма)'},
+    {bg:'#450a0a',fg:'#fca5a5',l:'-10% – -50%'},
+    {bg:'#7f1d1d',fg:'#f87171',l:'-50% – -80%'},
+    {bg:'#991b1b',fg:'#fecaca',l:'< -80%'},
+    {bg:'var(--bg4)',fg:'var(--t3)',l:'Немає продажів'},
+  ];
+
+  return`
+    <div class="pills">${bizPills}</div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:12px" class="matrix-legend">
+      ${legend.map(l=>`<span style="display:flex;align-items:center;gap:4px"><span class="ml-swatch" style="background:${l.bg};border:1px solid ${l.fg}20"></span><span>${l.l}</span></span>`).join('')}
+    </div>
+    <div class="matrix-wrap">
+      <table class="matrix-table">
+        <thead>${header}</thead>
+        <tbody>${rows}</tbody>
+      </table>
+    </div>
+    <div style="font-size:11px;color:var(--t3);margin-top:10px">Значення = відхилення від середнього магазину. Показані топ-16 категорій за виторгом.</div>`;
+}
+
+// ── INSIGHTS ────────────────────────────────────────────────────
+function renderInsights(){
+  const sellers=S.sellers.filter(s=>s.revenue>0).sort((a,b)=>b.revenue-a.revenue);
+  if(!sellers.length)return`<div class="empty">Завантажте звіт для автоматичного аналізу</div>`;
+
+  const totRev=sellers.reduce((a,s)=>a+s.revenue,0);
+  const totUnits=sellers.reduce((a,s)=>a+s.units,0);
+  const aspLeader=sellers.slice().sort((a,b)=>b.aspVs-a.aspVs)[0];
+  const aspLaggard=sellers.slice().sort((a,b)=>a.aspVs-b.aspVs)[0];
+  const revLeader=sellers[0];
+  const unitsLeader=sellers.slice().sort((a,b)=>b.units-a.units)[0];
+
+  // Best and worst category-seller pairs
+  const pairs=[];
+  sellers.forEach(s=>(s.cats||[]).forEach(c=>{if(c.rev>3000)pairs.push({seller:s.full,sname:s.name,cat:c.cat,revVs:c.revVs,rev:c.rev,units:c.units||0,asp:c.rev/(c.units||1)});}));
+  pairs.sort((a,b)=>b.revVs-a.revVs);
+  const bestPair=pairs[0];
+  const worstPair=[...pairs].sort((a,b)=>a.revVs-b.revVs)[0];
+
+  // Category totals
+  const catTotals={};
+  sellers.forEach(s=>(s.cats||[]).forEach(c=>{if(!catTotals[c.cat])catTotals[c.cat]={rev:0,units:0};catTotals[c.cat].rev+=c.rev;catTotals[c.cat].units+=(c.units||0);}));
+  const catArr=Object.entries(catTotals).map(([cat,v])=>({cat,...v,asp:v.units>0?v.rev/v.units:0})).sort((a,b)=>b.rev-a.rev);
+  const topCat=catArr[0],bottomCat=catArr[catArr.length-1];
+  const highAspCat=catArr.slice().sort((a,b)=>b.asp-a.asp)[0];
+
+  // Tier distribution
+  const tiers={A:0,B:0,C:0,D:0};
+  sellers.forEach(s=>tiers[s.tier]=(tiers[s.tier]||0)+1);
+  const avgVs=sellers.reduce((a,s)=>a+s.revVs,0)/sellers.length;
+
+  const ic=(label,main,sub,color)=>`<div class="insight-card" style="border-left-color:${color}">
+    <div class="insight-label">${label}</div>
+    <div class="insight-main">${main}</div>
+    <div class="insight-sub">${sub}</div>
+  </div>`;
+
+  const recs=[];
+  if(sellers.filter(s=>s.tier==='D').length>0)recs.push(`🔴 <b>${sellers.filter(s=>s.tier==='D').map(s=>s.full).join(', ')}</b> — тир D. Термінова особиста бесіда та план розвитку`);
+  if(aspLaggard.aspVs<-.1)recs.push(`🟡 <b>${aspLaggard.full}</b> — ASP нижче бенчм. на ${pct(Math.abs(aspLaggard.aspVs))}. Тренінг апселлу`);
+  if(aspLeader.aspVs>.15)recs.push(`🟢 <b>${aspLeader.full}</b> — ASP лідер (+${Math.round(aspLeader.aspVs*100)}% vs бенчм.). Поділиться технікою з командою`);
+  if(bestPair)recs.push(`⭐ <b>${bestPair.seller}</b> у категорії "<b>${bestPair.cat}</b>" — феноменальний результат ${pct(bestPair.revVs)}. Виявити та тиражувати підхід`);
+  if(worstPair&&worstPair.revVs<-.6)recs.push(`⚠️ <b>${worstPair.seller}</b> у категорії "<b>${worstPair.cat}</b>" — ${pct(worstPair.revVs)}. Навчання та тестова консультація`);
+
+  return`
+    <div class="insight-grid">
+      ${ic('Виторг магазину',`${fmt(totRev)} ₴`,`${fmt(totUnits)} шт · середній чек ${fmt(totRev/totUnits)} ₴`,'var(--blue)')}
+      ${ic('Vs бенчмарк магазину',pct(avgVs),avgVs>0?'Магазин краще за середній — добрий знак':'Є простір для покращення',avgVs>0?'var(--green)':'var(--red)')}
+      ${ic('Лідер виторгу',revLeader.full,`${fmt(revLeader.revenue)} ₴ · ${revLeader.units} шт · ASP ${fmt(revLeader.asp)}`,'var(--green)')}
+      ${ic('ASP лідер',aspLeader.full,`Середній чек ${fmt(aspLeader.asp)} ₴ · ${pct(aspLeader.aspVs)} vs бенчм.`,'var(--purple)')}
+      ${ic('Лідер за штуками',unitsLeader.full,`${unitsLeader.units} шт · виторг ${fmt(unitsLeader.revenue)} ₴`,'var(--amber)')}
+      ${ic('Топ категорія',topCat?.cat||'—',`${fmt(topCat?.rev||0)} ₴ · ${topCat?.units||0} шт · ASP ${fmt(topCat?.asp||0)}`,'var(--blue)')}
+      ${ic('Зірка пари (продавець+кат.)',bestPair?`${bestPair.seller} · ${bestPair.cat}`:'—',bestPair?`${pct(bestPair.revVs)} vs бенчм. · ${bestPair.units} шт · ${fmt(bestPair.rev)} ₴`:'Завантажте звіт','var(--green)')}
+      ${ic('Проблемна пара',worstPair?`${worstPair.seller} · ${worstPair.cat}`:'—',worstPair?`${pct(worstPair.revVs)} vs бенчм. Потребує уваги`:'Все в нормі','var(--red)')}
+    </div>
+    <div style="margin-bottom:16px">
+      <div style="font-size:10px;font-weight:700;letter-spacing:2px;color:var(--t3);text-transform:uppercase;margin-bottom:10px">Розподіл по тирах</div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        ${['A','B','C','D'].map(t=>`<div style="background:var(--bg2);border:1px solid var(--bd);border-radius:var(--r);padding:10px 16px;display:flex;align-items:center;gap:10px">
+          <span class="tier ${tc(t)}" style="width:28px;height:28px;font-size:13px">${t}</span>
+          <div><div style="font-size:20px;font-weight:700;font-family:'IBM Plex Mono',monospace">${tiers[t]||0}</div><div style="font-size:10px;color:var(--t3)">продавців</div></div>
+        </div>`).join('')}
+      </div>
+    </div>
+    <div>
+      <div style="font-size:10px;font-weight:700;letter-spacing:2px;color:var(--t3);text-transform:uppercase;margin-bottom:10px">Автоматичні рекомендації</div>
+      <div class="card">
+        ${recs.map((r,i)=>`<div style="padding:11px 16px;border-bottom:1px solid var(--bd);font-size:13px;color:var(--t2);line-height:1.55">${r}</div>`).join('')}
+        ${!recs.length?`<div class="empty" style="padding:16px">Немає рекомендацій — всі показники в нормі</div>`:''}
+      </div>
+    </div>`;
+}
+
+// ── PARSE ACC FILE ───────────────────────────────────────────
+function parseAccFile(ab){
+  const wb=XLSX.read(ab,{type:'array'});
+  const ws=wb.Sheets[wb.SheetNames[0]];
+  const rows=XLSX.utils.sheet_to_json(ws,{header:1,defval:null});
+  const g=(r,c)=>{const v=rows[r]?rows[r][c]:null;return(v===null||v===undefined||String(v).trim()===''||String(v).trim()==='nan')?null:parseFloat(v)||null;};
+  const gs=(r,c)=>{const v=rows[r]?rows[r][c]:null;return(v===null||v===undefined)?'':String(v).trim();};
+
+  // Find dynamic row offsets by searching for key headers
+  // IMPORTANT: keywords are in column 1, not column 0
+  // Column 0 always contains "Регіон / Магазини" or seller names
+  function findRow(keyword,maxRow=400){
+    for(let i=0;i<maxRow;i++){
+      // Search columns 0-3 to be robust
+      for(let c=0;c<4;c++){
+        const v=gs(i,c);
+        if(v.includes(keyword))return i;
+      }
+    }
+    return -1;
+  }
+
+  const smHead=findRow('Смартфон, шт');
+  const chHead=findRow('Зарядки до Смартфонів');
+  const ltHead=findRow('Ноутбук, шт');
+  const glHead=findRow('Ноутбук ігровий, шт');
+  const tvHead=findRow('Телевізор, шт');
+  const planHead=findRow('План АСС + Home, грн');
+  const pctHead=findRow('План АСС + Home, % частка');
+
+  const SELLER_MAP={
+    'Кисельов Дмитро Сергійович':'Кисельов Д.',
+    'Зуєва Ольга Андріївна':'Зуєва О.',
+    'Пачковський Ілля Владиславович':'Пачковський І.',
+    'Гаврихів Роман Вадимович':'Гаврихів Р.',
+    'Дудник Анастасія Євгеніївна':'Дудник А.',
+    'Куценко Майя Сергіївна':'Куценко М.',
+    'Бугас Данило Олександрович':'Бугас Д.',
+    'Устинова Людмила Олександрівна':'Устинова Л.',
+    'Фесенко Ярослав Юрійович':'Фесенко Я.',
+    'Переяслов Микита Олегович':'Переяслов М.',
+    'Міщук Анастасія Володимирівна':'Міщук А.',
+  };
+
+  // Build seller list from the plan section
+  const sellerRows={};
+  if(planHead>=0){
+    for(let i=planHead+5;i<planHead+20;i++){
+      const name=gs(i,0);
+      if(SELLER_MAP[name]){
+        sellerRows[name]=i;
+      }
+    }
+  }
+  const sellerNames=Object.keys(SELLER_MAP);
+
+  // Helper: get seller row in a section (section starts at dm2+1)
+  function sectionRows(headRow){
+    // find DM2 row from headRow
+    let dm2=headRow+2;
+    for(let i=headRow+1;i<headRow+6;i++){
+      if(gs(i,0).includes('ДМ2')){dm2=i;break;}
+    }
+    const avgRow=dm2-2;
+    const map={};
+    for(let i=dm2+1;i<dm2+15;i++){
+      const name=gs(i,0);
+      if(SELLER_MAP[name])map[name]=i;
+    }
+    return{avgRow,dm2Row:dm2,sellers:map};
+  }
+
+  const sm=smHead>=0?sectionRows(smHead):{avgRow:-1,dm2Row:-1,sellers:{}};
+  const ch=chHead>=0?sectionRows(chHead):{avgRow:-1,dm2Row:-1,sellers:{}};
+  const lt=ltHead>=0?sectionRows(ltHead):{avgRow:-1,dm2Row:-1,sellers:{}};
+  const gl=glHead>=0?sectionRows(glHead):{avgRow:-1,dm2Row:-1,sellers:{}};
+  const tv=tvHead>=0?sectionRows(tvHead):{avgRow:-1,dm2Row:-1,sellers:{}};
+
+  // Extract period from ACC file header (row 0 has "Щоденний звіт магазинів по АСС і Home на 20.04.2026 11:25")
+  const headerStr=gs(0,0);
+  const dateMatch=headerStr.match(/(\d{2}\.\d{2}\.\d{4})/);
+  const period=dateMatch?'Щоденний звіт АСС · '+dateMatch[1]:headerStr.replace('Щоденний звіт магазинів по АСС і Home на ','').replace('Щоденний звіт магазинів по АСС і Home','').trim()||'';
+
+  // Benchmarks
+  const bench={
+    sm_avg:{qty:g(sm.avgRow,1),cover:g(sm.avgRow,2),glass:g(sm.avgRow,3)},
+    sm_dm2:{qty:g(sm.dm2Row,1),cover:g(sm.dm2Row,2),glass:g(sm.dm2Row,3)},
+    ch_avg:{charge:g(ch.avgRow,1),hear_ttl:g(ch.avgRow,2),hear_tws:g(ch.avgRow,3)},
+    ch_dm2:{charge:g(ch.dm2Row,1),hear_ttl:g(ch.dm2Row,2),hear_tws:g(ch.dm2Row,3)},
+    lt_avg:{qty:g(lt.avgRow,1),bag:g(lt.avgRow,2),mouse:g(lt.avgRow,3)},
+    lt_dm2:{qty:g(lt.dm2Row,1),bag:g(lt.dm2Row,2),mouse:g(lt.dm2Row,3)},
+    gl_avg:{qty:g(gl.avgRow,1),gami:g(gl.avgRow,2),gami_units:g(gl.avgRow,3)},
+    gl_dm2:{qty:g(gl.dm2Row,1),gami:g(gl.dm2Row,2),gami_units:g(gl.dm2Row,3)},
+    tv_avg:{qty:g(tv.avgRow,1),mount:g(tv.avgRow,2),net:g(tv.avgRow,3)},
+    tv_dm2:{qty:g(tv.dm2Row,1),mount:g(tv.dm2Row,2),net:g(tv.dm2Row,3)},
+    acc_avg:{plan:null,fact:g(planHead>=0?planHead+2:-1,2),pct_plan:null,pct_fact:g(pctHead>=0?pctHead+2:-1,2)},
+    acc_dm2:{plan:g(planHead>=0?planHead+4:-1,1),fact:g(planHead>=0?planHead+4:-1,2),pct_plan:g(pctHead>=0?pctHead+4:-1,1),pct_fact:g(pctHead>=0?pctHead+4:-1,2)},
+  };
+
+  const sellers=sellerNames.map(name=>{
+    const sn=SELLER_MAP[name];
+    const r_sm=sm.sellers[name];
+    const r_ch=ch.sellers[name];
+    const r_lt=lt.sellers[name];
+    const r_gl=gl.sellers[name];
+    const r_tv=tv.sellers[name];
+    const r_pl=sellerRows[name];
+    const r_pct=r_pl?r_pl+(pctHead-planHead):null;
+
+    return{
+      name:sn,full:name,
+      sm_qty:r_sm?g(r_sm,1):null,sm_cover:r_sm?g(r_sm,2):null,sm_glass:r_sm?g(r_sm,3):null,
+      sm_charge:r_ch?g(r_ch,1):null,sm_hear_ttl:r_ch?g(r_ch,2):null,sm_hear_tws:r_ch?g(r_ch,3):null,
+      lt_qty:r_lt?g(r_lt,1):null,lt_bag:r_lt?g(r_lt,2):null,lt_mouse:r_lt?g(r_lt,3):null,
+      gl_qty:r_gl?g(r_gl,1):null,gl_gami:r_gl?g(r_gl,2):null,gl_gami_units:r_gl?g(r_gl,3):null,
+      tv_qty:r_tv?g(r_tv,1):null,tv_mount:r_tv?g(r_tv,2):null,tv_net:r_tv?g(r_tv,3):null,
+      acc_fact:r_pl?g(r_pl,2):null,
+      acc_pct:r_pct?g(r_pct,2):null,
+    };
+  }).filter(s=>s.sm_qty!==null||s.lt_qty!==null||s.tv_qty!==null||s.acc_fact!==null);
+
+  return{period,bench,sellers};
+}
+
+// ── GOOGLE SHEETS ─────────────────────────────────────────────
+async function fetchGoogleSheet(){
+  let url=S.gsheetUrl.trim();
+  if(!url){toast('Введіть URL Google Sheet','err');return;}
+  const idMatch=url.match(/\/d\/([a-zA-Z0-9_-]+)/);
+  const gidMatch=url.match(/[?&]gid=(\d+)/);
+  if(!idMatch){toast('Невалідний URL Google Sheets','err');return;}
+  const sheetId=idMatch[1];
+  const gid=gidMatch?gidMatch[1]:'0';
+
+  toast('Завантажуємо Google Sheets...','info');
+
+  // Use gviz/tq endpoint — works without CORS for public sheets
+  const tqUrl=`https://docs.google.com/spreadsheets/d/${sheetId}/gviz/tq?tqx=out:json&gid=${gid}`;
+  try{
+    const resp=await fetch(tqUrl);
+    if(!resp.ok)throw new Error(`HTTP ${resp.status}`);
+    const raw=await resp.text();
+    // gviz wraps response: google.visualization.Query.setResponse({...})
+    const jsonStr=raw.replace(/^[^(]+\(/,'').replace(/\);?\s*$/,'');
+    const data=JSON.parse(jsonStr);
+    if(!data.table)throw new Error('Немає даних у таблиці');
+    S.gsheetData=parseGvizTable(data.table);
+    toast(`Google Sheets: ${S.gsheetData.length} рядків завантажено`,'ok');
+    render();
+  }catch(e){
+    // Fallback: try CSV export
+    const csvUrl=`https://docs.google.com/spreadsheets/d/${sheetId}/export?format=csv&gid=${gid}`;
+    try{
+      const resp2=await fetch(csvUrl);
+      if(!resp2.ok)throw new Error(`HTTP ${resp2.status}`);
+      const text=await resp2.text();
+      S.gsheetData=parseGSheetCSV(text);
+      toast(`Google Sheets: ${S.gsheetData.length} рядків`,'ok');
+      render();
+    }catch(e2){
+      toast('Помилка підключення. Переконайтесь що доступ "Всі в інтернеті можуть переглядати"','err');
+    }
+  }
+}
+
+function parseGvizTable(table){
+  if(!table.cols||!table.rows)return[];
+  const headers=table.cols.map(c=>c.label||c.id||'');
+  return table.rows.map(row=>{
+    const obj={};
+    headers.forEach((h,i)=>{
+      const cell=row.c?row.c[i]:null;
+      obj[h]=cell&&cell.v!=null?String(cell.v):'';
+    });
+    return obj;
+  }).filter(r=>Object.values(r).some(v=>v.trim()));
+}
+
+function parseGSheetCSV(csv){
+  const lines=csv.split('\n').filter(l=>l.trim());
+  if(!lines.length)return[];
+  const headers=parseCSVLine(lines[0]).map(h=>h.trim());
+  return lines.slice(1).map(l=>{
+    const vals=parseCSVLine(l);
+    const row={};
+    headers.forEach((h,i)=>{row[h]=vals[i]||'';});
+    return row;
+  }).filter(r=>Object.values(r).some(v=>v.trim()));
+}
+
+function parseCSVLine(line){
+  const result=[];let cur='';let inQ=false;
+  for(let i=0;i<line.length;i++){
+    const c=line[i];
+    if(c==='"'&&!inQ){inQ=true;}
+    else if(c==='"'&&inQ&&line[i+1]==='"'){cur+='"';i++;}
+    else if(c==='"'&&inQ){inQ=false;}
+    else if(c===','&&!inQ){result.push(cur);cur='';}
+    else{cur+=c;}
+  }
+  result.push(cur);
+  return result.map(v=>v.trim());
+}
+
+// ── RENDER QUALITY ────────────────────────────────────────────
+function renderQuality(){
+  const ad=S.accData;
+  const tabs=`<div class="qtabs">
+    <button class="qtab${S.qualityTab==='penetration'?' on':''}" onclick="S.qualityTab='penetration';render()">Проникнення АСС</button>
+    <button class="qtab${S.qualityTab==='revenue'?' on':''}" onclick="S.qualityTab='revenue';render()">Виторг АСС / План</button>
+  </div>`;
+
+  if(S.qualityTab==='penetration'){
+    if(!ad)return`${tabs}<div style="background:var(--bg2);border:2px dashed var(--bd2);border-radius:var(--r2);padding:32px;text-align:center">
+      <div style="font-size:32px;margin-bottom:12px">📊</div>
+      <div style="font-size:14px;font-weight:600;margin-bottom:6px">Завантажте АСС/Home звіт</div>
+      <div style="font-size:12px;color:var(--t3)">Використовуйте кнопку "АСС/Home звіт" у бічній панелі<br>або на мобільному — кнопку "АСС" у верхній панелі</div>
+      <div style="margin-top:14px"><label style="display:inline-block;padding:8px 20px;border-radius:var(--r);border:1px solid var(--blue-bd);background:var(--blue-bg);color:var(--blue);cursor:pointer;font-size:13px;font-weight:500"><input type="file" accept=".xlsx,.xls" style="display:none" onchange="handleAccFile(this.files[0])">Обрати файл</label></div>
+    </div>`;
+
+    function pCell(v,bench,type='pen'){
+      if(v===null||v===undefined)return`<td class="pc-zero">—</td>`;
+      if(type==='qty')return`<td class="qty">${Math.round(v)}</td>`;
+      const pct=Math.round(v*100);
+      let cls;
+      if(bench==null)cls='pc-avg';
+      else if(v>=bench*1.05)cls='pc-hi';
+      else if(v>=bench*0.90)cls='pc-ok';
+      else if(v>=bench*0.75)cls='pc-avg';
+      else cls='pc-lo';
+      return`<td class="${cls}">${pct}%</td>`;
+    }
+
+    const b=ad.bench;
+    const sels=ad.sellers;
+
+    // SMARTPHONES
+    const smRows=sels.map(s=>`<tr>
+      <td>${s.name}</td>
+      ${pCell(s.sm_qty,null,'qty')}
+      ${pCell(s.sm_cover,b.sm_dm2.cover)}
+      ${pCell(s.sm_glass,b.sm_dm2.glass)}
+      ${pCell(s.sm_charge,b.ch_dm2.charge)}
+      ${pCell(s.sm_hear_ttl,b.ch_dm2.hear_ttl)}
+      ${pCell(s.sm_hear_tws,b.ch_dm2.hear_tws)}
+    </tr>`).join('');
+
+    // LAPTOPS
+    const ltRows=sels.map(s=>`<tr>
+      <td>${s.name}</td>
+      ${pCell(s.lt_qty,null,'qty')}
+      ${pCell(s.lt_bag,b.lt_dm2.bag)}
+      ${pCell(s.lt_mouse,b.lt_dm2.mouse)}
+    </tr>`).join('');
+
+    // GAMING LAPTOPS
+    const glRows=sels.map(s=>`<tr>
+      <td>${s.name}</td>
+      ${pCell(s.gl_qty,null,'qty')}
+      ${pCell(s.gl_gami,b.gl_dm2.gami)}
+      <td class="qty">${s.gl_gami_units!==null?Math.round(s.gl_gami_units):'—'}</td>
+    </tr>`).join('');
+
+    // TVs
+    const tvRows=sels.map(s=>`<tr>
+      <td>${s.name}</td>
+      ${pCell(s.tv_qty,null,'qty')}
+      ${pCell(s.tv_mount,b.tv_dm2.mount)}
+      ${pCell(s.tv_net,b.tv_dm2.net)}
+    </tr>`).join('');
+
+    const benchRow=(label,cells)=>`<tr class="bench"><td>${label}</td>${cells}</tr>`;
+
+    return`${tabs}
+    <div style="font-size:11px;color:var(--t3);margin-bottom:12px">Дані: ${ad.period} · <span style="color:var(--green)">Зелений</span> = вище ДМ2 · <span style="color:var(--red)">Червоний</span> = нижче ДМ2</div>
+
+    <div class="pen-section">
+      <div class="pen-section-title">📱 Смартфони</div>
+      <div style="overflow-x:auto"><table class="pen-table">
+        <thead><tr>
+          <th style="text-align:left;min-width:110px">Продавець</th>
+          <th>Шт</th><th>Чохли</th><th>Скло</th><th>Зарядки</th><th>Нав. ТТЛ</th><th>Нав. TWS</th>
+        </tr></thead>
+        <tbody>
+          ${benchRow('Сер. маг. А',`<td class="qty">${Math.round(b.sm_avg.qty||0)}</td><td>${Math.round((b.sm_avg.cover||0)*100)}%</td><td>${Math.round((b.sm_avg.glass||0)*100)}%</td><td>${Math.round((b.ch_avg.charge||0)*100)}%</td><td>${Math.round((b.ch_avg.hear_ttl||0)*100)}%</td><td>${Math.round((b.ch_avg.hear_tws||0)*100)}%</td>`)}
+          ${benchRow('ДМ2 (план)',`<td class="qty">${Math.round(b.sm_dm2.qty||0)}</td><td>${Math.round((b.sm_dm2.cover||0)*100)}%</td><td>${Math.round((b.sm_dm2.glass||0)*100)}%</td><td>${Math.round((b.ch_dm2.charge||0)*100)}%</td><td>${Math.round((b.ch_dm2.hear_ttl||0)*100)}%</td><td>${Math.round((b.ch_dm2.hear_tws||0)*100)}%</td>`)}
+          ${smRows}
+        </tbody>
+      </table></div>
+    </div>
+
+    <div class="pen-section">
+      <div class="pen-section-title">💻 Ноутбуки</div>
+      <div style="overflow-x:auto"><table class="pen-table">
+        <thead><tr><th style="text-align:left;min-width:110px">Продавець</th><th>Шт</th><th>Сумки</th><th>Миша+Клав.</th></tr></thead>
+        <tbody>
+          ${benchRow('Сер. маг. А',`<td class="qty">${Math.round(b.lt_avg.qty||0)}</td><td>${Math.round((b.lt_avg.bag||0)*100)}%</td><td>${Math.round((b.lt_avg.mouse||0)*100)}%</td>`)}
+          ${benchRow('ДМ2',`<td class="qty">${Math.round(b.lt_dm2.qty||0)}</td><td>${Math.round((b.lt_dm2.bag||0)*100)}%</td><td>${Math.round((b.lt_dm2.mouse||0)*100)}%</td>`)}
+          ${ltRows}
+        </tbody>
+      </table></div>
+    </div>
+
+    <div class="pen-section">
+      <div class="pen-section-title">🎮 Ноутбуки ігрові</div>
+      <div style="overflow-x:auto"><table class="pen-table">
+        <thead><tr><th style="text-align:left;min-width:110px">Продавець</th><th>Шт</th><th>Ігр. Акси %</th><th>Ігр. Акси шт</th></tr></thead>
+        <tbody>
+          ${benchRow('Сер. маг. А',`<td class="qty">${Math.round(b.gl_avg.qty||0)}</td><td>${Math.round((b.gl_avg.gami||0)*100)}%</td><td class="qty">${Math.round(b.gl_avg.gami_units||0)}</td>`)}
+          ${benchRow('ДМ2',`<td class="qty">${Math.round(b.gl_dm2.qty||0)}</td><td>${Math.round((b.gl_dm2.gami||0)*100)}%</td><td class="qty">${Math.round(b.gl_dm2.gami_units||0)}</td>`)}
+          ${glRows}
+        </tbody>
+      </table></div>
+    </div>
+
+    <div class="pen-section">
+      <div class="pen-section-title">📺 Телевізори</div>
+      <div style="overflow-x:auto"><table class="pen-table">
+        <thead><tr><th style="text-align:left;min-width:110px">Продавець</th><th>Шт</th><th>Кріплення</th><th>Мережеве</th></tr></thead>
+        <tbody>
+          ${benchRow('Сер. маг. А',`<td class="qty">${Math.round(b.tv_avg.qty||0)}</td><td>${Math.round((b.tv_avg.mount||0)*100)}%</td><td>${Math.round((b.tv_avg.net||0)*100)}%</td>`)}
+          ${benchRow('ДМ2',`<td class="qty">${Math.round(b.tv_dm2.qty||0)}</td><td>${Math.round((b.tv_dm2.mount||0)*100)}%</td><td>${Math.round((b.tv_dm2.net||0)*100)}%</td>`)}
+          ${tvRows}
+        </tbody>
+      </table></div>
+    </div>`;
+  }
+
+  // ── Revenue / Plan tab ────────────────────────────────────────
+  const gs=S.gsheetData;
+  const accFact=ad?ad.bench.acc_dm2:{};
+
+  // Google Sheets connect block
+  const gsheetBlock=`
+    <div class="gsheet-connect">
+      <div style="font-size:10px;font-weight:700;letter-spacing:2px;color:var(--t3);text-transform:uppercase;margin-bottom:10px">Підключення Google Sheets</div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        <input type="text" id="gsheetInput" value="${S.gsheetUrl}" placeholder="URL Google Sheets..."
+          style="flex:1;min-width:200px;padding:8px 12px;border-radius:var(--r);border:1px solid var(--bd);background:var(--bg3);color:var(--t1);font-size:12px;font-family:'Outfit',sans-serif;outline:none"
+          oninput="S.gsheetUrl=this.value">
+        <button onclick="fetchGoogleSheet()" style="padding:8px 16px;border-radius:var(--r);border:1px solid var(--blue-bd);background:var(--blue-bg);color:var(--blue);font-size:12px;font-weight:600;cursor:pointer;font-family:'Outfit',sans-serif;white-space:nowrap">
+          Підключити
+        </button>
+      </div>
+      <div class="gsheet-status">
+        <div class="gsheet-dot" style="background:${gs?'var(--green)':'var(--t3)'}"></div>
+        <span style="font-size:11px;color:var(--t2)">${gs?`Підключено · ${gs.length} рядків даних`:'Не підключено. Переконайтесь що таблиця відкрита для перегляду'}</span>
+      </div>
+    </div>`;
+
+  // Build revenue table
+  let revenueRows='';
+  const avgPct=ad?ad.bench.acc_avg.pct_fact:null;
+  const dm2Pct=ad?ad.bench.acc_dm2.pct_fact:null;
+  const dm2Fact=ad?ad.bench.acc_dm2.fact:null;
+
+  // If google sheets has data, try to match sellers
+  let planMap={};
+  let gsTotalRev={};
+  let gsAccPct={};
+  if(gs&&gs.length){
+    const headers=Object.keys(gs[0]);
+    console.log('GSheet headers:', headers); // debug
+    gs.forEach(row=>{
+      // Find name column: contains seller-like name
+      const nameCols=headers.filter(h=>{
+        const hl=h.toLowerCase();
+        return hl.includes('продав')||hl.includes('ім\'я')||hl.includes('прізв')||hl.includes('name')||hl.includes('співробіт');
+      });
+      // Find plan column
+      const planCols=headers.filter(h=>{
+        const hl=h.toLowerCase();
+        return hl.includes('план')&&!hl.includes('%')&&!hl.includes('вик');
+      });
+      // Find total revenue column
+      const factCols=headers.filter(h=>{
+        const hl=h.toLowerCase();
+        return (hl.includes('факт')||hl.includes('виторг')||hl.includes('виручка')||hl.includes('revenue'))&&!hl.includes('%');
+      });
+      // Find % ACC share column
+      const pctCols=headers.filter(h=>{
+        const hl=h.toLowerCase();
+        return hl.includes('%')||hl.includes('відсот')||hl.includes('частка')||hl.includes('share');
+      });
+
+      const nameKey=nameCols[0]||headers[0];
+      if(nameKey&&row[nameKey]){
+        const name=row[nameKey].trim();
+        if(!name)return;
+        // Try to match by exact full name OR short name
+        const matchKey=Object.keys(SELLER_MAP_REV).find(k=>name.includes(k)||k.includes(name))||name;
+        if(planCols[0]){const v=parseFloat(String(row[planCols[0]]).replace(/\s/g,'').replace(',','.'));if(!isNaN(v)&&v>0)planMap[name]=v;planMap[matchKey]=v;}
+        if(factCols[0]){const v=parseFloat(String(row[factCols[0]]).replace(/\s/g,'').replace(',','.'));if(!isNaN(v)&&v>0){gsTotalRev[name]=v;gsTotalRev[matchKey]=v;}}
+        if(pctCols[0]){const v=parseFloat(String(row[pctCols[0]]).replace(/\s/g,'').replace(',','.').replace('%',''));if(!isNaN(v)){const pv=v>1?v/100:v;gsAccPct[name]=pv;gsAccPct[matchKey]=pv;}}
+      }
+    });
+  }
+
+  if(ad){
+    const sels=ad.sellers;
+    const maxFact=Math.max(...sels.map(s=>s.acc_fact||0),1);
+    revenueRows=sels.map(s=>{
+      const plan=planMap[s.full]||planMap[s.name]||null;
+      const planPct=plan&&s.acc_fact?s.acc_fact/plan:null;
+      const pct=s.acc_pct;
+      const pctColor=pct==null?'var(--t3)':pct>=dm2Pct?'var(--green)':pct>=(dm2Pct||0)*.9?'var(--amber)':'var(--red)';
+      return`<tr>
+        <td style="font-weight:600;font-size:13px">${s.full}</td>
+        <td style="text-align:right;font-family:'IBM Plex Mono',monospace;font-size:13px">${s.acc_fact?fmt(s.acc_fact)+' ₴':'—'}</td>
+        <td style="text-align:right">${plan?fmt(plan)+' ₴':'—'}</td>
+        <td style="text-align:right;font-family:'IBM Plex Mono',monospace">
+          ${planPct!=null?`<span style="color:${planPct>=1?'var(--green)':'var(--red)'}">${Math.round(planPct*100)}%</span>`:'—'}
+        </td>
+        <td style="min-width:160px">
+          <div class="pct-bar-wrap">
+            <div class="pct-bar-bg">
+              <div class="pct-bar-fill" style="width:${s.acc_fact?Math.round(s.acc_fact/maxFact*100):0}%;background:var(--blue)"></div>
+            </div>
+          </div>
+        </td>
+        <td style="text-align:right">
+          <span style="font-family:'IBM Plex Mono',monospace;font-size:13px;color:${pctColor}">${pct!=null?Math.round(pct*100)+'%':'—'}</span>
+        </td>
+        <td style="text-align:right;color:var(--t3);font-size:11px;font-family:'IBM Plex Mono',monospace">${dm2Pct!=null&&pct!=null?`${pct>=dm2Pct?'+':''}${Math.round((pct-(dm2Pct||0))*100)}%`:'—'}</td>
+      </tr>`;
+    }).join('');
+  }else{
+    revenueRows=`<tr><td colspan="7" class="empty">Завантажте АСС/Home звіт для відображення даних</td></tr>`;
+  }
+
+  const storeRow=(label,fact,pct,pctColor)=>`<tr style="background:var(--bg3);font-size:11px;color:var(--t3)">
+    <td>${label}</td>
+    <td style="text-align:right;font-family:'IBM Plex Mono',monospace">${fact?fmt(fact)+' ₴':'—'}</td>
+    <td style="text-align:right">—</td><td style="text-align:right">—</td><td></td>
+    <td style="text-align:right;font-family:'IBM Plex Mono',monospace;color:${pctColor}">${pct!=null?Math.round(pct*100)+'%':'—'}</td>
+    <td></td>
+  </tr>`;
+
+  return`${tabs}${gsheetBlock}
+    <div class="card">
+      <div class="card-h">
+        <span class="card-t">Виторг АСС + Home по продавцях</span>
+        <span style="font-size:10px;color:var(--t3)">Факт з АСС файлу · План з Google Sheets</span>
+      </div>
+      <div style="overflow-x:auto"><table class="rev-table">
+        <thead><tr>
+          <th>Продавець</th>
+          <th style="text-align:right">Факт АСС ₴</th>
+          <th style="text-align:right">План ₴</th>
+          <th style="text-align:right">Вик.%</th>
+          <th>Частка</th>
+          <th style="text-align:right">% АСС в виторгу</th>
+          <th style="text-align:right">vs ДМ2</th>
+        </tr></thead>
+        <tbody>
+          ${storeRow('Сер. маг. А',ad?ad.bench.acc_avg.fact:null,avgPct,'var(--t2)')}
+          ${storeRow('ДМ2 (Мост-2)',dm2Fact,dm2Pct,'var(--t1)')}
+          ${revenueRows}
+        </tbody>
+      </table></div>
+    </div>`;
+}
+function toggleTheme(){
+  S.theme=S.theme==='dark'?'light':'dark';
+  applyTheme();
+  saveState();
+}
+function applyTheme(){
+  document.documentElement.setAttribute('data-theme',S.theme==='light'?'light':'');
+  const isDark=S.theme==='dark';
+  const icon=isDark?'☀️':'🌙';
+  const label=isDark?'Світла тема':'Темна тема';
+  const ti=document.getElementById('themeIcon');if(ti)ti.textContent=icon;
+  const tl=document.getElementById('themeLabel');if(tl)tl.textContent=label;
+  const mb=document.getElementById('mobThemeBtn');if(mb)mb.textContent=icon;
+}
+
+// ═══════════════════════════════════════════════════════════════
+// MOBILE INTERACTIONS
+// ═══════════════════════════════════════════════════════════════
+function sellerClick(name){
+  if(isMobile()){
+    S.selSeller=name;
+    openMobOverlay(name);
+  } else {
+    S.selSeller=S.selSeller===name?null:name;
+    if(S.view==='overview'){S.view='sellers';}
+    render();
+  }
+}
+
+function planSelClick(name){
+  if(isMobile()){
+    S.selSeller=name;
+    openMobPlanOverlay(name);
+  } else {
+    S.selSeller=S.selSeller===name?null:name;
+    render();
+  }
+}
+
+function openMobOverlay(name){
+  const sellers=S.sellers.filter(s=>s.revenue>0).sort((a,b)=>b.revenue-a.revenue);
+  const s=sellers.find(x=>x.name===name);
+  if(!s)return;
+  document.getElementById('mobOverlayContent').innerHTML=sellerDetailHTML(s,sellers);
+  document.getElementById('mobOverlay').classList.add('visible');
+}
+
+function openMobPlanOverlay(name){
+  const sellers=S.sellers.filter(s=>s.revenue>0).sort((a,b)=>b.revenue-a.revenue);
+  const s=sellers.find(x=>x.name===name);
+  const plan=PLANS[name]||PLANS.default;
+  const tot=plan.reduce((a,d)=>a+d.actions.length,0);
+  const done=plan.reduce((a,d,di)=>a+d.actions.filter((_,ai)=>S.checks[`${name}-${di}-${ai}`]).length,0);
+  const prog=tot>0?Math.round(done/tot*100):0;
+  const days=plan.map((day,di)=>{
+    const items=day.actions.map((a,ai)=>{
+      const k=`${name}-${di}-${ai}`,dn=!!S.checks[k],ad=adef(a.type);
+      return `<div class="action${dn?' done':''}" onclick="toggleCheckMob('${k}','${name}')">
+        <div class="chk${dn?' on':''}">${dn?'✓':''}</div>
+        <div><span class="abadge" style="background:${ad.bg};color:${ad.color}">${ad.label}</span><div class="atxt">${a.text}</div></div>
+      </div>`;
+    }).join('');
+    const dc=day.actions.filter((_,ai)=>S.checks[`${name}-${di}-${ai}`]).length;
+    return `<div class="day-block">
+      <div class="day-h"><span class="day-lbl">${day.day}</span><span style="font-size:10px;color:var(--t3);font-family:'IBM Plex Mono',monospace">${dc}/${day.actions.length}</span></div>
+      <div class="day-body">${items}</div>
+    </div>`;
+  }).join('');
+  document.getElementById('mobOverlayContent').innerHTML=`
+    <div class="plan-prog-wrap">
+      <div style="display:flex;justify-content:space-between;margin-bottom:2px">
+        <span style="font-size:13px;font-weight:600">${s?.full||name}</span>
+        <span style="font-size:11px;color:var(--t3);font-family:'IBM Plex Mono',monospace">${prog}%</span>
+      </div>
+      <div class="plan-prog"><div class="plan-prog-f" style="width:${prog}%"></div></div>
+    </div>
+    ${days}`;
+  document.getElementById('mobOverlay').classList.add('visible');
+}
+
+function closeMobOverlay(){
+  document.getElementById('mobOverlay').classList.remove('visible');
+}
+
+function toggleCheckMob(k,name){
+  S.checks[k]=!S.checks[k];
+  saveState();
+  openMobPlanOverlay(name);
+}
+
+// ═══════════════════════════════════════════════════════════════
+// RENDER
+// ═══════════════════════════════════════════════════════════════
+function render(){
+  try{
+    renderKPI();
+  }catch(e){
+    console.error('renderKPI error:',e);
+    const kr=document.getElementById('kpiRow');
+    if(kr)kr.innerHTML='';
+  }
+  try{closeMobOverlay();}catch(e){}
+  const titles={overview:'Огляд магазину',sellers:'Продавці',categories:'Категорії',plan:'План дій',rhythm:'Ритм тижня',focus:'Фокус дня',matrix:'Матриця продавців',insights:'Автоінсайти',quality:'Якість продажів'};
+  const pt=document.getElementById('pageTitle');
+  if(pt)pt.textContent=titles[S.view]||'';
+  const el=document.getElementById('content');
+  if(!el)return;
+  try{
+    el.className='anim';void el.offsetWidth;
+    if(S.view==='overview')el.innerHTML=renderOverview();
+    else if(S.view==='sellers')el.innerHTML=renderSellers();
+    else if(S.view==='categories')el.innerHTML=renderCategories();
+    else if(S.view==='plan')el.innerHTML=renderPlan();
+    else if(S.view==='rhythm')el.innerHTML=renderRhythm();
+    else if(S.view==='focus')el.innerHTML=renderFocus();
+    else if(S.view==='matrix')el.innerHTML=renderMatrix();
+    else if(S.view==='insights')el.innerHTML=renderInsights();
+    else if(S.view==='quality')el.innerHTML=renderQuality();
+  }catch(e){
+    console.error('render error (view='+S.view+'):',e);
+    el.innerHTML=`<div style="padding:32px;color:#ff6b6b;font-family:monospace;font-size:13px;background:rgba(255,107,107,.08);border-radius:10px;border:1px solid rgba(255,107,107,.3)">
+      <div style="font-size:15px;font-weight:700;margin-bottom:8px">Помилка відображення</div>
+      <div>${e.message}</div>
+      <div style="margin-top:12px;font-size:11px;color:#9eaabf">Перевірте консоль браузера (F12) для деталей</div>
+      <div style="margin-top:10px"><button onclick="clearFileData();location.reload()" style="padding:7px 14px;border-radius:8px;border:1px solid rgba(255,107,107,.4);background:rgba(255,107,107,.12);color:#ff6b6b;cursor:pointer;font-family:inherit">Очистити кеш і перезавантажити</button></div>
+    </div>`;
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════
+// NAVIGATION
+// ═══════════════════════════════════════════════════════════════
+function go(v){
+  S.view=v;S.selSeller=null;S.selCat=null;
+  document.querySelectorAll('[data-v]').forEach(el=>el.classList.toggle('active',el.dataset.v===v));
+  render();
+}
+
+function toggleCheck(k){S.checks[k]=!S.checks[k];saveState();render()}
+function toggleRhythm(id){S.rhythmChecks[id]=!S.rhythmChecks[id];saveState();render()}
+function resetRhythm(){if(confirm('Скинути прогрес поточного тижня?')){S.rhythmChecks={};saveState();render();toast('Ритм тижня скинуто','info')}}
+
+// ═══════════════════════════════════════════════════════════════
+// PERSISTENCE
+// ═══════════════════════════════════════════════════════════════
+function saveState(){
+  try{
+    localStorage.setItem('dm2_checks_v3',JSON.stringify(S.checks));
+    localStorage.setItem(getWeekKey(),JSON.stringify(S.rhythmChecks));
+    localStorage.setItem('dm2_theme',S.theme);
+  }catch(e){}
+}
+
+function saveFileData(){
+  try{
+    if(S.sellers&&S.sellers.length){
+      const payload={sellers:S.sellers,cats:S.cats,period:document.getElementById('sbPeriod')?.textContent||''};
+      localStorage.setItem('dm2_filedata_v1',JSON.stringify(payload));
+    }
+    if(S.accData){
+      localStorage.setItem('dm2_accdata_v1',JSON.stringify(S.accData));
+      const lbl=document.getElementById('accUpLabel');
+      const lname=lbl?.textContent||'';
+      if(lname&&!lname.includes('АСС/Home'))localStorage.setItem('dm2_accname_v1',lname);
+    }
+  }catch(e){
+    console.warn('Не вдалося зберегти дані у localStorage (можливо, перевищено ліміт)');
+    toast('Увага: дані не збережено (ліміт пам'яті браузера)','err');
+  }
+}
+
+function clearFileData(){
+  localStorage.removeItem('dm2_filedata_v1');
+  localStorage.removeItem('dm2_accdata_v1');
+  localStorage.removeItem('dm2_accname_v1');
+}
+function loadState(){
+  try{
+    // Version guard - clear stale cache on app update
+    const APP_VER='v6';
+    const cachedVer=localStorage.getItem('dm2_app_ver');
+    if(cachedVer&&cachedVer!==APP_VER){
+      // New version deployed - clear file cache to avoid structure mismatch
+      clearFileData();
+    }
+    localStorage.setItem('dm2_app_ver',APP_VER);
+    const c=localStorage.getItem('dm2_checks_v3');if(c)S.checks=JSON.parse(c);
+    const r=localStorage.getItem(getWeekKey());if(r)S.rhythmChecks=JSON.parse(r);
+    const t=localStorage.getItem('dm2_theme');if(t)S.theme=t;
+  }catch(e){}
+}
+
+function loadFileData(){
+  try{
+    const fd=localStorage.getItem('dm2_filedata_v1');
+    if(fd){
+      const parsed=JSON.parse(fd);
+      const{sellers,cats,period}=parsed;
+      // Validate structure before using
+      if(sellers&&Array.isArray(sellers)&&sellers.length&&sellers[0].revenue!==undefined){
+        S.sellers=assignTiers(sellers.map(s=>({...s})));
+        S.cats=Array.isArray(cats)?cats:buildCatIndex(S.sellers);
+        const periodStr=period||'';
+        ['sbPeriod','mobPeriod'].forEach(id=>{const e=document.getElementById(id);if(e)e.textContent=periodStr||'Збережений звіт';});
+        const ps=document.getElementById('pageSub');
+        if(ps)ps.textContent=(periodStr||'Збережений звіт')+' · '+S.sellers.length+' продавців';
+        return true;
+      }
+    }
+  }catch(e){
+    console.warn('loadFileData error:',e);
+    clearFileData(); // Clear corrupt data
+  }
+  return false;
+}
+
+function loadAccData(){
+  try{
+    const ad=localStorage.getItem('dm2_accdata_v1');
+    if(ad){
+      S.accData=JSON.parse(ad);
+      const name=localStorage.getItem('dm2_accname_v1')||'';
+      const lbl=document.getElementById('accUpLabel');
+      if(lbl&&name)lbl.textContent=name;
+      return true;
+    }
+  }catch(e){console.warn('loadAccData error:',e);}
+  return false;
+}
+
+// ═══════════════════════════════════════════════════════════════
+// FILE UPLOAD
+// ═══════════════════════════════════════════════════════════════
+function handleFile(file){
+  if(!file)return;
+  toast('Читаємо файл...','info');
+  const reader=new FileReader();
+  reader.onload=ev=>{
+    try{
+      const{sellers,cats,period}=parseFile(new Uint8Array(ev.target.result));
+      if(!sellers.length){toast('Не знайдено даних. Перевірте формат.','err');return;}
+      S.sellers=sellers;S.cats=cats;S.selSeller=null;S.selCat=null;
+      // Use extracted period; fallback to filename
+      const name=file.name.replace(/\.(xlsx|xls)$/i,'');
+      const displayPeriod=period||name;
+      ['sbPeriod','mobPeriod'].forEach(id=>{const e=document.getElementById(id);if(e)e.textContent=displayPeriod;});
+      document.getElementById('pageSub').textContent=`${displayPeriod} · ${sellers.length} продавців`;
+      saveFileData();
+      toast(`Завантажено: ${sellers.length} продавців · Збережено у браузері`,'ok');
+      render();
+    }catch(e){toast('Помилка: '+e.message,'err');}
+  };
+  reader.readAsArrayBuffer(file);
+}
+
+// ═══════════════════════════════════════════════════════════════
+// EVENTS
+// ═══════════════════════════════════════════════════════════════
+function handleAccFile(file){
+  if(!file)return;
+  toast('Читаємо АСС файл...','info');
+  const reader=new FileReader();
+  reader.onload=ev=>{
+    try{
+      S.accData=parseAccFile(new Uint8Array(ev.target.result));
+      const lbl=document.getElementById('accUpLabel');
+      const shortName='✓ '+file.name.replace(/\.(xlsx|xls)$/i,'').slice(0,22);
+      if(lbl)lbl.textContent=shortName;
+      saveFileData();
+      toast(`АСС файл завантажено · ${S.accData.period} · Збережено`,'ok');
+      if(S.view==='quality')render();
+    }catch(e){toast('Помилка АСС файлу: '+e.message,'err');}
+  };
+  reader.readAsArrayBuffer(file);
+}
+
+['fileInput','fileInputMob'].forEach(id=>{
+  const el=document.getElementById(id);
+  if(el)el.addEventListener('change',e=>{handleFile(e.target.files[0]);e.target.value='';});
+});
+
+['fileInputAcc','fileInputMobAcc'].forEach(id=>{
+  const el=document.getElementById(id);
+  if(el)el.addEventListener('change',e=>{handleAccFile(e.target.files[0]);e.target.value='';});
+});
+
+const dz=document.getElementById('dropZone');
+if(dz){
+  dz.addEventListener('dragover',e=>{e.preventDefault();dz.classList.add('drag')});
+  dz.addEventListener('dragleave',()=>dz.classList.remove('drag'));
+  dz.addEventListener('drop',e=>{e.preventDefault();dz.classList.remove('drag');handleFile(e.dataTransfer.files[0]);});
+}
+
+document.addEventListener('keydown',e=>{
+  const map={'1':'overview','2':'sellers','3':'categories','4':'plan','5':'rhythm','6':'focus','7':'matrix','8':'insights','9':'quality'};
+  if(map[e.key]&&!e.ctrlKey&&!e.metaKey&&!e.altKey&&document.activeElement.tagName!=='INPUT'){go(map[e.key]);}
+});
+
+// ═══════════════════════════════════════════════════════════════
+// INIT
+// ═══════════════════════════════════════════════════════════════
+loadState();
+applyTheme();
+// Try to restore last loaded report from cache
+const restoredFromCache=loadFileData();
+if(!restoredFromCache){
+  // No cached file — use demo data
+  S.sellers=assignTiers(DEFAULT_SELLERS.map(s=>({...s})));
+  S.cats=buildCatIndex(S.sellers);
+}
+loadAccData();
+render();
+</script>
+</body>
+</html>
