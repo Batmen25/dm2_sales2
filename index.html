@@ -49,6 +49,8 @@ html,body{height:100%;background:var(--bg0);color:var(--t1);font-family:'Outfit'
 .up-zone:hover,.up-zone.drag{background:var(--blue-bg);border-color:var(--blue-bd)}
 .up-zone input{display:none}
 .sb-keys{font-size:11px;color:var(--t3);text-align:center;margin-top:10px;line-height:1.5;opacity:.7}
+.sb-clear{font-size:11px;color:var(--t3);text-align:center;margin-top:6px;cursor:pointer;opacity:.6;transition:opacity .15s;text-decoration:none;display:block}
+.sb-clear:hover{opacity:1;color:var(--red)}
 
 /* ═══ THEME TOGGLE ═══ */
 .theme-btn{display:flex;align-items:center;gap:9px;width:100%;padding:9px 13px;border-radius:var(--r);border:1px solid var(--bd);background:transparent;color:var(--t2);font-size:13px;font-weight:500;cursor:pointer;font-family:'Outfit',sans-serif;margin-bottom:10px;transition:all .15s}
@@ -391,6 +393,7 @@ tbody tr:hover td{background:var(--bg3)}
       <div style="font-size:10px;color:var(--t3);margin-top:2px">Щоденний звіт АСС</div>
     </label>
     <div class="sb-keys">Клавіші 1–9 для навігації</div>
+    <button class="sb-clear" onclick="if(confirm('Очистити збережені файли?')){clearFileData();location.reload();}" title="Очистити кеш файлів">🗑 Очистити збережені дані</button>
   </div>
 </aside>
 
@@ -1967,12 +1970,69 @@ function saveState(){
     localStorage.setItem('dm2_theme',S.theme);
   }catch(e){}
 }
+
+function saveFileData(){
+  try{
+    if(S.sellers&&S.sellers.length){
+      const payload={sellers:S.sellers,cats:S.cats,period:document.getElementById('sbPeriod')?.textContent||''};
+      localStorage.setItem('dm2_filedata_v1',JSON.stringify(payload));
+    }
+    if(S.accData){
+      localStorage.setItem('dm2_accdata_v1',JSON.stringify(S.accData));
+      const lbl=document.getElementById('accUpLabel');
+      const lname=lbl?.textContent||'';
+      if(lname&&!lname.includes('АСС/Home'))localStorage.setItem('dm2_accname_v1',lname);
+    }
+  }catch(e){
+    console.warn('Не вдалося зберегти дані у localStorage (можливо, перевищено ліміт)');
+    toast('Увага: дані не збережено (ліміт пам'яті браузера)','err');
+  }
+}
+
+function clearFileData(){
+  localStorage.removeItem('dm2_filedata_v1');
+  localStorage.removeItem('dm2_accdata_v1');
+  localStorage.removeItem('dm2_accname_v1');
+}
 function loadState(){
   try{
     const c=localStorage.getItem('dm2_checks_v3');if(c)S.checks=JSON.parse(c);
     const r=localStorage.getItem(getWeekKey());if(r)S.rhythmChecks=JSON.parse(r);
     const t=localStorage.getItem('dm2_theme');if(t)S.theme=t;
   }catch(e){}
+}
+
+function loadFileData(){
+  try{
+    const fd=localStorage.getItem('dm2_filedata_v1');
+    if(fd){
+      const{sellers,cats,period}=JSON.parse(fd);
+      if(sellers&&sellers.length){
+        S.sellers=assignTiers(sellers);
+        S.cats=cats||buildCatIndex(S.sellers);
+        if(period){
+          ['sbPeriod','mobPeriod'].forEach(id=>{const e=document.getElementById(id);if(e)e.textContent=period;});
+          document.getElementById('pageSub').textContent=period+' · '+S.sellers.length+' продавців';
+        }
+        return true;
+      }
+    }
+  }catch(e){console.warn('loadFileData error:',e);}
+  return false;
+}
+
+function loadAccData(){
+  try{
+    const ad=localStorage.getItem('dm2_accdata_v1');
+    if(ad){
+      S.accData=JSON.parse(ad);
+      const name=localStorage.getItem('dm2_accname_v1')||'';
+      const lbl=document.getElementById('accUpLabel');
+      if(lbl&&name)lbl.textContent=name;
+      return true;
+    }
+  }catch(e){console.warn('loadAccData error:',e);}
+  return false;
 }
 
 // ═══════════════════════════════════════════════════════════════
@@ -1990,7 +2050,8 @@ function handleFile(file){
       const name=file.name.replace(/\.(xlsx|xls)$/i,'');
       ['sbPeriod','mobPeriod'].forEach(id=>{const e=document.getElementById(id);if(e)e.textContent=name;});
       document.getElementById('pageSub').textContent=`${name} · ${sellers.length} продавців`;
-      toast(`Завантажено: ${sellers.length} продавців`,'ok');
+      saveFileData();
+      toast(`Завантажено: ${sellers.length} продавців · Збережено у браузері`,'ok');
       render();
     }catch(e){toast('Помилка: '+e.message,'err');}
   };
@@ -2008,8 +2069,10 @@ function handleAccFile(file){
     try{
       S.accData=parseAccFile(new Uint8Array(ev.target.result));
       const lbl=document.getElementById('accUpLabel');
-      if(lbl)lbl.textContent='✓ '+file.name.replace(/\.(xlsx|xls)$/i,'').slice(0,22);
-      toast(`АСС файл завантажено · ${S.accData.period}`,'ok');
+      const shortName='✓ '+file.name.replace(/\.(xlsx|xls)$/i,'').slice(0,22);
+      if(lbl)lbl.textContent=shortName;
+      saveFileData();
+      toast(`АСС файл завантажено · ${S.accData.period} · Збережено`,'ok');
       if(S.view==='quality')render();
     }catch(e){toast('Помилка АСС файлу: '+e.message,'err');}
   };
@@ -2043,8 +2106,14 @@ document.addEventListener('keydown',e=>{
 // ═══════════════════════════════════════════════════════════════
 loadState();
 applyTheme();
-S.sellers=assignTiers(DEFAULT_SELLERS.map(s=>({...s})));
-S.cats=buildCatIndex(S.sellers);
+// Try to restore last loaded report from cache
+const restoredFromCache=loadFileData();
+if(!restoredFromCache){
+  // No cached file — use demo data
+  S.sellers=assignTiers(DEFAULT_SELLERS.map(s=>({...s})));
+  S.cats=buildCatIndex(S.sellers);
+}
+loadAccData();
 render();
 </script>
 </body>
