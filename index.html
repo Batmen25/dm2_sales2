@@ -831,13 +831,15 @@ function toast(msg,type='info'){
 function vsBar(v,max=2){
   const c=Math.max(-max,Math.min(max,v||0));
   const p=Math.round(Math.abs(c)/max*100);
-  const col=v>=0?'#34d399':'#f87171';
-  return `<div class="mbar"><div class="mbar-t" style="min-width:30px"><div class="mbar-f" style="width:${p}%;background:${col}"></div></div><span class="vs ${vc(v)}" style="white-space:nowrap;min-width:44px;text-align:center">${pct(v)}</span></div>`;
+  const col=v>=0?'#36d98c':'#ff6b6b';
+  const cls=vc(v);
+  return '<div class="mbar" style="min-width:0">'+
+    '<div class="mbar-t" style="flex:1;min-width:28px">'+
+    '<div class="mbar-f" style="height:6px;border-radius:3px;width:'+p+'%;background:'+col+'"></div></div>'+
+    '<span class="vs '+cls+'" style="flex-shrink:0;min-width:46px;text-align:center">'+pct(v)+'</span></div>';
 }
 
-// ═══════════════════════════════════════════════════════════════
-// PARSE FILE
-// ═══════════════════════════════════════════════════════════════
+
 function parseFile(ab){
   const wb=XLSX.read(ab,{type:'array'});
   const ws=wb.Sheets[wb.SheetNames[0]];
@@ -1093,8 +1095,9 @@ function renderCategories(){
   const cats=S.bizFilter==='all'?allCats:allCats.filter(c=>c.biz===S.bizFilter);
   const bizPills=['all','ДП техніка','Аксесуари'].map(b=>`
     <button class="pill${S.bizFilter===b?' on':''}" onclick="S.bizFilter='${b}';S.selCat=null;render()">${b==='all'?'Всі бізнеси':b}</button>`).join('');
-  const list=cats.map(c=>`
-    <div class="li${S.selCat===c.cat?' sel':''}" onclick="catClick('${c.cat.replace(/'/g,\"\\'\")}')">
+  window._CNAMES=cats.map(c=>c.cat);
+  const list=cats.map((c,_i)=>`
+    <div class="li${S.selCat===c.cat?' sel':''}" onclick="selCatIdx(${_i})">
       <div style="display:flex;justify-content:space-between;align-items:center">
         <div class="li-name">${c.cat}</div>
         <span style="font-size:9px;padding:1px 5px;border-radius:3px;${c.biz==='Аксесуари'?'background:var(--purple-bg);color:var(--purple)':'background:var(--blue-bg);color:var(--blue)'}">${c.biz==='Аксесуари'?'АСС':'ДП'}</span>
@@ -1951,6 +1954,17 @@ function sellerClick(name){
   }
 }
 
+function selCatIdx(idx){
+  const cat=window._CNAMES?window._CNAMES[idx]:null;
+  if(!cat)return;
+  if(isMobile()){
+    S.selCat=cat;
+    openMobCatOverlay(cat);
+  } else {
+    S.selCat=S.selCat===cat?null:cat;
+    render();
+  }
+}
 function catClick(cat){
   if(isMobile()){
     S.selCat=cat;
