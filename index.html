@@ -86,19 +86,20 @@ html,body{height:100%;background:var(--bg0);color:var(--t1);font-family:'Outfit'
 @media(max-width:768px){.insight-grid{grid-template-columns:1fr}}
 
 /* ═══ MOBILE HEADER ═══ */
-.mob-header{display:none;position:fixed;top:0;left:0;right:0;height:56px;background:var(--bg1);border-bottom:1px solid var(--bd);z-index:100;align-items:center;padding:0 16px;gap:12px}
-.mob-logo{flex:1}
-.mob-logo-t{font-size:14px;font-weight:700}
-.mob-logo-s{font-size:10px;color:var(--t3);font-family:'IBM Plex Mono',monospace}
-.mob-up{padding:6px 12px;border-radius:var(--r);border:1px solid var(--bd2);background:transparent;color:var(--t2);font-size:11px;font-weight:500;cursor:pointer;font-family:'Outfit',sans-serif;white-space:nowrap}
+.mob-header{display:none;position:fixed;top:0;left:0;right:0;height:56px;background:var(--bg1);border-bottom:1px solid var(--bd);z-index:100;align-items:center;padding:0 14px;gap:10px}
+.mob-logo{flex:1;min-width:0}
+.mob-logo-t{font-size:15px;font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.mob-logo-s{font-size:10px;color:var(--t3);font-family:'IBM Plex Mono',monospace;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.mob-up{padding:6px 11px;border-radius:var(--r);border:1px solid var(--bd2);background:transparent;color:var(--t2);font-size:11px;font-weight:500;cursor:pointer;font-family:'Outfit',sans-serif;white-space:nowrap;flex-shrink:0}
 .mob-up input{display:none}
 
 /* ═══ BOTTOM NAV (mobile) ═══ */
-.bnav{display:none;position:fixed;bottom:0;left:0;right:0;height:var(--bnav);background:var(--bg1);border-top:1px solid var(--bd2);z-index:100;align-items:stretch}
-.bnav-item{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;cursor:pointer;color:var(--t3);font-size:10px;font-weight:600;letter-spacing:.3px;text-transform:uppercase;transition:color .15s;border:none;background:transparent;font-family:'Outfit',sans-serif}
+.bnav{display:none;position:fixed;bottom:0;left:0;right:0;height:var(--bnav);background:var(--bg1);border-top:1px solid var(--bd2);z-index:100;align-items:stretch;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none}
+.bnav::-webkit-scrollbar{display:none}
+.bnav-item{flex:0 0 auto;min-width:64px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;cursor:pointer;color:var(--t3);font-size:9px;font-weight:600;letter-spacing:.2px;text-transform:uppercase;transition:color .15s;border:none;background:transparent;font-family:'Outfit',sans-serif;padding:0 8px}
 .bnav-item.active{color:var(--blue)}
-.bnav-item svg{width:20px;height:20px}
-.bnav-item.active svg{filter:drop-shadow(0 0 7px rgba(91,155,255,.6))}
+.bnav-item svg{width:19px;height:19px}
+.bnav-item.active svg{filter:drop-shadow(0 0 6px rgba(91,155,255,.6))}
 
 /* ═══ MAIN ═══ */
 .main{margin-left:var(--sidebar);min-height:100vh;padding:36px 40px;padding-bottom:24px}
@@ -178,10 +179,10 @@ tbody tr:hover td{background:var(--bg3)}
 .pm-v{font-size:20px;font-weight:700;font-family:'IBM Plex Mono',monospace;color:var(--t1)}
 .vs-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
 .vs-lbl{font-size:11px;color:var(--t3);letter-spacing:.3px;text-transform:uppercase;margin-bottom:7px;font-weight:600}
-.cat-row{display:flex;align-items:center;gap:10px;padding:11px 20px;border-bottom:1px solid var(--bd)}
+.cat-row{display:flex;align-items:center;gap:8px;padding:10px 16px;border-bottom:1px solid var(--bd);overflow:hidden}
 .cat-row:last-child{border-bottom:none}
 .cat-name{flex:1;font-size:13px;color:var(--t1)}
-.cat-rev{font-family:'IBM Plex Mono',monospace;font-size:12px;color:var(--t2);min-width:90px;text-align:right;font-weight:600}
+.cat-rev{font-family:'IBM Plex Mono',monospace;font-size:12px;color:var(--t2);min-width:80px;text-align:right;font-weight:600;white-space:nowrap;flex-shrink:0}
 
 /* ═══ PLAN ═══ */
 .plan-prog-wrap{background:var(--bg2);border:1px solid var(--bd);border-radius:var(--r2);padding:16px 20px;margin-bottom:14px}
@@ -269,10 +270,13 @@ tbody tr:hover td{background:var(--bg3)}
   .sidebar{display:none}
   .mob-header{display:flex}
   .bnav{display:flex}
-  .main{margin-left:0;padding:72px 14px calc(var(--bnav) + 16px);min-height:100vh}
+  .main{margin-left:0;padding:66px 12px calc(var(--bnav) + 12px);min-height:100vh}
   .kpi-grid{grid-template-columns:repeat(2,1fr);gap:8px}
-  .kpi{padding:12px}
-  .kpi-v{font-size:16px}
+  .kpi-grid>.kpi:last-child{grid-column:1/-1}
+  .kpi{padding:11px 14px}
+  .kpi-v{font-size:17px}
+  .kpi-l{font-size:10px}
+  .kpi-s{font-size:11px}
   .split{grid-template-columns:1fr}
   .list-panel{position:static;max-height:none}
   .focus-grid{grid-template-columns:1fr}
@@ -281,15 +285,22 @@ tbody tr:hover td{background:var(--bg3)}
   .mob-overlay{display:none}
   .mob-overlay.visible{display:block}
   .hide-mobile{display:none!important}
+  .mob-back{display:flex}
   .toast{bottom:calc(var(--bnav) + 12px);right:12px}
   .pm-grid{grid-template-columns:repeat(3,1fr)}
   .pm-v{font-size:15px}
   .pname{font-size:17px}
   table th:nth-child(n+5),table td:nth-child(n+5){display:none}
+  .mob-only{display:inline!important}
+  .pen-table th:nth-child(n+4),.pen-table td:nth-child(n+4){display:none}
+  .split{gap:10px}
+  .card-h{padding:11px 14px}
+  .profile{padding:16px}
 }
 @media(min-width:769px){
   .mob-overlay,.mob-back,.mob-header,.bnav{display:none!important}
   .detail-panel-wrap{display:block!important}
+  .hide-desktop{display:none!important}
 }
 /* ═══ QUALITY / PENETRATION ═══ */
 .qtabs{display:flex;gap:4px;margin-bottom:16px}
@@ -338,7 +349,10 @@ tbody tr:hover td{background:var(--bg3)}
   <div class="sb-logo">
     <div class="sb-tag">Sales OS</div>
     <div class="sb-name" id="sbName">ДМ2 Мост-2</div>
-    <div class="sb-period" id="sbPeriod">–</div>
+    <div style="display:flex;align-items:center;gap:5px;margin-top:4px">
+    <div id="dataStatusDot" style="width:6px;height:6px;border-radius:50%;background:var(--t3);flex-shrink:0"></div>
+    <div class="sb-period" id="sbPeriod">Немає даних</div>
+  </div>
   </div>
   <nav class="nav">
     <div class="ni active" data-v="overview" onclick="go('overview')">
@@ -434,6 +448,10 @@ tbody tr:hover td{background:var(--bg3)}
     <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="6" cy="5" r="2.5"/><path d="M1 13c0-2.76 2.24-5 5-5s5 2.24 5 5"/><circle cx="12.5" cy="5.5" r="1.8"/><path d="M15 12c0-1.66-1.12-2.5-2.5-2.5"/></svg>
     Продавці
   </button>
+  <button class="bnav-item" data-v="categories" onclick="go('categories')">
+    <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 4h12M2 8h12M2 12h12"/><circle cx="5" cy="4" r="1.2" fill="currentColor" stroke="none"/><circle cx="8" cy="8" r="1.2" fill="currentColor" stroke="none"/><circle cx="11" cy="12" r="1.2" fill="currentColor" stroke="none"/></svg>
+    Категорії
+  </button>
   <button class="bnav-item" data-v="plan" onclick="go('plan')">
     <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="2" width="12" height="12" rx="1.5"/><path d="M5.5 8l2 2 3.5-3.5"/></svg>
     План
@@ -446,7 +464,22 @@ tbody tr:hover td{background:var(--bg3)}
     <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="8" cy="8" r="6"/><circle cx="8" cy="8" r="2.5"/><path d="M8 2v1.5M8 12.5V14M2 8h1.5M12.5 8H14"/></svg>
     Фокус
   </button>
+  <button class="bnav-item" data-v="matrix" onclick="go('matrix')">
+    <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="1" y="1" width="4" height="4" rx=".8"/><rect x="6" y="1" width="4" height="4" rx=".8"/><rect x="11" y="1" width="4" height="4" rx=".8"/><rect x="1" y="6" width="4" height="4" rx=".8"/><rect x="6" y="6" width="4" height="4" rx=".8"/><rect x="11" y="6" width="4" height="4" rx=".8"/><rect x="1" y="11" width="4" height="4" rx=".8"/><rect x="6" y="11" width="4" height="4" rx=".8"/><rect x="11" y="11" width="4" height="4" rx=".8"/></svg>
+    Матриця
+  </button>
+  <button class="bnav-item" data-v="insights" onclick="go('insights')">
+    <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M8 1v5l3 3"/><circle cx="8" cy="9" r="6"/></svg>
+    Інсайти
+  </button>
+  <button class="bnav-item" data-v="quality" onclick="go('quality')">
+    <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 8h2l2 4 3-8 2 4h3"/></svg>
+    Якість
+  </button>
 </nav>
+<div id="bnavHint" style="display:none;position:fixed;bottom:calc(var(--bnav) - 2px);right:0;width:36px;height:calc(var(--bnav) - 2px);background:linear-gradient(90deg,transparent,var(--bg1));z-index:101;pointer-events:none;align-items:center;justify-content:center">
+  <svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="var(--t3)" stroke-width="2"><path d="M6 3l5 5-5 5"/></svg>
+</div>
 
 <!-- ═══ MAIN CONTENT ═══ -->
 <main class="main">
@@ -799,7 +832,7 @@ function vsBar(v,max=2){
   const c=Math.max(-max,Math.min(max,v||0));
   const p=Math.round(Math.abs(c)/max*100);
   const col=v>=0?'#34d399':'#f87171';
-  return `<div class="mbar"><div class="mbar-t"><div class="mbar-f" style="width:${p}%;background:${col}"></div></div><span class="vs ${vc(v)}">${pct(v)}</span></div>`;
+  return `<div class="mbar"><div class="mbar-t" style="min-width:30px"><div class="mbar-f" style="width:${p}%;background:${col}"></div></div><span class="vs ${vc(v)}" style="white-space:nowrap;min-width:44px;text-align:center">${pct(v)}</span></div>`;
 }
 
 // ═══════════════════════════════════════════════════════════════
@@ -869,10 +902,10 @@ function sellerDetailHTML(s,sellers){
   }).join('');
   const cats=filtered.map(c=>`
     <div class="cat-row">
-      <div class="cat-name">${c.cat}<span style="font-size:10px;color:var(--t3);margin-left:6px">${c.biz==='Аксесуари'?'АСС':'ДП'}</span></div>
-      <div style="min-width:36px;text-align:right;font-family:'IBM Plex Mono',monospace;font-size:12px;color:var(--t2)">${c.units||0} шт</div>
-      <div style="width:75px">${vsBar(c.revVs,3)}</div>
-      <div style="width:68px">${vsBar(c.aspVs,3)}</div>
+      <div class="cat-name">${c.cat}<span style="font-size:10px;color:var(--t3);margin-left:5px">${c.biz==='Аксесуари'?'АСС':'ДП'}</span></div>
+      <div style="flex-shrink:0;font-family:'IBM Plex Mono',monospace;font-size:12px;color:var(--t2);white-space:nowrap">${c.units||0} шт</div>
+      <div style="flex-shrink:0;min-width:90px">${vsBar(c.revVs,3)}</div>
+      <div style="flex-shrink:0;min-width:90px">${vsBar(c.aspVs,3)}</div>
       <div class="cat-rev">${fmt(c.rev)} ₴</div>
     </div>`).join('')||`<div class="empty" style="padding:16px">Немає даних або завантажте звіт</div>`;
 
@@ -922,12 +955,12 @@ function sellerDetailHTML(s,sellers){
         <span class="card-t">Категорії</span>
         <div style="display:flex;gap:5px">${bizPills}</div>
       </div>
-      <div style="padding:8px 14px 4px;border-bottom:1px solid var(--bd);display:flex;gap:6px;font-size:9px;color:var(--t3);font-weight:700;letter-spacing:1px;text-transform:uppercase">
+      <div style="padding:8px 14px 4px;border-bottom:1px solid var(--bd2);display:flex;gap:8px;font-size:10px;color:var(--t3);font-weight:700;letter-spacing:.5px;text-transform:uppercase;background:var(--bg3)">
         <div style="flex:1">Категорія</div>
-        <div style="min-width:36px;text-align:right">Шт</div>
-        <div style="width:75px">Вир.vs</div>
-        <div style="width:68px">ASP vs</div>
-        <div style="min-width:80px;text-align:right">Виторг ₴</div>
+        <div style="flex-shrink:0;white-space:nowrap">Шт</div>
+        <div style="min-width:90px">Вир.vs</div>
+        <div style="min-width:90px">ASP vs</div>
+        <div style="min-width:80px;text-align:right;white-space:nowrap">Виторг ₴</div>
       </div>
       <div>${cats}</div>
     </div>`;
@@ -937,7 +970,10 @@ function sellerDetailHTML(s,sellers){
 // VIEWS
 // ═══════════════════════════════════════════════════════════════
 function renderKPI(){
+  const el=document.getElementById('kpiRow');
+  if(!el)return;
   const s=S.sellers.filter(x=>x.revenue>0);
+  if(!s.length){el.innerHTML='';return;}
   const totR=s.reduce((a,x)=>a+x.revenue,0);
   const totU=s.reduce((a,x)=>a+x.units,0);
   const aspA=totU>0?totR/totU:0;
@@ -950,7 +986,7 @@ function renderKPI(){
     {l:'Vs бенчмарк',v:pct(vsA),s:'виторг до ср. маг.',a:vsA>=0?'var(--green)':'var(--red)'},
     {l:'Продавців',v:String(s.length),s:`тир D: ${d}`,a:d>0?'var(--red)':'var(--amber)'}
   ];
-  document.getElementById('kpiRow').innerHTML=defs.map(k=>`
+  el.innerHTML=defs.map(k=>`
     <div class="kpi" style="--a:${k.a}">
       <div class="kpi-l">${k.l}</div>
       <div class="kpi-v" style="color:${k.a}">${k.v}</div>
@@ -958,20 +994,41 @@ function renderKPI(){
     </div>`).join('');
 }
 
+
+function renderEmptyState(){
+  return `<div style="display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:400px;text-align:center;padding:40px">
+    <div style="width:64px;height:64px;border-radius:18px;background:var(--blue-bg);border:1px solid var(--blue-bd);display:flex;align-items:center;justify-content:center;margin-bottom:20px">
+      <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="var(--blue)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+    </div>
+    <div style="font-size:18px;font-weight:700;color:var(--t1);margin-bottom:8px">Завантажте звіт щоб почати</div>
+    <div style="font-size:14px;color:var(--t3);max-width:360px;line-height:1.6;margin-bottom:24px">Натисніть кнопку "Продажі (головний)" у бічній панелі або перетягніть файл .xlsx сюди</div>
+    <label style="display:inline-flex;align-items:center;gap:8px;padding:11px 22px;border-radius:var(--r2);background:var(--blue-bg);border:1px solid var(--blue-bd);color:var(--blue);font-size:14px;font-weight:600;cursor:pointer;font-family:'Outfit',sans-serif">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+      Обрати файл
+      <input type="file" accept=".xlsx,.xls" style="display:none" onchange="handleFile(this.files[0])">
+    </label>
+    <div style="margin-top:16px;font-size:12px;color:var(--t3)">Файл зберігається у браузері — наступного разу завантажувати не потрібно</div>
+  </div>`;
+}
+
 function renderOverview(){
+  if(!S.sellers||!S.sellers.length) return renderEmptyState();
   const sellers=S.sellers.filter(s=>s.revenue>0&&(S.tierFilter==='all'||s.tier===S.tierFilter));
   const maxR=Math.max(...sellers.map(s=>s.revenue),1);
   const pills=['all','A','B','C','D'].map(t=>`
     <button class="pill${S.tierFilter===t?' on':''}" onclick="S.tierFilter='${t}';render()">${t==='all'?'Всі':'Тир '+t}</button>`).join('');
   const rows=sellers.map((s,i)=>`
-    <tr onclick="sellerClick('${s.name}')">
-      <td style="color:var(--t3);font-family:'IBM Plex Mono',monospace">${i+1}</td>
+    <tr onclick="sellerClick('${s.name}')" style="cursor:pointer">
+      <td style="color:var(--t3);font-family:'IBM Plex Mono',monospace;font-size:12px" class="hide-mobile">${i+1}</td>
       <td>
         <div style="font-weight:600;font-size:13px">${s.full}</div>
-        <div style="font-size:10px;color:var(--t3);margin-top:2px">${s.name}</div>
+        <div style="display:flex;align-items:center;gap:6px;margin-top:3px">
+          <span class="tier ${tc(s.tier)}" style="width:20px;height:20px;font-size:10px" class="hide-desktop">${s.tier}</span>
+          <span style="font-size:11px;color:var(--t3);font-family:'IBM Plex Mono',monospace">${fmt(s.revenue)} ₴ · ${s.units} шт</span>
+        </div>
       </td>
-      <td><span class="tier ${tc(s.tier)}">${s.tier}</span></td>
-      <td>
+      <td class="hide-mobile"><span class="tier ${tc(s.tier)}">${s.tier}</span></td>
+      <td class="hide-mobile">
         <div class="rmono">${fmt(s.revenue)} ₴</div>
         <div class="rbar"><div class="rbar-f" style="width:${Math.round(s.revenue/maxR*100)}%"></div></div>
       </td>
@@ -1000,6 +1057,7 @@ function renderOverview(){
 }
 
 function renderSellers(){
+  if(!S.sellers||!S.sellers.length) return renderEmptyState();
   const sellers=S.sellers.filter(s=>s.revenue>0).sort((a,b)=>b.revenue-a.revenue);
   const q=S.search.toLowerCase();
   const filtered=q?sellers.filter(s=>s.full.toLowerCase().includes(q)):sellers;
@@ -1036,7 +1094,7 @@ function renderCategories(){
   const bizPills=['all','ДП техніка','Аксесуари'].map(b=>`
     <button class="pill${S.bizFilter===b?' on':''}" onclick="S.bizFilter='${b}';S.selCat=null;render()">${b==='all'?'Всі бізнеси':b}</button>`).join('');
   const list=cats.map(c=>`
-    <div class="li${S.selCat===c.cat?' sel':''}" onclick="S.selCat='${c.cat}';render()">
+    <div class="li${S.selCat===c.cat?' sel':''}" onclick="catClick('${c.cat.replace(/'/g,\"\\'\")}')">
       <div style="display:flex;justify-content:space-between;align-items:center">
         <div class="li-name">${c.cat}</div>
         <span style="font-size:9px;padding:1px 5px;border-radius:3px;${c.biz==='Аксесуари'?'background:var(--purple-bg);color:var(--purple)':'background:var(--blue-bg);color:var(--blue)'}">${c.biz==='Аксесуари'?'АСС':'ДП'}</span>
@@ -1194,6 +1252,7 @@ function renderRhythm(){
 }
 
 function renderFocus(){
+  if(!S.sellers||!S.sellers.length) return renderEmptyState();
   const active=S.sellers.filter(s=>s.revenue>0).sort((a,b)=>a.revVs-b.revVs);
   const urgent=active.filter(s=>s.tier==='D');
   const aspWeak=active.filter(s=>s.aspVs<-.1&&s.tier!=='D').slice(0,3);
@@ -1258,6 +1317,7 @@ function renderFocus(){
 
 // ── MATRIX ──────────────────────────────────────────────────────
 function renderMatrix(){
+  if(!S.sellers||!S.sellers.length) return renderEmptyState();
   const sellers=S.sellers.filter(s=>s.revenue>0).sort((a,b)=>b.revenue-a.revenue);
   if(!sellers.length)return`<div class="empty">Завантажте звіт для відображення матриці</div>`;
 
@@ -1320,11 +1380,12 @@ function renderMatrix(){
         <tbody>${rows}</tbody>
       </table>
     </div>
-    <div style="font-size:11px;color:var(--t3);margin-top:10px">Значення = відхилення від середнього магазину. Показані топ-16 категорій за виторгом.</div>`;
+    <div style="font-size:11px;color:var(--t3);margin-top:10px">Значення = відхилення від середнього магазину. Показані топ-16 категорій за виторгом.<span class="mob-only" style="display:none"> Прогорніть таблицю вправо →</span></div>`;
 }
 
 // ── INSIGHTS ────────────────────────────────────────────────────
 function renderInsights(){
+  if(!S.sellers||!S.sellers.length) return renderEmptyState();
   const sellers=S.sellers.filter(s=>s.revenue>0).sort((a,b)=>b.revenue-a.revenue);
   if(!sellers.length)return`<div class="empty">Завантажте звіт для автоматичного аналізу</div>`;
 
@@ -1871,6 +1932,9 @@ function applyTheme(){
   const ti=document.getElementById('themeIcon');if(ti)ti.textContent=icon;
   const tl=document.getElementById('themeLabel');if(tl)tl.textContent=label;
   const mb=document.getElementById('mobThemeBtn');if(mb)mb.textContent=icon;
+  // Show bnav scroll hint on mobile
+  const hint=document.getElementById('bnavHint');
+  if(hint&&window.innerWidth<=768)hint.style.display='flex';
 }
 
 // ═══════════════════════════════════════════════════════════════
@@ -1885,6 +1949,45 @@ function sellerClick(name){
     if(S.view==='overview'){S.view='sellers';}
     render();
   }
+}
+
+function catClick(cat){
+  if(isMobile()){
+    S.selCat=cat;
+    openMobCatOverlay(cat);
+  } else {
+    S.selCat=S.selCat===cat?null:cat;
+    render();
+  }
+}
+
+function openMobCatOverlay(cat){
+  const allCats=S.cats.length?S.cats:buildCatIndex(S.sellers);
+  const c=allCats.find(x=>x.cat===cat);
+  if(!c){return;}
+  const sorted=[...c.sellers].sort((a,b)=>b.rev-a.rev);
+  const maxU=Math.max(...sorted.map(s=>s.units||0),1);
+  const rows=sorted.map((s,i)=>`
+    <div style="display:flex;align-items:center;gap:8px;padding:10px 14px;border-bottom:1px solid var(--bd)">
+      <div style="font-size:11px;color:var(--t3);font-family:'IBM Plex Mono',monospace;min-width:18px">${i+1}</div>
+      <span class="tier ${tc(s.tier)}" style="width:22px;height:22px;font-size:11px">${s.tier}</span>
+      <div style="flex:1;font-size:13px;font-weight:500">${s.full||s.name}</div>
+      <div style="flex-shrink:0;width:70px">${vsBar(s.revVs,3)}</div>
+      <div style="flex-shrink:0;font-family:'IBM Plex Mono',monospace;font-size:12px;color:var(--t2);white-space:nowrap">${fmt(s.rev)} ₴</div>
+    </div>`).join('');
+  const totRev=sorted.reduce((a,s)=>a+s.rev,0);
+  const totUnits=sorted.reduce((a,s)=>a+(s.units||0),0);
+  document.getElementById('mobOverlayContent').innerHTML=`
+    <div style="background:var(--bg2);border:1px solid var(--bd);border-radius:var(--r3);padding:16px 18px;margin-bottom:12px">
+      <div style="font-size:11px;color:var(--t3);margin-bottom:4px;text-transform:uppercase;letter-spacing:.5px">${c.biz||''}</div>
+      <div style="font-size:18px;font-weight:700;margin-bottom:10px">${cat}</div>
+      <div style="display:flex;gap:16px">
+        <div><div style="font-size:10px;color:var(--t3)">Загалом</div><div style="font-size:16px;font-weight:700;font-family:'IBM Plex Mono',monospace">${fmt(totRev)} ₴</div></div>
+        <div><div style="font-size:10px;color:var(--t3)">Штуки</div><div style="font-size:16px;font-weight:700;font-family:'IBM Plex Mono',monospace">${totUnits}</div></div>
+      </div>
+    </div>
+    <div class="card"><div class="card-h"><span class="card-t">Продавці</span><span style="font-size:11px;color:var(--t3)">виторг vs · сума</span></div><div>${rows}</div></div>`;
+  document.getElementById('mobOverlay').classList.add('visible');
 }
 
 function planSelClick(name){
@@ -1963,6 +2066,10 @@ function render(){
   const titles={overview:'Огляд магазину',sellers:'Продавці',categories:'Категорії',plan:'План дій',rhythm:'Ритм тижня',focus:'Фокус дня',matrix:'Матриця продавців',insights:'Автоінсайти',quality:'Якість продажів'};
   const pt=document.getElementById('pageTitle');
   if(pt)pt.textContent=titles[S.view]||'';
+    const ps=document.getElementById('pageSub');
+  if(ps&&(!S.sellers||!S.sellers.length)){
+    ps.textContent='Завантажте звіт щоб побачити дані';
+  }
   const el=document.getElementById('content');
   if(!el)return;
   try{
@@ -2062,6 +2169,7 @@ function loadFileData(){
         S.cats=Array.isArray(cats)?cats:buildCatIndex(S.sellers);
         const periodStr=period||'';
         ['sbPeriod','mobPeriod'].forEach(id=>{const e=document.getElementById(id);if(e)e.textContent=periodStr||'Збережений звіт';});
+        const dot2=document.getElementById('dataStatusDot');if(dot2){dot2.style.background='var(--amber)';}
         const ps=document.getElementById('pageSub');
         if(ps)ps.textContent=(periodStr||'Збережений звіт')+' · '+S.sellers.length+' продавців';
         return true;
@@ -2104,6 +2212,7 @@ function handleFile(file){
       const name=file.name.replace(/\.(xlsx|xls)$/i,'');
       const displayPeriod=period||name;
       ['sbPeriod','mobPeriod'].forEach(id=>{const e=document.getElementById(id);if(e)e.textContent=displayPeriod;});
+      const dot=document.getElementById('dataStatusDot');if(dot){dot.style.background='var(--green)';}
       document.getElementById('pageSub').textContent=`${displayPeriod} · ${sellers.length} продавців`;
       saveFileData();
       toast(`Завантажено: ${sellers.length} продавців · Збережено у браузері`,'ok');
@@ -2161,12 +2270,11 @@ document.addEventListener('keydown',e=>{
 // ═══════════════════════════════════════════════════════════════
 loadState();
 applyTheme();
-// Try to restore last loaded report from cache
 const restoredFromCache=loadFileData();
 if(!restoredFromCache){
-  // No cached file — use demo data
-  S.sellers=assignTiers(DEFAULT_SELLERS.map(s=>({...s})));
-  S.cats=buildCatIndex(S.sellers);
+  // No cached data — stay empty, show upload prompt
+  S.sellers=[];
+  S.cats=[];
 }
 loadAccData();
 render();
