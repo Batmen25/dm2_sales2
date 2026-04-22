@@ -1487,6 +1487,7 @@ function parseAccFile(ab){
   const ltHead=findRow('Ноутбук, шт');
   const glHead=findRow('Ноутбук ігровий, шт');
   const tvHead=findRow('Телевізор, шт');
+  const wmHead=findRow('Пральні машини, шт');
   const planHead=findRow('План АСС + Home, грн');
   const pctHead=findRow('План АСС + Home, % частка');
 
@@ -1537,6 +1538,7 @@ function parseAccFile(ab){
   const lt=ltHead>=0?sectionRows(ltHead):{avgRow:-1,dm2Row:-1,sellers:{}};
   const gl=glHead>=0?sectionRows(glHead):{avgRow:-1,dm2Row:-1,sellers:{}};
   const tv=tvHead>=0?sectionRows(tvHead):{avgRow:-1,dm2Row:-1,sellers:{}};
+  const wm=wmHead>=0?sectionRows(wmHead):{avgRow:-1,dm2Row:-1,sellers:{}};
 
   // Extract period from ACC file header (row 0 has "Щоденний звіт магазинів по АСС і Home на 20.04.2026 11:25")
   const headerStr=gs(0,0);
@@ -1555,6 +1557,8 @@ function parseAccFile(ab){
     gl_dm2:{qty:g(gl.dm2Row,1),gami:g(gl.dm2Row,2),gami_units:g(gl.dm2Row,3)},
     tv_avg:{qty:g(tv.avgRow,1),mount:g(tv.avgRow,2),net:g(tv.avgRow,3)},
     tv_dm2:{qty:g(tv.dm2Row,1),mount:g(tv.dm2Row,2),net:g(tv.dm2Row,3)},
+    wm_avg:{qty:g(wm.avgRow,1),deterg:g(wm.avgRow,2),clean:g(wm.avgRow,3)},
+    wm_dm2:{qty:g(wm.dm2Row,1),deterg:g(wm.dm2Row,2),clean:g(wm.dm2Row,3)},
     acc_avg:{plan:null,fact:g(planHead>=0?planHead+2:-1,2),pct_plan:null,pct_fact:g(pctHead>=0?pctHead+2:-1,2)},
     acc_dm2:{plan:g(planHead>=0?planHead+4:-1,1),fact:g(planHead>=0?planHead+4:-1,2),pct_plan:g(pctHead>=0?pctHead+4:-1,1),pct_fact:g(pctHead>=0?pctHead+4:-1,2)},
   };
@@ -1566,6 +1570,7 @@ function parseAccFile(ab){
     const r_lt=lt.sellers[name];
     const r_gl=gl.sellers[name];
     const r_tv=tv.sellers[name];
+    const r_wm=wm.sellers[name];
     const r_pl=sellerRows[name];
     const r_pct=r_pl?r_pl+(pctHead-planHead):null;
 
@@ -1576,10 +1581,11 @@ function parseAccFile(ab){
       lt_qty:r_lt?g(r_lt,1):null,lt_bag:r_lt?g(r_lt,2):null,lt_mouse:r_lt?g(r_lt,3):null,
       gl_qty:r_gl?g(r_gl,1):null,gl_gami:r_gl?g(r_gl,2):null,gl_gami_units:r_gl?g(r_gl,3):null,
       tv_qty:r_tv?g(r_tv,1):null,tv_mount:r_tv?g(r_tv,2):null,tv_net:r_tv?g(r_tv,3):null,
+      wm_qty:r_wm?g(r_wm,1):null,wm_deterg:r_wm?g(r_wm,2):null,wm_clean:r_wm?g(r_wm,3):null,
       acc_fact:r_pl?g(r_pl,2):null,
       acc_pct:r_pct?g(r_pct,2):null,
     };
-  }).filter(s=>s.sm_qty!==null||s.lt_qty!==null||s.tv_qty!==null||s.acc_fact!==null);
+  }).filter(s=>s.sm_qty!==null||s.lt_qty!==null||s.tv_qty!==null||s.wm_qty!==null||s.acc_fact!==null);
 
   return{period,bench,sellers};
 }
@@ -1783,6 +1789,23 @@ function renderQuality(){
           ${benchRow('Сер. маг. А',`<td class="qty">${Math.round(b.tv_avg.qty||0)}</td><td>${Math.round((b.tv_avg.mount||0)*100)}%</td><td>${Math.round((b.tv_avg.net||0)*100)}%</td>`)}
           ${benchRow('ДМ2',`<td class="qty">${Math.round(b.tv_dm2.qty||0)}</td><td>${Math.round((b.tv_dm2.mount||0)*100)}%</td><td>${Math.round((b.tv_dm2.net||0)*100)}%</td>`)}
           ${tvRows}
+        </tbody>
+      </table></div>
+    </div>
+
+    <div class="pen-section">
+      <div class="pen-section-title">🫧 Пральні машини</div>
+      <div style="overflow-x:auto"><table class="pen-table">
+        <thead><tr><th style="text-align:left;min-width:110px">Продавець</th><th>Шт</th><th>Засоби для прання</th><th>Засіб для чищення</th></tr></thead>
+        <tbody>
+          ${benchRow('Сер. маг. А',`<td class="qty">${Math.round(b.wm_avg.qty||0)}</td><td>${Math.round((b.wm_avg.deterg||0)*100)}%</td><td>${Math.round((b.wm_avg.clean||0)*100)}%</td>`)}
+          ${benchRow('ДМ2',`<td class="qty">${Math.round(b.wm_dm2.qty||0)}</td><td>${Math.round((b.wm_dm2.deterg||0)*100)}%</td><td>${Math.round((b.wm_dm2.clean||0)*100)}%</td>`)}
+          ${sels.map(s=>`<tr>
+            <td>${s.name}</td>
+            ${pCell(s.wm_qty,null,'qty')}
+            ${pCell(s.wm_deterg,b.wm_dm2.deterg)}
+            ${pCell(s.wm_clean,b.wm_dm2.clean)}
+          </tr>`).join('')}
         </tbody>
       </table></div>
     </div>`;
