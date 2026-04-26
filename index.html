@@ -141,6 +141,8 @@ html,body{height:100%;background:var(--bg0);color:var(--t1);font-family:'Outfit'
 /* ═══ TABLE ═══ */
 table{width:100%;border-collapse:collapse}
 th{padding:11px 16px;text-align:left;font-size:11px;font-weight:600;letter-spacing:.3px;color:var(--t3);text-transform:uppercase;border-bottom:1px solid var(--bd2);background:var(--bg3)}
+th.sortable{transition:color .15s}
+th.sortable:hover{color:var(--t1)}
 td{padding:12px 16px;border-bottom:1px solid var(--bd);vertical-align:middle;font-size:14px;line-height:1.4}
 tbody tr:last-child td{border-bottom:none}
 tbody tr{cursor:pointer;transition:background .1s}
@@ -1044,10 +1046,11 @@ function renderOverview(){
     return v*S.sortDir;
   });
   const maxR=Math.max(...sortedSellers.map(s=>s.revenue),1);
-  function sortTh(col,label){
+  function sortTh(col,label,extraClass){
     const active=S.sortCol===col;
     const arrow=active?(S.sortDir===-1?'↓':'↑'):'';
-    return `<th onclick="S.sortCol='${col}';S.sortDir=S.sortCol==='${col}'?-S.sortDir:-1;render()" style="cursor:pointer;user-select:none;white-space:nowrap">${label}${active?'<span style=\'color:var(--blue);margin-left:3px\'>'+arrow+'</span>':''}</th>`;
+    const cls=(extraClass||'')+' sortable';
+    return '<th class="'+cls.trim()+'" onclick="S.sortCol=\''+col+'\';S.sortDir=S.sortCol===\''+col+'\'?-S.sortDir:-1;render()" style="cursor:pointer;user-select:none;white-space:nowrap">'+label+(active?'<span style="color:var(--blue);margin-left:3px">'+arrow+'</span>':'')+'</th>';
   }
   const rows=sortedSellers.map((s,i)=>`
     <tr onclick="sellerClick('${s.name}')" style="cursor:pointer;${s.tier==='D'?'background:rgba(255,107,107,.045)':s.tier==='A'?'background:rgba(54,217,140,.035)':''}">
@@ -1075,7 +1078,7 @@ function renderOverview(){
       <div class="card-h"><span class="card-t">Рейтинг продавців</span><span style="font-size:11px;color:var(--t3)">клік → деталі</span></div>
       <div style="overflow-x:auto">
         <table>
-          <thead><tr><th class="hide-mobile">#</th><th>Продавець</th>${sortTh('tier','Тир')}<th class="hide-mobile">${sortTh('revenue','Виторг ₴')}</th><th class="hide-mobile">${sortTh('units','Шт')}</th><th class="hide-mobile">${sortTh('asp','ASP')}</th>${sortTh('revVs','Вир.vs')}<th class="hide-mobile">${sortTh('aspVs','ASP vs')}</th></tr></thead>
+          <thead><tr><th class="hide-mobile">#</th><th>Продавець</th>${sortTh('tier','Тир')}${sortTh('revenue','Виторг ₴','hide-mobile')}${sortTh('units','Шт','hide-mobile')}${sortTh('asp','ASP','hide-mobile')}${sortTh('revVs','Вир.vs')}${sortTh('aspVs','ASP vs','hide-mobile')}</tr></thead>
           <tbody>${rows}</tbody>
         </table>
       </div>
