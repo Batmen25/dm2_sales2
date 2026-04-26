@@ -52,6 +52,8 @@ html,body{height:100%;background:var(--bg0);color:var(--t1);font-family:'Outfit'
 .sb-keys{font-size:11px;color:var(--t3);text-align:center;margin-top:10px;line-height:1.5;opacity:.7}
 .sb-clear{font-size:11px;color:var(--t3);text-align:center;margin-top:6px;cursor:pointer;opacity:.6;transition:opacity .15s;text-decoration:none;display:block}
 .sb-clear:hover{opacity:1;color:var(--red)}
+.nav-badge{display:inline-flex;align-items:center;justify-content:center;min-width:18px;height:16px;padding:0 4px;border-radius:8px;font-size:9px;font-weight:700;font-family:'IBM Plex Mono',monospace;background:var(--blue-bg);color:var(--blue);border:1px solid var(--blue-bd);margin-left:auto;flex-shrink:0}
+.nav-badge.done{background:var(--green-bg);color:var(--green);border-color:var(--green-bd)}
 
 /* ═══ THEME TOGGLE ═══ */
 .theme-btn{display:flex;align-items:center;gap:9px;width:100%;padding:9px 13px;border-radius:var(--r);border:1px solid var(--bd);background:transparent;color:var(--t2);font-size:13px;font-weight:500;cursor:pointer;font-family:'Outfit',sans-serif;margin-bottom:10px;transition:all .15s}
@@ -68,6 +70,12 @@ html,body{height:100%;background:var(--bg0);color:var(--t1);font-family:'Outfit'
 .mc-none{background:var(--bg4);color:var(--t3)}
 .matrix-legend{display:flex;gap:14px;align-items:center;flex-wrap:wrap;margin-bottom:14px;font-size:12px;color:var(--t3)}
 .ml-swatch{width:14px;height:14px;border-radius:4px;display:inline-block}
+.mc-tip{position:relative}
+.mc-tip:hover .tip-box{display:block}
+.tip-box{display:none;position:absolute;bottom:calc(100% + 6px);left:50%;transform:translateX(-50%);background:var(--bg4);border:1px solid var(--bd2);border-radius:8px;padding:8px 11px;z-index:99;min-width:160px;pointer-events:none;font-family:'Outfit',sans-serif;white-space:nowrap}
+.tip-box::after{content:'';position:absolute;top:100%;left:50%;transform:translateX(-50%);border:5px solid transparent;border-top-color:var(--bd2)}
+.tip-line{font-size:11px;color:var(--t2);line-height:1.7}
+.tip-line b{color:var(--t1);font-weight:600}
 
 /* ═══ INSIGHTS ═══ */
 .insight-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:20px}
@@ -232,6 +240,12 @@ tbody tr:hover td{background:var(--bg3)}
 .week-progress{background:var(--bg2);border:1px solid var(--bd);border-radius:var(--r3);padding:18px 22px;margin-bottom:16px;display:grid;grid-template-columns:1fr auto;gap:12px;align-items:center}
 .wp-bar{height:8px;background:var(--bg4);border-radius:4px;overflow:hidden;margin-top:10px}
 .wp-bar-f{height:8px;border-radius:4px;background:linear-gradient(90deg,var(--blue),var(--green));transition:width .6s ease}
+.rday-body{overflow:hidden;transition:max-height .3s ease,padding .3s ease}
+.rday-body.collapsed{max-height:0!important;padding-top:0!important;padding-bottom:0!important}
+.rday.today{border-color:var(--blue-bd);box-shadow:0 0 0 1px var(--blue-bd)}
+.rday.today .rday-head{background:var(--blue-bg)}
+.rday-chevron{margin-left:auto;font-size:11px;color:var(--t3);transition:transform .25s;flex-shrink:0}
+.rday-chevron.open{transform:rotate(180deg)}
 
 /* ═══ FOCUS ═══ */
 .focus-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
@@ -367,9 +381,10 @@ tbody tr:hover td{background:var(--bg3)}
       <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 4h12M2 8h12M2 12h12"/><circle cx="5" cy="4" r="1.2" fill="currentColor" stroke="none"/><circle cx="8" cy="8" r="1.2" fill="currentColor" stroke="none"/><circle cx="11" cy="12" r="1.2" fill="currentColor" stroke="none"/></svg>
       Категорії
     </div>
-    <div class="ni" data-v="plan" onclick="go('plan')">
+    <div class="ni" data-v="plan" onclick="go('plan')" id="planNavItem">
       <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="2" width="12" height="12" rx="1.5"/><path d="M5.5 8l2 2 3.5-3.5"/></svg>
       План дій
+      <span id="planBadge" class="nav-badge" style="display:none"></span>
     </div>
     <div class="ni" data-v="rhythm" onclick="go('rhythm')">
       <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="1.5" y="3" width="13" height="11" rx="1.5"/><path d="M5 1v2M11 1v2M1.5 7h13"/><path d="M5 10h2M9 10h2"/></svg>
@@ -758,10 +773,10 @@ const DEFAULT_SELLERS=[
 const S={
   view:'overview',sellers:[],cats:[],
   selSeller:null,selCat:null,
-  tierFilter:'all',bizFilter:'all',search:'',
+  tierFilter:'all',bizFilter:'all',search:'',sortCol:'revenue',sortDir:-1,
   checks:{},rhythmChecks:{},
   theme:'dark',mobOverlay:false,
-  accData:null,gsheetData:null,
+  accData:null,gsheetData:null,rhythmOpen:{},
   gsheetUrl:'https://docs.google.com/spreadsheets/d/1oodpZ_j07v0xBVsenrpyHXoqtXTdTp7v_u37iQEwzZs/edit?gid=897965126',
   qualityTab:'penetration'
 };
@@ -1016,11 +1031,26 @@ function renderEmptyState(){
 function renderOverview(){
   if(!S.sellers||!S.sellers.length) return renderEmptyState();
   const sellers=S.sellers.filter(s=>s.revenue>0&&(S.tierFilter==='all'||s.tier===S.tierFilter));
-  const maxR=Math.max(...sellers.map(s=>s.revenue),1);
   const pills=['all','A','B','C','D'].map(t=>`
     <button class="pill${S.tierFilter===t?' on':''}" onclick="S.tierFilter='${t}';render()">${t==='all'?'Всі':'Тир '+t}</button>`).join('');
-  const rows=sellers.map((s,i)=>`
-    <tr onclick="sellerClick('${s.name}')" style="cursor:pointer">
+
+  const sortedSellers=[...sellers].sort((a,b)=>{
+    const v=S.sortCol==='tier'?'ABCD'.indexOf(a.tier)-'ABCD'.indexOf(b.tier):
+      S.sortCol==='revVs'?a.revVs-b.revVs:
+      S.sortCol==='aspVs'?a.aspVs-b.aspVs:
+      S.sortCol==='units'?a.units-b.units:
+      S.sortCol==='asp'?a.asp-b.asp:
+      a.revenue-b.revenue;
+    return v*S.sortDir;
+  });
+  const maxR=Math.max(...sortedSellers.map(s=>s.revenue),1);
+  function sortTh(col,label){
+    const active=S.sortCol===col;
+    const arrow=active?(S.sortDir===-1?'↓':'↑'):'';
+    return `<th onclick="S.sortCol='${col}';S.sortDir=S.sortCol==='${col}'?-S.sortDir:-1;render()" style="cursor:pointer;user-select:none;white-space:nowrap">${label}${active?'<span style=\'color:var(--blue);margin-left:3px\'>'+arrow+'</span>':''}</th>`;
+  }
+  const rows=sortedSellers.map((s,i)=>`
+    <tr onclick="sellerClick('${s.name}')" style="cursor:pointer;${s.tier==='D'?'background:rgba(255,107,107,.045)':s.tier==='A'?'background:rgba(54,217,140,.035)':''}">
       <td style="color:var(--t3);font-family:'IBM Plex Mono',monospace;font-size:12px" class="hide-mobile">${i+1}</td>
       <td>
         <div style="font-weight:600;font-size:13px">${s.full}</div>
@@ -1045,7 +1075,7 @@ function renderOverview(){
       <div class="card-h"><span class="card-t">Рейтинг продавців</span><span style="font-size:11px;color:var(--t3)">клік → деталі</span></div>
       <div style="overflow-x:auto">
         <table>
-          <thead><tr><th>#</th><th>Продавець</th><th>Тир</th><th>Виторг ₴</th><th class="hide-mobile">Шт</th><th class="hide-mobile">ASP</th><th>Виторг vs</th><th class="hide-mobile">ASP vs</th></tr></thead>
+          <thead><tr><th class="hide-mobile">#</th><th>Продавець</th>${sortTh('tier','Тир')}<th class="hide-mobile">${sortTh('revenue','Виторг ₴')}</th><th class="hide-mobile">${sortTh('units','Шт')}</th><th class="hide-mobile">${sortTh('asp','ASP')}</th>${sortTh('revVs','Вир.vs')}<th class="hide-mobile">${sortTh('aspVs','ASP vs')}</th></tr></thead>
           <tbody>${rows}</tbody>
         </table>
       </div>
@@ -1205,10 +1235,19 @@ function renderRhythm(){
   const doneAll=Object.values(S.rhythmChecks).filter(Boolean).length;
   const progAll=totAll>0?Math.round(doneAll/totAll*100):0;
   const wk=getWeekKey().replace('dm2_rw_','');
+  const todayIdx=new Date().getDay();// 0=Sun,1=Mon,...
+  const dayMap={1:0,2:1,3:2,4:3,5:4,6:5,0:6};// map to WEEK_RHYTHM index
+  const todayRhythmIdx=dayMap[todayIdx];
+  // Init open state: today open, others closed (only on first render)
+  if(Object.keys(S.rhythmOpen).length===0){
+    WEEK_RHYTHM.forEach((_,i)=>{S.rhythmOpen[i]=(i===todayRhythmIdx);});
+  }
   const days=WEEK_RHYTHM.map((day,di)=>{
     const dayTot=day.sections.reduce((a,s)=>a+s.tasks.length,0);
     const dayDone=day.sections.reduce((a,s)=>a+s.tasks.filter(t=>S.rhythmChecks[t.id]).length,0);
     const dayProg=dayTot>0?Math.round(dayDone/dayTot*100):0;
+    const isToday=di===todayRhythmIdx;
+    const isOpen=S.rhythmOpen[di]!==false;
     const sections=day.sections.map(sec=>`
       <div class="rday-section">
         <div class="rday-s-title">${sec.title}</div>
@@ -1222,17 +1261,21 @@ function renderRhythm(){
       </div>`).join('');
     const ex=day.example?`<div class="rexample">${day.example}</div>`:'';
     const note=day.note?`<div class="rnote"><div class="rnote-icon">👉</div><div class="rnote-txt">${day.note}</div></div>`:'';
-    return `<div class="rday">
-      <div class="rday-head">
+    return `<div class="rday${isToday?' today':''}">
+      <div class="rday-head" onclick="S.rhythmOpen[${di}]=!S.rhythmOpen[${di}];render()" style="cursor:pointer">
         <div class="rday-icon">${day.icon}</div>
-        <div>
-          <div class="rday-name">${day.day}</div>
+        <div style="flex:1">
+          <div style="display:flex;align-items:center;gap:8px">
+            <div class="rday-name">${day.day}</div>
+            ${isToday?'<span style="font-size:9px;padding:2px 7px;border-radius:4px;background:var(--blue-bg);color:var(--blue);font-weight:700;letter-spacing:.5px">СЬОГОДНІ</span>':''}
+          </div>
           <div class="rday-focus">${day.focus}</div>
           <div class="rday-mini-prog"><div class="rday-mini-prog-f" style="width:${dayProg}%"></div></div>
         </div>
         <div class="rday-prog">${dayDone}/${dayTot}</div>
+        <div class="rday-chevron${isOpen?' open':''}">▼</div>
       </div>
-      <div class="rday-body">${sections}${ex}${note}</div>
+      <div class="rday-body${isOpen?'':' collapsed'}" style="max-height:${isOpen?'2000px':'0'}">${sections}${ex}${note}</div>
     </div>`;
   }).join('');
 
@@ -1354,9 +1397,13 @@ function renderMatrix(){
     (s.cats||[]).forEach(c=>{catMap[c.cat]=c.revVs;});
     const cells=cats.map(c=>{
       const v=catMap[c.cat];
-      if(v==null)return`<td class="mc mc-none">—</td>`;
+      if(v==null)return`<td class="mc mc-none mc-tip">—<div class="tip-box"><div class="tip-line"><b>${s.full}</b></div><div class="tip-line">${c.cat}</div><div class="tip-line">Немає продажів</div></div></td>`;
       const{bg,fg}=cellColor(v);
-      return`<td class="mc" style="background:${bg};color:${fg}">${v>=0?'+':''}${Math.round(v*100)}%</td>`;
+      // Find rev and units from seller cats
+      const catData=(s.cats||[]).find(cx=>cx.cat===c.cat);
+      const tipRev=catData?fmt(catData.rev)+' ₴':'—';
+      const tipUnits=catData?catData.units+' шт':'—';
+      return`<td class="mc mc-tip" style="background:${bg};color:${fg}">${v>=0?'+':''}${Math.round(v*100)}%<div class="tip-box"><div class="tip-line"><b>${s.full}</b></div><div class="tip-line">${c.cat}</div><div class="tip-line">Виторг: <b>${tipRev}</b></div><div class="tip-line">Штуки: <b>${tipUnits}</b></div><div class="tip-line">vs бенчм.: <b>${v>=0?'+':''}${Math.round(v*100)}%</b></div></div></td>`;
     }).join('');
     return`<tr><td class="rh"><div style="font-size:12px;font-weight:600">${s.full}</div><div style="font-size:10px;color:var(--t3)">${pct(s.revVs)} загалом</div></td>${cells}</tr>`;
   }).join('');
@@ -2094,6 +2141,14 @@ function toggleCheckMob(k,name){
 function render(){
   try{
     renderKPI();
+    // Update plan badge
+    const allTot=Object.values(PLANS).filter(v=>Array.isArray(v)).reduce((a,plan)=>a+plan.reduce((b,d)=>b+d.actions.length,0),0);
+    const allDone=Object.keys(S.checks).filter(k=>S.checks[k]).length;
+    const pb=document.getElementById('planBadge');
+    if(pb){
+      if(allDone===0&&allTot===0){pb.style.display='none';}
+      else{pb.style.display='';pb.textContent=allDone+'/'+allTot;pb.className='nav-badge'+(allDone===allTot?' done':'');}
+    }
   }catch(e){
     console.error('renderKPI error:',e);
     const kr=document.getElementById('kpiRow');
@@ -2152,6 +2207,7 @@ function saveState(){
     localStorage.setItem('dm2_checks_v3',JSON.stringify(S.checks));
     localStorage.setItem(getWeekKey(),JSON.stringify(S.rhythmChecks));
     localStorage.setItem('dm2_theme',S.theme);
+    localStorage.setItem('dm2_ropen',JSON.stringify(S.rhythmOpen));
   }catch(e){}
 }
 
@@ -2191,6 +2247,7 @@ function loadState(){
     const c=localStorage.getItem('dm2_checks_v3');if(c)S.checks=JSON.parse(c);
     const r=localStorage.getItem(getWeekKey());if(r)S.rhythmChecks=JSON.parse(r);
     const t=localStorage.getItem('dm2_theme');if(t)S.theme=t;
+    const ro=localStorage.getItem('dm2_ropen');if(ro)S.rhythmOpen=JSON.parse(ro);
   }catch(e){}
 }
 
