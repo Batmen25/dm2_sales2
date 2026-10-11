@@ -355,6 +355,70 @@ tbody tr:hover td{background:var(--bg3)}
 .pct-bar-fill{height:5px;border-radius:3px}
 .target-line{position:relative}
 .mob-acc-upload{display:none}
+
+/* ═══ MEETINGS 1:1 ═══ */
+.m-tabs{display:flex;gap:4px;margin-bottom:16px;flex-wrap:wrap}
+.m-tab{padding:7px 16px;border-radius:var(--r);border:1px solid var(--bd);background:transparent;color:var(--t3);font-size:13px;font-weight:500;cursor:pointer;font-family:'Outfit',sans-serif;transition:all .15s}
+.m-tab.on{background:var(--blue-bg);border-color:var(--blue-bd);color:var(--blue)}
+.m-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:20px}
+.m-stat{background:var(--bg2);border:1px solid var(--bd);border-radius:var(--r3);padding:14px 16px;text-align:center}
+.m-stat-n{font-size:26px;font-weight:700;font-family:'IBM Plex Mono',monospace;color:var(--t1);line-height:1.1}
+.m-stat-l{font-size:11px;color:var(--t3);margin-top:5px}
+.week-group{margin-bottom:18px}
+.week-lbl{font-size:10px;font-weight:700;letter-spacing:2px;color:var(--t3);text-transform:uppercase;margin-bottom:10px;display:flex;align-items:center;gap:8px}
+.week-lbl::after{content:'';flex:1;height:1px;background:var(--bd)}
+.sched-day{background:var(--bg2);border:1px solid var(--bd);border-radius:var(--r2);margin-bottom:8px;overflow:hidden}
+.sched-day.has-meetings{border-left:3px solid var(--blue)}
+.sched-day.is-off{opacity:.5}
+.sched-day-h{padding:10px 14px;display:flex;align-items:center;gap:10px}
+.sched-day-name{font-size:12px;font-weight:700;color:var(--t2);text-transform:uppercase;letter-spacing:.5px;min-width:32px}
+.sched-person{display:flex;align-items:center;justify-content:space-between;padding:9px 14px;border-top:1px solid var(--bd)}
+.sched-avatar{width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:#fff;flex-shrink:0}
+.sched-name{font-size:13px;font-weight:500;color:var(--t1);margin-left:10px;flex:1}
+.sched-done-btn{width:28px;height:28px;border-radius:50%;border:1.5px solid var(--bd2);background:transparent;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:12px;color:transparent;transition:all .2s;flex-shrink:0}
+.sched-done-btn.done{background:var(--green);border-color:var(--green);color:#fff}
+.sched-log-btn{padding:4px 10px;border-radius:6px;background:var(--blue-bg);color:var(--blue);border:1px solid var(--blue-bd);font-size:11px;font-weight:600;cursor:pointer;font-family:'Outfit',sans-serif;margin-right:8px;transition:all .15s}
+.sched-log-btn:hover{background:rgba(91,155,255,.25)}
+.emp-1to1{display:flex;align-items:center;gap:12px;padding:12px 16px;border-bottom:1px solid var(--bd);cursor:pointer;transition:background .1s}
+.emp-1to1:last-child{border-bottom:none}
+.emp-1to1:hover{background:var(--bg3)}
+.emp-avatar-big{width:40px;height:40px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;color:#fff;flex-shrink:0}
+.emp-1to1-meta{flex:1}
+.emp-1to1-name{font-size:14px;font-weight:600;color:var(--t1)}
+.emp-1to1-sub{font-size:11px;color:var(--t3);margin-top:2px}
+.freq-badge{font-size:11px;font-weight:600;padding:3px 9px;border-radius:5px;white-space:nowrap}
+.freq-ok{background:var(--green-bg);color:var(--green);border:1px solid var(--green-bd)}
+.freq-warn{background:var(--amber-bg);color:var(--amber);border:1px solid var(--amber-bd)}
+.freq-none{background:var(--bg4);color:var(--t3);border:1px solid var(--bd)}
+.log-entry{background:var(--bg2);border:1px solid var(--bd);border-radius:var(--r2);padding:14px 16px;margin-bottom:10px}
+.log-header{display:flex;align-items:center;gap:8px;margin-bottom:10px}
+.log-emp-name{font-size:13px;font-weight:700;color:var(--t1);flex:1}
+.log-date-badge{font-size:11px;font-family:'IBM Plex Mono',monospace;color:var(--t3);background:var(--bg4);padding:2px 8px;border-radius:4px;white-space:nowrap}
+.log-del{padding:3px 8px;border-radius:5px;border:none;background:transparent;color:var(--t3);cursor:pointer;font-size:12px;transition:color .15s}
+.log-del:hover{color:var(--red)}
+.log-section{font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--t3);margin-bottom:4px;margin-top:8px}
+.log-text{font-size:13px;color:var(--t2);line-height:1.6}
+.log-deadline{display:inline-flex;align-items:center;gap:5px;margin-top:8px;font-size:11px;font-weight:600;padding:3px 9px;border-radius:5px;background:var(--amber-bg);color:var(--amber);border:1px solid var(--amber-bd)}
+.m-modal{position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:300;display:flex;align-items:flex-end;justify-content:center}
+.m-modal.hidden{display:none}
+.m-modal-box{background:var(--bg1);border-radius:20px 20px 0 0;padding:22px 20px;width:100%;max-width:600px;max-height:90vh;overflow-y:auto;padding-bottom:max(env(safe-area-inset-bottom,20px),20px)}
+.m-form-label{font-size:12px;font-weight:600;color:var(--t2);text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px;margin-top:14px;display:block}
+.m-form-label:first-of-type{margin-top:0}
+.m-input,.m-textarea,.m-select{width:100%;padding:10px 13px;border:1px solid var(--bd2);border-radius:var(--r);font-size:14px;background:var(--bg3);color:var(--t1);font-family:'Outfit',sans-serif;outline:none;transition:border .15s}
+.m-input:focus,.m-textarea:focus,.m-select:focus{border-color:var(--blue-bd)}
+.m-textarea{resize:vertical;min-height:70px;line-height:1.55}
+[data-theme="light"] .m-input,[data-theme="light"] .m-textarea,[data-theme="light"] .m-select{background:#f8f9fc}
+.m-btn-row{display:flex;gap:10px;margin-top:16px}
+.m-btn{padding:12px;border-radius:var(--r);font-size:14px;font-weight:700;border:none;cursor:pointer;flex:1;font-family:'Outfit',sans-serif;transition:all .15s}
+.m-btn-primary{background:var(--blue);color:#fff}
+.m-btn-primary:hover{background:#4a8ef0}
+.m-btn-cancel{background:var(--bg4);color:var(--t2)}
+.m-btn-cancel:hover{background:var(--bg3)}
+.emp-detail-back{display:flex;align-items:center;gap:8px;color:var(--blue);font-size:13px;font-weight:600;cursor:pointer;margin-bottom:16px;border:none;background:transparent;font-family:'Outfit',sans-serif}
+.freq-bar{display:flex;gap:4px;margin-top:12px;flex-wrap:wrap}
+.freq-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0}
+@media(max-width:768px){.m-stats{grid-template-columns:repeat(2,1fr)}.m-stat-n{font-size:22px}}
+
 @media print{.sidebar,.toast,.bnav,.mob-header{display:none!important}.main{margin-left:0!important;padding:16px!important}}
 </style>
 </head>
@@ -407,6 +471,10 @@ tbody tr:hover td{background:var(--bg3)}
     <div class="ni" data-v="quality" onclick="go('quality')">
       <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 8h2l2 4 3-8 2 4h3"/></svg>
       Якість продажів
+    </div>
+    <div class="ni" data-v="meetings" onclick="go('meetings')">
+      <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="8" cy="6" r="3"/><path d="M3 14c0-2.76 2.24-5 5-5s5 2.24 5 5"/><path d="M12 3l1 1M12 9l1-1M4 3L3 4M4 9l-1-1"/></svg>
+      Зустрічі 1:1
     </div>
   </nav>
   <div class="sb-foot">
@@ -492,6 +560,10 @@ tbody tr:hover td{background:var(--bg3)}
   <button class="bnav-item" data-v="quality" onclick="go('quality')">
     <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 8h2l2 4 3-8 2 4h3"/></svg>
     Якість
+  </button>
+  <button class="bnav-item" data-v="meetings" onclick="go('meetings')">
+    <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="8" cy="6" r="3"/><path d="M3 14c0-2.76 2.24-5 5-5s5 2.24 5 5"/></svg>
+    1:1
   </button>
 </nav>
 <div id="bnavHint" style="display:none;position:fixed;bottom:calc(var(--bnav) - 2px);right:0;width:36px;height:calc(var(--bnav) - 2px);background:linear-gradient(90deg,transparent,var(--bg1));z-index:101;pointer-events:none;align-items:center;justify-content:center">
@@ -780,7 +852,7 @@ const S={
   theme:'dark',mobOverlay:false,
   accData:null,gsheetData:null,rhythmOpen:{},
   gsheetUrl:'https://docs.google.com/spreadsheets/d/1oodpZ_j07v0xBVsenrpyHXoqtXTdTp7v_u37iQEwzZs/edit?gid=897965126',
-  qualityTab:'penetration'
+  qualityTab:'penetration',meetingsTab:'schedule',meetingSelSeller:null
 };
 
 // Категорії що належать до Аксесуарів (решта — ДП техніка)
@@ -1995,6 +2067,345 @@ function renderQuality(){
       </table></div>
     </div>`;
 }
+
+// ═══════════════════════════════════════════════════════════════
+// MEETINGS 1:1
+// ═══════════════════════════════════════════════════════════════
+
+// Актуальний список продавців для розділу 1:1. Графік нижче не змінюємо.
+const M_SELLERS=[
+  'Устинова Людмила Олександрівна',
+  'Соболєв Андрій Андрійович',
+  'Кисельов Дмитро Сергійович',
+  'Дудник Анастасія Євгеніївна',
+  'Бородай Остап Михайлович',
+  'Азаров Даніїл Сергійович',
+  'Фесенко Ярослав Юрійович',
+  'Кравцова Анастасія Олександрівна',
+  'Синицина Галина Денисівна',
+  'Миценко Альона Миколаївна',
+  'Куценко Майя Сергіївна',
+  'Пачковський Ілля Владиславович',
+  'Мехтієв Родіон Шамсійович',
+  'Гаврихів Роман Вадимович'
+];
+
+// Colors for current sellers; historical/schedule abbreviations retain a fallback color.
+const SELLER_COLORS={
+  'Устинова Людмила Олександрівна':'#4f46e5',
+  'Соболєв Андрій Андрійович':'#059669',
+  'Кисельов Дмитро Сергійович':'#2563eb',
+  'Дудник Анастасія Євгеніївна':'#db2777',
+  'Бородай Остап Михайлович':'#b45309',
+  'Азаров Даніїл Сергійович':'#0891b2',
+  'Фесенко Ярослав Юрійович':'#0f766e',
+  'Кравцова Анастасія Олександрівна':'#7c3aed',
+  'Синицина Галина Денисівна':'#6b7280',
+  'Миценко Альона Миколаївна':'#d97706',
+  'Куценко Майя Сергіївна':'#dc2626',
+  'Пачковський Ілля Владиславович':'#7c3aed',
+  'Мехтієв Родіон Шамсійович':'#0891b2',
+  'Гаврихів Роман Вадимович':'#059669',
+  'Зуєва О.':'#059669','Кисельов Д.':'#2563eb','Гаврихів Р.':'#0891b2',
+  'Пачковський І.':'#7c3aed','Фесенко Я.':'#0f766e','Дудник А.':'#db2777',
+  'Бугас Д.':'#b45309','Куценко М.':'#dc2626','Устинова Л.':'#4f46e5',
+  'Міщук А.':'#6b7280','Переяслов М.':'#d97706'
+};
+
+// 2-week schedule A/B — customize as needed
+const M_SCHEDULE={
+  // У графіку використовуються лише актуальні продавці зі списку M_SELLERS.
+  // Збережено двотижневий цикл і вихідні в середу та четвер.
+  A:{'Пн':['Устинова Людмила Олександрівна'],'Вт':['Соболєв Андрій Андрійович','Кисельов Дмитро Сергійович'],'Ср':[],'Чт':[],'Пт':['Дудник Анастасія Євгеніївна','Бородай Остап Михайлович'],'Сб':['Азаров Даніїл Сергійович','Фесенко Ярослав Юрійович'],'Нд':[]},
+  B:{'Пн':['Кравцова Анастасія Олександрівна'],'Вт':['Синицина Галина Денисівна','Миценко Альона Миколаївна'],'Ср':[],'Чт':[],'Пт':['Куценко Майя Сергіївна','Пачковський Ілля Владиславович'],'Сб':['Мехтієв Родіон Шамсійович','Гаврихів Роман Вадимович'],'Нд':[]}
+};
+const M_OFF_DAYS=['Ср','Чт'];
+
+// Meeting logs: [{id, seller, date, discuss, agree, deadline}]
+let M_LOGS=[];
+let M_DONE={};
+let M_EDIT_ID=null;
+let M_SEL_SELLER=null;
+
+function mLoadData(){
+  try{
+    const l=localStorage.getItem('dm2_1to1_logs');if(l)M_LOGS=JSON.parse(l);
+    const d=localStorage.getItem('dm2_1to1_done');if(d)M_DONE=JSON.parse(d);
+  }catch(e){}
+}
+function mSaveData(){
+  try{
+    localStorage.setItem('dm2_1to1_logs',JSON.stringify(M_LOGS));
+    localStorage.setItem('dm2_1to1_done',JSON.stringify(M_DONE));
+  }catch(e){}
+}
+
+function mSellerInitials(name){
+  return name.split(' ').map(w=>w[0]).join('').slice(0,2);
+}
+
+function mDaysAgo(dateStr){
+  if(!dateStr)return null;
+  return Math.floor((Date.now()-new Date(dateStr))/86400000);
+}
+
+function mFreqBadge(seller){
+  const logs=M_LOGS.filter(l=>l.seller===seller);
+  if(!logs.length)return'<span class="freq-badge freq-none">Ще не було</span>';
+  const last=logs.sort((a,b)=>new Date(b.date)-new Date(a.date))[0];
+  const days=mDaysAgo(last.date);
+  if(days<=14)return`<span class="freq-badge freq-ok">${days===0?'Сьогодні':days+'д тому'}</span>`;
+  return`<span class="freq-badge freq-warn">${days}д тому</span>`;
+}
+
+function mToggleDone(key,btn){
+  M_DONE[key]=!M_DONE[key];
+  if(btn)btn.classList.toggle('done',!!M_DONE[key]);
+  mSaveData();
+  // update stats without full re-render
+  const doneCount=Object.values(M_DONE).filter(Boolean).length;
+  const el=document.getElementById('m-stat-done');
+  if(el)el.textContent=doneCount;
+}
+
+function mGetAllSellers(){
+  // У списках і нових зустрічах показуємо лише актуальних продавців.
+  // Старі імена збережених записів додаються окремо тільки під час редагування конкретного запису.
+  return [...M_SELLERS];
+}
+
+function mOpenModal(sellerName){
+  M_EDIT_ID=null;
+  const sel=document.getElementById('m-f-seller');
+  if(sel){
+    const allSellers=mGetAllSellers();
+    sel.innerHTML=allSellers.map(s=>`<option value="${s}">${s}</option>`).join('');
+    if(sellerName)sel.value=sellerName;
+  }
+  document.getElementById('m-f-date').value=new Date().toISOString().split('T')[0];
+  document.getElementById('m-f-discuss').value='';
+  document.getElementById('m-f-agree').value='';
+  document.getElementById('m-f-deadline').value='';
+  document.getElementById('m-modal').classList.remove('hidden');
+}
+
+function mCloseModal(){
+  document.getElementById('m-modal').classList.add('hidden');
+  M_EDIT_ID=null;
+}
+
+function mSaveLog(){
+  const seller=document.getElementById('m-f-seller').value;
+  const date=document.getElementById('m-f-date').value;
+  const discuss=document.getElementById('m-f-discuss').value.trim();
+  const agree=document.getElementById('m-f-agree').value.trim();
+  const deadline=document.getElementById('m-f-deadline').value.trim();
+  if(!seller||!date)return;
+  if(M_EDIT_ID){
+    const idx=M_LOGS.findIndex(l=>l.id===M_EDIT_ID);
+    if(idx>=0)M_LOGS[idx]={...M_LOGS[idx],seller,date,discuss,agree,deadline};
+  }else{
+    M_LOGS.push({id:Date.now().toString(),seller,date,discuss,agree,deadline});
+  }
+  mSaveData();
+  mCloseModal();
+  render();
+}
+
+function mDeleteLog(id){
+  if(!confirm('Видалити запис?'))return;
+  M_LOGS=M_LOGS.filter(l=>l.id!==id);
+  mSaveData();
+  render();
+}
+
+function mEditLog(id){
+  const log=M_LOGS.find(l=>l.id===id);
+  if(!log)return;
+  M_EDIT_ID=id;
+  const sel=document.getElementById('m-f-seller');
+  if(sel){
+    const allSellers=mGetAllSellers();
+    if(!allSellers.includes(log.seller))allSellers.push(log.seller);
+    sel.innerHTML=allSellers.map(s=>`<option value="${s}">${s}</option>`).join('');
+    sel.value=log.seller;
+  }
+  document.getElementById('m-f-date').value=log.date;
+  document.getElementById('m-f-discuss').value=log.discuss||'';
+  document.getElementById('m-f-agree').value=log.agree||'';
+  document.getElementById('m-f-deadline').value=log.deadline||'';
+  document.getElementById('m-modal').classList.remove('hidden');
+}
+
+function mRenderLogEntry(log,hideSeller=false){
+  const d=new Date(log.date).toLocaleDateString('uk-UA',{day:'numeric',month:'short',year:'numeric'});
+  const color=SELLER_COLORS[log.seller]||'#5b9bff';
+  return`<div class="log-entry">
+    <div class="log-header">
+      ${!hideSeller?`<div class="sched-avatar" style="background:${color};width:28px;height:28px;font-size:10px;flex-shrink:0">${mSellerInitials(log.seller)}</div>
+      <div class="log-emp-name">${log.seller}</div>`:`<div class="log-emp-name" style="flex:1"></div>`}
+      <span class="log-date-badge">${d}</span>
+      <button class="log-del" onclick="mEditLog('${log.id}')" title="Редагувати">✏️</button>
+      <button class="log-del" onclick="mDeleteLog('${log.id}')" title="Видалити">✕</button>
+    </div>
+    ${log.discuss?`<div class="log-section">💬 Обговорили</div><div class="log-text">${log.discuss}</div>`:''}
+    ${log.agree?`<div class="log-section">🤝 Домовились</div><div class="log-text">${log.agree}</div>`:''}
+    ${log.deadline?`<div><span class="log-deadline">📅 Дедлайн: ${log.deadline}</span></div>`:''}
+  </div>`;
+}
+
+function renderMeetings(){
+  const tabs=`<div class="m-tabs">
+    <button class="m-tab${S.meetingsTab==='schedule'?' on':''}" onclick="S.meetingsTab='schedule';render()">📅 Графік</button>
+    <button class="m-tab${S.meetingsTab==='sellers'?' on':''}" onclick="S.meetingsTab='sellers';render()">👥 Продавці</button>
+    <button class="m-tab${S.meetingsTab==='history'?' on':''}" onclick="S.meetingsTab='history';render()">📋 Журнал</button>
+  </div>`;
+
+  // Stats
+  const totalScheduled=Object.values(M_SCHEDULE.A).flat().length+Object.values(M_SCHEDULE.B).flat().length;
+  const doneCount=Object.values(M_DONE).filter(Boolean).length;
+  const totalLogs=M_LOGS.length;
+  const thisMonth=M_LOGS.filter(l=>{
+    const d=new Date(l.date);
+    const now=new Date();
+    return d.getMonth()===now.getMonth()&&d.getFullYear()===now.getFullYear();
+  }).length;
+  const allSellers=M_SELLERS;
+  const coveredSellers=new Set(M_LOGS.map(l=>l.seller)).size;
+  const stats=`<div class="m-stats">
+    <div class="m-stat"><div class="m-stat-n" id="m-stat-done">${doneCount}</div><div class="m-stat-l">Проведено за цикл</div></div>
+    <div class="m-stat"><div class="m-stat-n">${totalScheduled-doneCount}</div><div class="m-stat-l">Заплановано ще</div></div>
+    <div class="m-stat"><div class="m-stat-n">${thisMonth}</div><div class="m-stat-l">Записів цього місяця</div></div>
+    <div class="m-stat"><div class="m-stat-n">${coveredSellers}/${allSellers.length}</div><div class="m-stat-l">Продавців охоплено</div></div>
+  </div>`;
+
+  let content='';
+
+  if(S.meetingsTab==='schedule'){
+    // If seller detail view
+    if(S.meetingSelSeller){
+      const seller=S.meetingSelSeller;
+      const color=SELLER_COLORS[seller]||'#5b9bff';
+      const sellerLogs=M_LOGS.filter(l=>l.seller===seller).sort((a,b)=>new Date(b.date)-new Date(a.date));
+      const entries=sellerLogs.length
+        ?sellerLogs.map(l=>mRenderLogEntry(l,true)).join('')
+        :`<div class="empty" style="padding:32px">Ще немає записів 1:1 з цим продавцем</div>`;
+      content=`
+        <button class="emp-detail-back" onclick="S.meetingSelSeller=null;render()">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M10 3L5 8l5 5"/></svg>
+          Назад до графіку
+        </button>
+        <div class="card" style="margin-bottom:16px">
+          <div class="card-h" style="gap:12px">
+            <div class="sched-avatar" style="background:${color};width:36px;height:36px;font-size:13px">${mSellerInitials(seller)}</div>
+            <div style="flex:1">
+              <div style="font-size:15px;font-weight:700">${seller}</div>
+              <div style="font-size:12px;color:var(--t3);margin-top:2px">${sellerLogs.length} зустрічей · ${mFreqBadge(seller).replace(/<[^>]+>/g,'').replace(/</g,'').replace(/>/g,'')}</div>
+            </div>
+            ${mFreqBadge(seller)}
+            <button onclick="mOpenModal('${seller}')" style="padding:7px 14px;border-radius:var(--r);background:var(--blue-bg);border:1px solid var(--blue-bd);color:var(--blue);font-size:13px;font-weight:600;cursor:pointer;font-family:'Outfit',sans-serif;white-space:nowrap">+ Запис</button>
+          </div>
+        </div>
+        ${entries}`;
+    }else{
+      // Schedule view: weeks A and B
+      let schedHtml='';
+      ['A','B'].forEach(week=>{
+        const dayEntries=Object.entries(M_SCHEDULE[week]);
+        schedHtml+=`<div class="week-group"><div class="week-lbl">🔄 Тиждень ${week}</div>`;
+        dayEntries.forEach(([day,sellers])=>{
+          const isOff=M_OFF_DAYS.includes(day);
+          if(isOff){
+            schedHtml+=`<div class="sched-day is-off"><div class="sched-day-h"><span class="sched-day-name">${day}</span><span style="font-size:12px;color:var(--t3)">Вихідний</span></div></div>`;
+            return;
+          }
+          const hasMeetings=sellers.length>0;
+          schedHtml+=`<div class="sched-day${hasMeetings?' has-meetings':''}"><div class="sched-day-h"><span class="sched-day-name">${day}</span>${!hasMeetings?'<span style="font-size:12px;color:var(--t3)">Зустрічей немає</span>':''}</div>`;
+          sellers.forEach(seller=>{
+            const key=`${week}_${day}_${seller}`;
+            const isDone=!!M_DONE[key];
+            const color=SELLER_COLORS[seller]||'#5b9bff';
+            const lastLog=M_LOGS.filter(l=>l.seller===seller).sort((a,b)=>new Date(b.date)-new Date(a.date))[0];
+            const lastDate=lastLog?new Date(lastLog.date).toLocaleDateString('uk-UA',{day:'numeric',month:'short'}):'';
+            schedHtml+=`<div class="sched-person">
+              <div class="sched-avatar" style="background:${color}">${mSellerInitials(seller)}</div>
+              <span class="sched-name" onclick="S.meetingSelSeller='${seller}';render()" style="cursor:pointer">${seller}</span>
+              ${lastDate?`<span style="font-size:11px;color:var(--t3);font-family:'IBM Plex Mono',monospace;margin-right:8px">${lastDate}</span>`:''}
+              <button class="sched-log-btn" onclick="mOpenModal('${seller}')">+ Запис</button>
+              <button class="sched-done-btn${isDone?' done':''}" onclick="mToggleDone('${key}',this)" title="${isDone?'Скасувати':'Позначити як проведену'}">✓</button>
+            </div>`;
+          });
+          schedHtml+='</div>';
+        });
+        schedHtml+='</div>';
+      });
+      content=`<button onclick="mOpenModal()" style="margin-bottom:16px;padding:9px 18px;border-radius:var(--r);background:var(--blue-bg);border:1px solid var(--blue-bd);color:var(--blue);font-size:13px;font-weight:600;cursor:pointer;font-family:'Outfit',sans-serif">+ Новий запис 1:1</button>${schedHtml}`;
+    }
+  }
+
+  else if(S.meetingsTab==='sellers'){
+    if(S.meetingSelSeller){
+      const seller=S.meetingSelSeller;
+      const color=SELLER_COLORS[seller]||'#5b9bff';
+      const sellerLogs=M_LOGS.filter(l=>l.seller===seller).sort((a,b)=>new Date(b.date)-new Date(a.date));
+      const entries=sellerLogs.length
+        ?sellerLogs.map(l=>mRenderLogEntry(l,true)).join('')
+        :`<div class="empty" style="padding:32px">Ще немає записів 1:1 з цим продавцем</div>`;
+      content=`
+        <button class="emp-detail-back" onclick="S.meetingSelSeller=null;render()">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M10 3L5 8l5 5"/></svg>
+          Назад до списку
+        </button>
+        <div class="card" style="margin-bottom:14px">
+          <div class="card-h">
+            <div class="sched-avatar" style="background:${color};width:36px;height:36px;font-size:13px">${mSellerInitials(seller)}</div>
+            <div style="flex:1;margin-left:4px"><div style="font-size:15px;font-weight:700">${seller}</div><div style="font-size:12px;color:var(--t3)">${sellerLogs.length} зустрічей</div></div>
+            ${mFreqBadge(seller)}
+            <button onclick="mOpenModal('${seller}')" style="margin-left:8px;padding:7px 14px;border-radius:var(--r);background:var(--blue-bg);border:1px solid var(--blue-bd);color:var(--blue);font-size:13px;font-weight:600;cursor:pointer;font-family:'Outfit',sans-serif">+ Запис</button>
+          </div>
+        </div>
+        ${entries}`;
+    }else{
+      const sellersToShow=allSellers.length?allSellers:Object.keys(SELLER_COLORS);
+      const rows=sellersToShow.map(seller=>{
+        const color=SELLER_COLORS[seller]||'#5b9bff';
+        const logs=M_LOGS.filter(l=>l.seller===seller);
+        return`<div class="emp-1to1" onclick="S.meetingSelSeller='${seller}';render()">
+          <div class="emp-avatar-big" style="background:${color}">${mSellerInitials(seller)}</div>
+          <div class="emp-1to1-meta">
+            <div class="emp-1to1-name">${seller}</div>
+            <div class="emp-1to1-sub">${logs.length} записів 1:1</div>
+          </div>
+          ${mFreqBadge(seller)}
+          <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="var(--t3)" stroke-width="1.5" style="margin-left:8px"><path d="M6 3l5 5-5 5"/></svg>
+        </div>`;
+      }).join('');
+      content=`<div style="display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:12px"><div><div style="font-size:15px;font-weight:700">Актуальний список продавців</div><div style="font-size:12px;color:var(--t3);margin-top:3px">${M_SELLERS.length} продавців · натисни на ім’я, щоб відкрити історію зустрічей</div></div><button onclick="mOpenModal()" style="padding:8px 12px;border-radius:var(--r);background:var(--blue-bg);border:1px solid var(--blue-bd);color:var(--blue);font-size:12px;font-weight:600;cursor:pointer;font-family:'Outfit',sans-serif;white-space:nowrap">+ Запис 1:1</button></div><div class="card"><div>${rows}</div></div>`;
+    }
+  }
+
+  else if(S.meetingsTab==='history'){
+    const sorted=[...M_LOGS].sort((a,b)=>new Date(b.date)-new Date(a.date));
+    const searchVal=S.meetingSearch||'';
+    const filtered=searchVal?sorted.filter(l=>l.seller.toLowerCase().includes(searchVal.toLowerCase())||(l.discuss||'').toLowerCase().includes(searchVal.toLowerCase())||(l.agree||'').toLowerCase().includes(searchVal.toLowerCase())):sorted;
+    const entries=filtered.length
+      ?filtered.map(l=>mRenderLogEntry(l,false)).join('')
+      :`<div class="empty" style="padding:48px">${searchVal?'Нічого не знайдено':'Ще немає жодного запису 1:1.<br>Проведи першу зустріч і додай нотатку!'}</div>`;
+    content=`
+      <div style="display:flex;gap:10px;margin-bottom:14px">
+        <div class="search-wrap" style="flex:1;margin:0">
+          <svg class="search-icon" width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="7" cy="7" r="5"/><path d="M11 11l3 3"/></svg>
+          <input class="search m-history-search" placeholder="Пошук по продавцю або тексту..." value="${searchVal}" oninput="S.meetingSearch=this.value;render();const x=document.querySelector('.m-history-search');if(x){x.focus();x.setSelectionRange(x.value.length,x.value.length)}">
+        </div>
+        <button onclick="mOpenModal()" style="padding:9px 16px;border-radius:var(--r);background:var(--blue-bg);border:1px solid var(--blue-bd);color:var(--blue);font-size:13px;font-weight:600;cursor:pointer;font-family:'Outfit',sans-serif;white-space:nowrap">+ Новий запис</button>
+      </div>
+      <div style="font-size:12px;color:var(--t3);margin-bottom:12px">${filtered.length} записів${searchVal?' (фільтр)':''}</div>
+      ${entries}`;
+  }
+
+  return`${tabs}${stats}${content}`;
+}
+
 function toggleTheme(){
   S.theme=S.theme==='dark'?'light':'dark';
   applyTheme();
@@ -2158,7 +2569,7 @@ function render(){
     if(kr)kr.innerHTML='';
   }
   try{closeMobOverlay();}catch(e){}
-  const titles={overview:'Огляд магазину',sellers:'Продавці',categories:'Категорії',plan:'План дій',rhythm:'Ритм тижня',focus:'Фокус дня',matrix:'Матриця продавців',insights:'Автоінсайти',quality:'Якість продажів'};
+  const titles={overview:'Огляд магазину',sellers:'Продавці',categories:'Категорії',plan:'План дій',rhythm:'Ритм тижня',focus:'Фокус дня',matrix:'Матриця продавців',insights:'Автоінсайти',quality:'Якість продажів',meetings:'Зустрічі 1:1'};
   const pt=document.getElementById('pageTitle');
   if(pt)pt.textContent=titles[S.view]||'';
     const ps=document.getElementById('pageSub');
@@ -2178,6 +2589,7 @@ function render(){
     else if(S.view==='matrix')el.innerHTML=renderMatrix();
     else if(S.view==='insights')el.innerHTML=renderInsights();
     else if(S.view==='quality')el.innerHTML=renderQuality();
+    else if(S.view==='meetings')el.innerHTML=renderMeetings();
   }catch(e){
     console.error('render error (view='+S.view+'):',e);
     el.innerHTML=`<div style="padding:32px;color:#ff6b6b;font-family:monospace;font-size:13px;background:rgba(255,107,107,.08);border-radius:10px;border:1px solid rgba(255,107,107,.3)">
@@ -2358,7 +2770,7 @@ if(dz){
 }
 
 document.addEventListener('keydown',e=>{
-  const map={'1':'overview','2':'sellers','3':'categories','4':'plan','5':'rhythm','6':'focus','7':'matrix','8':'insights','9':'quality'};
+  const map={'1':'overview','2':'sellers','3':'categories','4':'plan','5':'rhythm','6':'focus','7':'matrix','8':'insights','9':'quality','0':'meetings'};
   if(map[e.key]&&!e.ctrlKey&&!e.metaKey&&!e.altKey&&document.activeElement.tagName!=='INPUT'){go(map[e.key]);}
 });
 
@@ -2366,6 +2778,7 @@ document.addEventListener('keydown',e=>{
 // INIT
 // ═══════════════════════════════════════════════════════════════
 loadState();
+mLoadData();
 applyTheme();
 const restoredFromCache=loadFileData();
 if(!restoredFromCache){
@@ -2376,5 +2789,30 @@ if(!restoredFromCache){
 loadAccData();
 render();
 </script>
+
+<!-- ═══ MEETINGS 1:1 MODAL ═══ -->
+<div class="m-modal hidden" id="m-modal" onclick="if(event.target===this)mCloseModal()">
+  <div class="m-modal-box">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
+      <div style="font-size:17px;font-weight:700;color:var(--t1)">Запис 1:1</div>
+      <button onclick="mCloseModal()" style="font-size:18px;color:var(--t3);border:none;background:transparent;cursor:pointer;line-height:1">✕</button>
+    </div>
+    <label class="m-form-label">Продавець</label>
+    <select id="m-f-seller" class="m-select"></select>
+    <label class="m-form-label">Дата зустрічі</label>
+    <input type="date" id="m-f-date" class="m-input">
+    <label class="m-form-label">💬 Що обговорили</label>
+    <textarea id="m-f-discuss" class="m-textarea" placeholder="Теми, ситуації, що аналізували..."></textarea>
+    <label class="m-form-label">🤝 Про що домовились</label>
+    <textarea id="m-f-agree" class="m-textarea" placeholder="Конкретні кроки, задачі, зобов'язання..."></textarea>
+    <label class="m-form-label">📅 Дедлайн / наступний крок (необов'язково)</label>
+    <input type="text" id="m-f-deadline" class="m-input" placeholder="напр. До п'ятниці провести тренінг">
+    <div class="m-btn-row">
+      <button class="m-btn m-btn-cancel" onclick="mCloseModal()">Скасувати</button>
+      <button class="m-btn m-btn-primary" onclick="mSaveLog()">Зберегти</button>
+    </div>
+  </div>
+</div>
+
 </body>
 </html>
