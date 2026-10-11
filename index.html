@@ -2074,16 +2074,35 @@ function renderQuality(){
 
 // Sellers color map (consistent with tier colors)
 const SELLER_COLORS={
-  'Зуєва О.':'#059669','Кисельов Д.':'#2563eb','Гаврихів Р.':'#0891b2',
-  'Пачковський І.':'#7c3aed','Фесенко Я.':'#0f766e','Дудник А.':'#db2777',
-  'Бугас Д.':'#b45309','Куценко М.':'#dc2626','Устинова Л.':'#4f46e5',
-  'Міщук А.':'#6b7280','Переяслов М.':'#d97706'
+  'Устинова Л.':'#4f46e5','Соболєв А.':'#b45309','Кисельов Д.':'#2563eb',
+  'Дудник А.':'#db2777','Бородай О.':'#7c3aed','Азаров Д.':'#0891b2',
+  'Фесенко Я.':'#0f766e','Кравцова А.':'#be185d','Синицина Г.':'#065f46',
+  'Миценко А.':'#6b7280','Куценко М.':'#dc2626','Пачковський І.':'#1d4ed8',
+  'Мехтієв Р.':'#d97706','Гаврихів Р.':'#059669'
+};
+
+// Full names for modal select
+const SELLER_FULL_NAMES={
+  'Устинова Л.':'Устинова Людмила Олександрівна',
+  'Соболєв А.':'Соболєв Андрій Андрійович',
+  'Кисельов Д.':'Кисельов Дмитро Сергійович',
+  'Дудник А.':'Дудник Анастасія Євгеніївна',
+  'Бородай О.':'Бородай Остап Михайлович',
+  'Азаров Д.':'Азаров Даніїл Сергійович',
+  'Фесенко Я.':'Фесенко Ярослав Юрійович',
+  'Кравцова А.':'Кравцова Анастасія Олександрівна',
+  'Синицина Г.':'Синицина Галина Денисівна',
+  'Миценко А.':'Миценко Альона Миколаївна',
+  'Куценко М.':'Куценко Майя Сергіївна',
+  'Пачковський І.':'Пачковський Ілля Владиславович',
+  'Мехтієв Р.':'Мехтієв Родіон Шамсійович',
+  'Гаврихів Р.':'Гаврихів Роман Вадимович'
 };
 
 // 2-week schedule A/B — customize as needed
 const M_SCHEDULE={
-  A:{'Пн':['Зуєва О.'],'Вт':['Кисельов Д.','Гаврихів Р.'],'Ср':[],'Чт':[],'Пт':['Пачковський І.','Фесенко Я.'],'Сб':['Дудник А.'],'Нд':[]},
-  B:{'Пн':['Бугас Д.'],'Вт':['Куценко М.','Устинова Л.'],'Ср':[],'Чт':[],'Пт':['Міщук А.','Переяслов М.'],'Сб':[],'Нд':[]}
+  A:{'Пн':['Устинова Л.'],'Вт':['Кисельов Д.','Гаврихів Р.'],'Ср':[],'Чт':[],'Пт':['Пачковський І.','Фесенко Я.'],'Сб':['Дудник А.','Азаров Д.'],'Нд':['Бородай О.']},
+  B:{'Пн':['Мехтієв Р.'],'Вт':['Миценко А.','Куценко М.','Синицина Г.'],'Ср':[],'Чт':[],'Пт':['Соболєв А.','Кравцова А.'],'Сб':[],'Нд':['Кисельов Д.']}
 };
 const M_OFF_DAYS=['Ср','Чт'];
 
@@ -2140,8 +2159,8 @@ function mOpenModal(sellerName){
   const sel=document.getElementById('m-f-seller');
   if(sel){
     // get all sellers
-    const allSellers=S.sellers.length?S.sellers.map(s=>s.name):Object.keys(SELLER_COLORS);
-    sel.innerHTML=allSellers.map(s=>`<option value="${s}">${s}</option>`).join('');
+    const allSellers=Object.keys(SELLER_COLORS);
+    sel.innerHTML=allSellers.map(s=>`<option value="${s}">${s}${typeof SELLER_FULL_NAMES!=='undefined'&&SELLER_FULL_NAMES[s]?' — '+SELLER_FULL_NAMES[s]:''}</option>`).join('');
     if(sellerName)sel.value=sellerName;
   }
   document.getElementById('m-f-date').value=new Date().toISOString().split('T')[0];
@@ -2327,7 +2346,7 @@ function renderMeetings(){
         </div>
         ${entries}`;
     }else{
-      const sellersToShow=allSellers.length?allSellers:Object.keys(SELLER_COLORS);
+      const sellersToShow=Object.keys(SELLER_COLORS);
       const rows=sellersToShow.map(seller=>{
         const color=SELLER_COLORS[seller]||'#5b9bff';
         const logs=M_LOGS.filter(l=>l.seller===seller);
