@@ -2072,40 +2072,8 @@ function renderQuality(){
 // MEETINGS 1:1
 // ═══════════════════════════════════════════════════════════════
 
-// Актуальний список продавців для розділу 1:1. Графік нижче не змінюємо.
-const M_SELLERS=[
-  'Устинова Людмила Олександрівна',
-  'Соболєв Андрій Андрійович',
-  'Кисельов Дмитро Сергійович',
-  'Дудник Анастасія Євгеніївна',
-  'Бородай Остап Михайлович',
-  'Азаров Даніїл Сергійович',
-  'Фесенко Ярослав Юрійович',
-  'Кравцова Анастасія Олександрівна',
-  'Синицина Галина Денисівна',
-  'Миценко Альона Миколаївна',
-  'Куценко Майя Сергіївна',
-  'Пачковський Ілля Владиславович',
-  'Мехтієв Родіон Шамсійович',
-  'Гаврихів Роман Вадимович'
-];
-
-// Colors for current sellers; historical/schedule abbreviations retain a fallback color.
+// Sellers color map (consistent with tier colors)
 const SELLER_COLORS={
-  'Устинова Людмила Олександрівна':'#4f46e5',
-  'Соболєв Андрій Андрійович':'#059669',
-  'Кисельов Дмитро Сергійович':'#2563eb',
-  'Дудник Анастасія Євгеніївна':'#db2777',
-  'Бородай Остап Михайлович':'#b45309',
-  'Азаров Даніїл Сергійович':'#0891b2',
-  'Фесенко Ярослав Юрійович':'#0f766e',
-  'Кравцова Анастасія Олександрівна':'#7c3aed',
-  'Синицина Галина Денисівна':'#6b7280',
-  'Миценко Альона Миколаївна':'#d97706',
-  'Куценко Майя Сергіївна':'#dc2626',
-  'Пачковський Ілля Владиславович':'#7c3aed',
-  'Мехтієв Родіон Шамсійович':'#0891b2',
-  'Гаврихів Роман Вадимович':'#059669',
   'Зуєва О.':'#059669','Кисельов Д.':'#2563eb','Гаврихів Р.':'#0891b2',
   'Пачковський І.':'#7c3aed','Фесенко Я.':'#0f766e','Дудник А.':'#db2777',
   'Бугас Д.':'#b45309','Куценко М.':'#dc2626','Устинова Л.':'#4f46e5',
@@ -2114,10 +2082,8 @@ const SELLER_COLORS={
 
 // 2-week schedule A/B — customize as needed
 const M_SCHEDULE={
-  // У графіку використовуються лише актуальні продавці зі списку M_SELLERS.
-  // Збережено двотижневий цикл і вихідні в середу та четвер.
-  A:{'Пн':['Устинова Людмила Олександрівна'],'Вт':['Соболєв Андрій Андрійович','Кисельов Дмитро Сергійович'],'Ср':[],'Чт':[],'Пт':['Дудник Анастасія Євгеніївна','Бородай Остап Михайлович'],'Сб':['Азаров Даніїл Сергійович','Фесенко Ярослав Юрійович'],'Нд':[]},
-  B:{'Пн':['Кравцова Анастасія Олександрівна'],'Вт':['Синицина Галина Денисівна','Миценко Альона Миколаївна'],'Ср':[],'Чт':[],'Пт':['Куценко Майя Сергіївна','Пачковський Ілля Владиславович'],'Сб':['Мехтієв Родіон Шамсійович','Гаврихів Роман Вадимович'],'Нд':[]}
+  A:{'Пн':['Зуєва О.'],'Вт':['Кисельов Д.','Гаврихів Р.'],'Ср':[],'Чт':[],'Пт':['Пачковський І.','Фесенко Я.'],'Сб':['Дудник А.'],'Нд':[]},
+  B:{'Пн':['Бугас Д.'],'Вт':['Куценко М.','Устинова Л.'],'Ср':[],'Чт':[],'Пт':['Міщук А.','Переяслов М.'],'Сб':[],'Нд':[]}
 };
 const M_OFF_DAYS=['Ср','Чт'];
 
@@ -2168,17 +2134,13 @@ function mToggleDone(key,btn){
   if(el)el.textContent=doneCount;
 }
 
-function mGetAllSellers(){
-  // У списках і нових зустрічах показуємо лише актуальних продавців.
-  // Старі імена збережених записів додаються окремо тільки під час редагування конкретного запису.
-  return [...M_SELLERS];
-}
-
 function mOpenModal(sellerName){
   M_EDIT_ID=null;
+  // populate seller select
   const sel=document.getElementById('m-f-seller');
   if(sel){
-    const allSellers=mGetAllSellers();
+    // get all sellers
+    const allSellers=S.sellers.length?S.sellers.map(s=>s.name):Object.keys(SELLER_COLORS);
     sel.innerHTML=allSellers.map(s=>`<option value="${s}">${s}</option>`).join('');
     if(sellerName)sel.value=sellerName;
   }
@@ -2225,8 +2187,7 @@ function mEditLog(id){
   M_EDIT_ID=id;
   const sel=document.getElementById('m-f-seller');
   if(sel){
-    const allSellers=mGetAllSellers();
-    if(!allSellers.includes(log.seller))allSellers.push(log.seller);
+    const allSellers=S.sellers.length?S.sellers.map(s=>s.name):Object.keys(SELLER_COLORS);
     sel.innerHTML=allSellers.map(s=>`<option value="${s}">${s}</option>`).join('');
     sel.value=log.seller;
   }
@@ -2270,7 +2231,7 @@ function renderMeetings(){
     const now=new Date();
     return d.getMonth()===now.getMonth()&&d.getFullYear()===now.getFullYear();
   }).length;
-  const allSellers=M_SELLERS;
+  const allSellers=S.sellers.length?S.sellers.map(s=>s.name):Object.keys(SELLER_COLORS);
   const coveredSellers=new Set(M_LOGS.map(l=>l.seller)).size;
   const stats=`<div class="m-stats">
     <div class="m-stat"><div class="m-stat-n" id="m-stat-done">${doneCount}</div><div class="m-stat-l">Проведено за цикл</div></div>
@@ -2380,7 +2341,7 @@ function renderMeetings(){
           <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="var(--t3)" stroke-width="1.5" style="margin-left:8px"><path d="M6 3l5 5-5 5"/></svg>
         </div>`;
       }).join('');
-      content=`<div style="display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:12px"><div><div style="font-size:15px;font-weight:700">Актуальний список продавців</div><div style="font-size:12px;color:var(--t3);margin-top:3px">${M_SELLERS.length} продавців · натисни на ім’я, щоб відкрити історію зустрічей</div></div><button onclick="mOpenModal()" style="padding:8px 12px;border-radius:var(--r);background:var(--blue-bg);border:1px solid var(--blue-bd);color:var(--blue);font-size:12px;font-weight:600;cursor:pointer;font-family:'Outfit',sans-serif;white-space:nowrap">+ Запис 1:1</button></div><div class="card"><div>${rows}</div></div>`;
+      content=`<div class="card"><div>${rows}</div></div>`;
     }
   }
 
@@ -2395,7 +2356,7 @@ function renderMeetings(){
       <div style="display:flex;gap:10px;margin-bottom:14px">
         <div class="search-wrap" style="flex:1;margin:0">
           <svg class="search-icon" width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="7" cy="7" r="5"/><path d="M11 11l3 3"/></svg>
-          <input class="search m-history-search" placeholder="Пошук по продавцю або тексту..." value="${searchVal}" oninput="S.meetingSearch=this.value;render();const x=document.querySelector('.m-history-search');if(x){x.focus();x.setSelectionRange(x.value.length,x.value.length)}">
+          <input class="search" placeholder="Пошук по продавцю або тексту..." value="${searchVal}" oninput="S.meetingSearch=this.value;render()">
         </div>
         <button onclick="mOpenModal()" style="padding:9px 16px;border-radius:var(--r);background:var(--blue-bg);border:1px solid var(--blue-bd);color:var(--blue);font-size:13px;font-weight:600;cursor:pointer;font-family:'Outfit',sans-serif;white-space:nowrap">+ Новий запис</button>
       </div>
