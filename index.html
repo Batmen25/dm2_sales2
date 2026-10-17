@@ -50,7 +50,7 @@ html,body{height:100%;background:var(--bg0);color:var(--t1);font-family:'Outfit'
 .up-zone:hover,.up-zone.drag{background:var(--blue-bg);border-color:var(--blue-bd)}
 .up-zone input{display:none}
 .sb-keys{font-size:11px;color:var(--t3);text-align:center;margin-top:10px;line-height:1.5;opacity:.7}
-.sb-clear{font-size:11px;color:var(--t3);text-align:center;margin-top:6px;cursor:pointer;opacity:.6;transition:opacity .15s;text-decoration:none;display:block;border:none;background:transparent;width:100%}
+.sb-clear{font-size:11px;color:var(--t3);text-align:center;margin-top:6px;cursor:pointer;opacity:.6;transition:opacity .15s;text-decoration:none;display:block}
 .sb-clear:hover{opacity:1;color:var(--red)}
 .sync-status{display:flex;align-items:center;gap:6px;font-size:11px;color:var(--t3);margin-top:8px;padding:6px 10px;border-radius:6px;background:var(--bg3);border:1px solid var(--bd)}
 .sync-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0;transition:background .3s}
@@ -501,10 +501,10 @@ tbody tr:hover td{background:var(--bg3)}
     </label>
     <div class="sb-keys">Клавіші 1–9 для навігації</div>
     <div class="sync-status" id="syncStatus" onclick="manualSync()" style="cursor:pointer;user-select:none" title="Натисни для ручної синхронізації">
-      <div class="sync-dot idle" id="syncDot"></div>
-      <span id="syncLabel">Хмара не підключена</span>
-    </div>
-    <button class="sb-clear" onclick="if(confirm('Очистити збережені файли?')){clearFileData();location.reload();}" title="Очистити кеш файлів">🗑 Очистити збережені дані</button>
+  <div class="sync-dot idle" id="syncDot"></div>
+  <span id="syncLabel">Хмара не підключена</span>
+</div>
+<button class="sb-clear" onclick="if(confirm('Очистити збережені файли?')){clearFileData();location.reload();}" title="Очистити кеш файлів">🗑 Очистити збережені дані</button>
   </div>
 </aside>
 
@@ -789,6 +789,69 @@ const PLANS={
   ]
 };
 
+// ── DEFAULT DATA ────────────────────────────────────────────────
+const DEFAULT_SELLERS=[
+  {name:'Зуєва О.',full:'Зуєва Ольга',revenue:423094,units:96,asp:4407,revVs:.224,aspVs:-.004,unitsVs:.151,cats:[
+    {cat:'Пилосос ручний',biz:'ДП техніка',rev:78754,units:5,revVs:.742,aspVs:.140},{cat:'Праски та прасувальні',biz:'ДП техніка',rev:68527,units:11,revVs:2.357,aspVs:.584},
+    {cat:'Мультипіч',biz:'ДП техніка',rev:48514,units:7,revVs:.339,aspVs:.098},{cat:'Кавомашина',biz:'ДП техніка',rev:45117,units:2,revVs:.072,aspVs:-.067},
+    {cat:'Навушники',biz:'Аксесуари',rev:39019,units:12,revVs:.349,aspVs:.010},{cat:'Зубна щітка електр.',biz:'ДП техніка',rev:23593,units:5,revVs:1.653,aspVs:.463},
+    {cat:'Пилосос традиційний',biz:'ДП техніка',rev:24680,units:4,revVs:.166,aspVs:.096},{cat:'Чайник електр.',biz:'ДП техніка',rev:10967,units:10,revVs:.763,aspVs:-.054},
+    {cat:'Фен',biz:'ДП техніка',rev:11295,units:5,revVs:.288,aspVs:-.104},{cat:'Миша комп.',biz:'Аксесуари',rev:10352,units:8,revVs:.553,aspVs:-.078}
+  ]},
+  {name:'Кисельов Д.',full:'Кисельов Дмитро',revenue:412318,units:96,asp:4295,revVs:.431,aspVs:.261,unitsVs:.166,cats:[
+    {cat:'Навушники',biz:'Аксесуари',rev:79826,units:12,revVs:1.760,aspVs:1.066},{cat:'Мультипіч',biz:'ДП техніка',rev:62212,units:10,revVs:.716,aspVs:-.014},
+    {cat:'Акустична система',biz:'Аксесуари',rev:39607,units:3,revVs:1.339,aspVs:.545},{cat:'Кухонна машина',biz:'ДП техніка',rev:38104,units:5,revVs:.037,aspVs:-.511},
+    {cat:'Фен',biz:'ДП техніка',rev:32146,units:3,revVs:2.665,aspVs:3.249},{cat:'Тример',biz:'ДП техніка',rev:13491,units:6,revVs:1.040,aspVs:.015},
+    {cat:'Миша комп.',biz:'Аксесуари',rev:16131,units:6,revVs:1.421,aspVs:.916},{cat:'Блендер ручний',biz:'ДП техніка',rev:13679,units:5,revVs:.278,aspVs:.071}
+  ]},
+  {name:'Гаврихів Р.',full:'Гаврихів Роман',revenue:376147,units:117,asp:3215,revVs:.465,aspVs:.077,unitsVs:.372,cats:[
+    {cat:'Мультипіч',biz:'ДП техніка',rev:78540,units:11,revVs:1.167,aspVs:.131},{cat:'Пилосос ручний',biz:'ДП техніка',rev:51716,units:3,revVs:.144,aspVs:.248},
+    {cat:'Навушники',biz:'Аксесуари',rev:42343,units:15,revVs:.464,aspVs:-.123},{cat:'Фен',biz:'ДП техніка',rev:27742,units:8,revVs:2.163,aspVs:.375},
+    {cat:'Тример',biz:'ДП техніка',rev:21920,units:9,revVs:2.314,aspVs:.099},{cat:'Чайник електр.',biz:'ДП техніка',rev:15120,units:12,revVs:1.431,aspVs:.087},
+    {cat:'Чохол для моб.',biz:'Аксесуари',rev:12258,units:16,revVs:.938,aspVs:.168},{cat:'Акустична система',biz:'Аксесуари',rev:18499,units:1,revVs:.092,aspVs:1.165}
+  ]},
+  {name:'Пачковський І.',full:'Пачковський Ілля',revenue:368267,units:92,asp:4003,revVs:.161,aspVs:.097,unitsVs:.125,cats:[
+    {cat:'Мультипіч',biz:'ДП техніка',rev:71991,units:8,revVs:.986,aspVs:.426},{cat:'Навушники',biz:'Аксесуари',rev:56744,units:20,revVs:.962,aspVs:-.119},
+    {cat:'Кухонна машина',biz:'ДП техніка',rev:42798,units:2,revVs:.164,aspVs:.375},{cat:'Кавомашина',biz:'ДП техніка',rev:42498,units:1,revVs:.010,aspVs:.758},
+    {cat:'Пилосос робот',biz:'ДП техніка',rev:34999,units:1,revVs:.037,aspVs:.637},{cat:'Зубна щітка електр.',biz:'ДП техніка',rev:21065,units:7,revVs:1.369,aspVs:-.067}
+  ]},
+  {name:'Фесенко Я.',full:'Фесенко Ярослав',revenue:343293,units:83,asp:4136,revVs:.067,aspVs:.092,unitsVs:.037,cats:[
+    {cat:'Навушники',biz:'Аксесуари',rev:52860,units:9,revVs:.828,aspVs:.824},{cat:'Мультипіч',biz:'ДП техніка',rev:42999,units:6,revVs:.186,aspVs:.136},
+    {cat:'Пилосос робот',biz:'ДП техніка',rev:34999,units:1,revVs:.037,aspVs:.637},{cat:'З/пристрій для моб.',biz:'Аксесуари',rev:15441,units:12,revVs:1.073,aspVs:.411},
+    {cat:'Зубна щітка електр.',biz:'ДП техніка',rev:12997,units:2,revVs:.461,aspVs:1.015},{cat:'Тример',biz:'ДП техніка',rev:10933,units:4,revVs:.653,aspVs:.234}
+  ]},
+  {name:'Дудник А.',full:'Дудник Анастасія',revenue:324693,units:121,asp:2683,revVs:.190,aspVs:.059,unitsVs:.213,cats:[
+    {cat:'Мультипіч',biz:'ДП техніка',rev:57020,units:8,revVs:.573,aspVs:.129},{cat:'Праски та прасувальні',biz:'ДП техніка',rev:56288,units:9,revVs:1.758,aspVs:.590},
+    {cat:'Пилосос традиційний',biz:'ДП техніка',rev:32674,units:3,revVs:.544,aspVs:.934},{cat:'Чохол для моб.',biz:'Аксесуари',rev:16373,units:44,revVs:1.588,aspVs:-.433},
+    {cat:'Фен',biz:'ДП техніка',rev:15970,units:5,revVs:.821,aspVs:.266},{cat:'З/пристрій для моб.',biz:'Аксесуари',rev:12947,units:13,revVs:.738,aspVs:.092}
+  ]},
+  {name:'Бугас Д.',full:'Бугас Данило',revenue:251801,units:86,asp:2928,revVs:.032,aspVs:-.094,unitsVs:.076,cats:[
+    {cat:'Пилосос ручний',biz:'ДП техніка',rev:55693,units:4,revVs:.232,aspVs:.008},{cat:'Зубна щітка електр.',biz:'ДП техніка',rev:36841,units:6,revVs:3.142,aspVs:.904},
+    {cat:'Навушники',biz:'Аксесуари',rev:28707,units:16,revVs:-.007,aspVs:-.443},{cat:'Праски та прасувальні',biz:'ДП техніка',rev:26670,units:6,revVs:.307,aspVs:.130},
+    {cat:'Мультипіч',biz:'ДП техніка',rev:23120,units:4,revVs:-.362,aspVs:-.084},{cat:'З/пристрій для моб.',biz:'Аксесуари',rev:11314,units:9,revVs:.519,aspVs:.379}
+  ]},
+  {name:'Куценко М.',full:'Куценко Майя',revenue:250786,units:75,asp:3344,revVs:-.152,aspVs:.068,unitsVs:-.188,cats:[
+    {cat:'Навушники',biz:'Аксесуари',rev:76973,units:16,revVs:1.661,aspVs:.494},{cat:'Пилосос ручний',biz:'ДП техніка',rev:25998,units:2,revVs:-.425,aspVs:-.059},
+    {cat:'Кавомашина',biz:'ДП техніка',rev:23999,units:1,revVs:-.430,aspVs:-.007},{cat:'Мультипіч',biz:'ДП техніка',rev:14897,units:3,revVs:-.589,aspVs:-.214},
+    {cat:'З/пристрій для моб.',biz:'Аксесуари',rev:11929,units:13,revVs:.602,aspVs:.006},{cat:'Миша комп.',biz:'Аксесуари',rev:9493,units:6,revVs:.425,aspVs:.127}
+  ]},
+  {name:'Устинова Л.',full:'Устинова Людмила',revenue:237801,units:67,asp:3549,revVs:-.082,aspVs:.048,unitsVs:-.115,cats:[
+    {cat:'Навушники',biz:'Аксесуари',rev:50538,units:11,revVs:.747,aspVs:.427},{cat:'Праски та прасувальні',biz:'ДП техніка',rev:39488,units:9,revVs:.935,aspVs:.116},
+    {cat:'Пилосос ручний',biz:'ДП техніка',rev:38546,units:3,revVs:-.147,aspVs:-.070},{cat:'Мультипіч',biz:'ДП техніка',rev:22789,units:5,revVs:-.371,aspVs:-.278},
+    {cat:'Тример',biz:'ДП техніка',rev:15275,units:6,revVs:1.310,aspVs:.149},{cat:'Чохол для моб.',biz:'Аксесуари',rev:9700,units:5,revVs:.533,aspVs:1.958}
+  ]},
+  {name:'Міщук А.',full:'Міщук Анастасія',revenue:104787,units:35,asp:2994,revVs:-.578,aspVs:-.205,unitsVs:-.485,cats:[
+    {cat:'Мультипіч',biz:'ДП техніка',rev:28643,units:6,revVs:-.210,aspVs:-.244},{cat:'Навушники',biz:'Аксесуари',rev:24649,units:6,revVs:-.148,aspVs:.276},
+    {cat:'Пилосос традиційний',biz:'ДП техніка',rev:14237,units:3,revVs:-.327,aspVs:-.157},{cat:'Тример',biz:'ДП техніка',rev:7444,units:3,revVs:.126,aspVs:.120},
+    {cat:'Пилосос ручний',biz:'ДП техніка',rev:8549,units:1,revVs:-.811,aspVs:-.381}
+  ]},
+  {name:'Переяслов М.',full:'Переяслов Микита',revenue:50668,units:18,asp:2815,revVs:-.637,aspVs:.131,unitsVs:-.679,cats:[
+    {cat:'Навушники',biz:'Аксесуари',rev:9597,units:3,revVs:-.668,aspVs:-.007},{cat:'Фен',biz:'ДП техніка',rev:8999,units:1,revVs:.026,aspVs:2.568},
+    {cat:'Мультипіч',biz:'ДП техніка',rev:8998,units:1,revVs:-.752,aspVs:.426},{cat:'Праски та прасувальні',biz:'ДП техніка',rev:6876,units:2,revVs:-.663,aspVs:-.126},
+    {cat:'Зубна щітка електр.',biz:'ДП техніка',rev:5338,units:2,revVs:-.400,aspVs:-.172}
+  ]}
+];
+
 // ═══════════════════════════════════════════════════════════════
 // STATE
 // ═══════════════════════════════════════════════════════════════
@@ -803,9 +866,11 @@ const S={
   qualityTab:'penetration',meetingsTab:'schedule',meetingSelSeller:null
 };
 
+// Категорії що належать до Аксесуарів (решта — ДП техніка)
 const ACC_CATS=new Set(['Навушники','Акустична система',"Миша комп'ютерна",'Миша комп.','Гарнітура комп\'ютерна','Гарнітура комп.','Ігровий маніпулятор','Клавіатура комп\'ютерна','Клавіатура','Кріплення для телевізора','Батарея мобільна','З/пристрій для мобільного пристрою','З/пристрій для моб.','Чохол для мобільного пристрою','Чохол для моб.']);
 const getBiz=cat=>ACC_CATS.has(cat)?'Аксесуари':'ДП техніка';
 
+// Reverse map: short → full (for GSheet matching)
 const SELLER_MAP_REV={
   'Зуєва О.':'Зуєва Ольга Андріївна',
   'Кисельов Д.':'Кисельов Дмитро Сергійович',
@@ -874,10 +939,12 @@ function vsBar(v,max=2){
     '<span class="vs '+cls+'" style="flex-shrink:0;min-width:46px;text-align:center">'+pct(v)+'</span></div>';
 }
 
+
 function parseFile(ab){
   const wb=XLSX.read(ab,{type:'array'});
   const ws=wb.Sheets[wb.SheetNames[0]];
   const rows=XLSX.utils.sheet_to_json(ws,{header:1,defval:''});
+  // Extract period from header rows (row 15-17 contain dates like "01.04.26 - 19.04.26")
   let filePeriod='';
   for(let i=0;i<25;i++){
     for(let c=0;c<9;c++){
@@ -889,6 +956,7 @@ function parseFile(ab){
     }
     if(filePeriod)break;
   }
+  // Also look at file header row 0 for report title with date
   if(!filePeriod){
     const r0=String(rows[0]?rows[0][0]:'');
     const m=r0.match(/\d{2}\.\d{2}\.\d{4}/);
@@ -926,7 +994,7 @@ function parseFile(ab){
 }
 
 // ═══════════════════════════════════════════════════════════════
-// SELLER DETAIL HTML
+// SELLER DETAIL HTML (shared between desktop and mobile)
 // ═══════════════════════════════════════════════════════════════
 function sellerDetailHTML(s,sellers){
   const filtered=(s.cats||[]).filter(c=>S.bizFilter==='all'||c.biz===S.bizFilter);
@@ -948,6 +1016,7 @@ function sellerDetailHTML(s,sellers){
     ${vsBar(v,2.5)}
   </div>`;
 
+  // Summary by biz
   const dp=s.cats.filter(c=>c.biz!=='Аксесуари');
   const acc=s.cats.filter(c=>c.biz==='Аксесуари');
   const dpR=dp.reduce((a,c)=>a+c.rev,0),dpU=dp.reduce((a,c)=>a+(c.units||0),0);
@@ -1026,6 +1095,7 @@ function renderKPI(){
       <div class="kpi-s">${k.s}</div>
     </div>`).join('');
 }
+
 
 function renderEmptyState(){
   return `<div style="display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:400px;text-align:center;padding:40px">
@@ -1230,7 +1300,7 @@ function renderPlan(){
       <div class="plan-prog-wrap">
         <div style="display:flex;justify-content:space-between;margin-bottom:2px">
           <span style="font-size:13px;font-weight:600">${s?.full||S.selSeller}</span>
-          <span style="font-size:11px;color:var(--t3);font-family:'IBM Plex Mono',monospace">${done}/${tot} ·${prog}%</span>
+          <span style="font-size:11px;color:var(--t3);font-family:'IBM Plex Mono',monospace">${done}/${tot} · ${prog}%</span>
         </div>
         <div class="plan-prog"><div class="plan-prog-f" style="width:${prog}%"></div></div>
         <div style="font-size:10px;color:var(--t3)">Прогрес зберігається між сесіями</div>
@@ -1251,9 +1321,10 @@ function renderRhythm(){
   const doneAll=Object.values(S.rhythmChecks).filter(Boolean).length;
   const progAll=totAll>0?Math.round(doneAll/totAll*100):0;
   const wk=getWeekKey().replace('dm2_rw_','');
-  const todayIdx=new Date().getDay();
-  const dayMap={1:0,2:1,3:2,4:3,5:4,6:5,0:6};
+  const todayIdx=new Date().getDay();// 0=Sun,1=Mon,...
+  const dayMap={1:0,2:1,3:2,4:3,5:4,6:5,0:6};// map to WEEK_RHYTHM index
   const todayRhythmIdx=dayMap[todayIdx];
+  // Init open state: today open, others closed (only on first render)
   if(Object.keys(S.rhythmOpen).length===0){
     WEEK_RHYTHM.forEach((_,i)=>{S.rhythmOpen[i]=(i===todayRhythmIdx);});
   }
@@ -1265,7 +1336,8 @@ function renderRhythm(){
     const isOpen=S.rhythmOpen[di]!==false;
     const sections=day.sections.map(sec=>`
       <div class="rday-section">
-        <div class="rday-s-title">${sec.title}</div>${sec.tasks.map(task=>{
+        <div class="rday-s-title">${sec.title}</div>
+        ${sec.tasks.map(task=>{
           const dn=!!S.rhythmChecks[task.id];
           return `<div class="rtask${dn?' done':''}" onclick="toggleRhythm('${task.id}')">
             <div class="chk${dn?' on':''}">${dn?'✓':''}</div>
@@ -1280,7 +1352,8 @@ function renderRhythm(){
         <div class="rday-icon">${day.icon}</div>
         <div style="flex:1">
           <div style="display:flex;align-items:center;gap:8px">
-            <div class="rday-name">${day.day}</div>${isToday?'<span style="font-size:9px;padding:2px 7px;border-radius:4px;background:var(--blue-bg);color:var(--blue);font-weight:700;letter-spacing:.5px">СЬОГОДНІ</span>':''}
+            <div class="rday-name">${day.day}</div>
+            ${isToday?'<span style="font-size:9px;padding:2px 7px;border-radius:4px;background:var(--blue-bg);color:var(--blue);font-weight:700;letter-spacing:.5px">СЬОГОДНІ</span>':''}
           </div>
           <div class="rday-focus">${day.focus}</div>
           <div class="rday-mini-prog"><div class="rday-mini-prog-f" style="width:${dayProg}%"></div></div>
@@ -1323,13 +1396,15 @@ function renderFocus(){
   }));
   const topC=Object.values(allC).sort((a,b)=>b.total-a.total).slice(0,5);
 
+  // Star pairs: best seller+cat combos
   const pairs=[];
   S.sellers.forEach(s=>(s.cats||[]).forEach(c=>{if(c.revVs>1.5&&c.rev>5000)pairs.push({seller:s.full,name:s.name,cat:c.cat,revVs:c.revVs,rev:c.rev,units:c.units||0});}));
   pairs.sort((a,b)=>b.revVs-a.revVs);
   const medals=['🥇','🥈','🥉','⭐','⭐'];
 
   const fc=(title,badge,bsty,items,empty)=>`<div>
-    <div style="font-size:10px;font-weight:700;letter-spacing:2px;color:var(--t3);text-transform:uppercase;margin-bottom:8px">${title}</div>${items.length?items.map(it=>`<div class="fc">
+    <div style="font-size:10px;font-weight:700;letter-spacing:2px;color:var(--t3);text-transform:uppercase;margin-bottom:8px">${title}</div>
+    ${items.length?items.map(it=>`<div class="fc">
       <div class="fbadge" style="${bsty}">${badge}</div>
       <div class="fname">${it.full||it.name}</div>
       <div class="fsub">${it.sub}</div>
@@ -1372,11 +1447,13 @@ function renderFocus(){
   </div>`:''}`;
 }
 
+// ── MATRIX ──────────────────────────────────────────────────────
 function renderMatrix(){
   if(!S.sellers||!S.sellers.length) return renderEmptyState();
   const sellers=S.sellers.filter(s=>s.revenue>0).sort((a,b)=>b.revenue-a.revenue);
   if(!sellers.length)return`<div class="empty">Завантажте звіт для відображення матриці</div>`;
 
+  // Collect all unique categories (filtered by biz)
   const catSet=new Map();
   sellers.forEach(s=>(s.cats||[]).forEach(c=>{
     if(S.bizFilter==='all'||c.biz===S.bizFilter)
@@ -1408,6 +1485,7 @@ function renderMatrix(){
       const v=catMap[c.cat];
       if(v==null)return`<td class="mc mc-none mc-tip">—<div class="tip-box"><div class="tip-line"><b>${s.full}</b></div><div class="tip-line">${c.cat}</div><div class="tip-line">Немає продажів</div></div></td>`;
       const{bg,fg}=cellColor(v);
+      // Find rev and units from seller cats
       const catData=(s.cats||[]).find(cx=>cx.cat===c.cat);
       const tipRev=catData?fmt(catData.rev)+' ₴':'—';
       const tipUnits=catData?catData.units+' шт':'—';
@@ -1441,6 +1519,7 @@ function renderMatrix(){
     <div style="font-size:11px;color:var(--t3);margin-top:10px">Значення = відхилення від середнього магазину. Показані топ-16 категорій за виторгом.<span class="mob-only" style="display:none"> Прогорніть таблицю вправо →</span></div>`;
 }
 
+// ── INSIGHTS ────────────────────────────────────────────────────
 function renderInsights(){
   if(!S.sellers||!S.sellers.length) return renderEmptyState();
   const sellers=S.sellers.filter(s=>s.revenue>0).sort((a,b)=>b.revenue-a.revenue);
@@ -1453,17 +1532,21 @@ function renderInsights(){
   const revLeader=sellers[0];
   const unitsLeader=sellers.slice().sort((a,b)=>b.units-a.units)[0];
 
+  // Best and worst category-seller pairs
   const pairs=[];
   sellers.forEach(s=>(s.cats||[]).forEach(c=>{if(c.rev>3000)pairs.push({seller:s.full,sname:s.name,cat:c.cat,revVs:c.revVs,rev:c.rev,units:c.units||0,asp:c.rev/(c.units||1)});}));
   pairs.sort((a,b)=>b.revVs-a.revVs);
   const bestPair=pairs[0];
   const worstPair=[...pairs].sort((a,b)=>a.revVs-b.revVs)[0];
 
+  // Category totals
   const catTotals={};
   sellers.forEach(s=>(s.cats||[]).forEach(c=>{if(!catTotals[c.cat])catTotals[c.cat]={rev:0,units:0};catTotals[c.cat].rev+=c.rev;catTotals[c.cat].units+=(c.units||0);}));
   const catArr=Object.entries(catTotals).map(([cat,v])=>({cat,...v,asp:v.units>0?v.rev/v.units:0})).sort((a,b)=>b.rev-a.rev);
-  const topCat=catArr[0];
+  const topCat=catArr[0],bottomCat=catArr[catArr.length-1];
+  const highAspCat=catArr.slice().sort((a,b)=>b.asp-a.asp)[0];
 
+  // Tier distribution
   const tiers={A:0,B:0,C:0,D:0};
   sellers.forEach(s=>tiers[s.tier]=(tiers[s.tier]||0)+1);
   const avgVs=sellers.reduce((a,s)=>a+s.revVs,0)/sellers.length;
@@ -1510,6 +1593,7 @@ function renderInsights(){
     </div>`;
 }
 
+// ── PARSE ACC FILE ───────────────────────────────────────────
 function parseAccFile(ab){
   const wb=XLSX.read(ab,{type:'array'});
   const ws=wb.Sheets[wb.SheetNames[0]];
@@ -1517,8 +1601,12 @@ function parseAccFile(ab){
   const g=(r,c)=>{const v=rows[r]?rows[r][c]:null;return(v===null||v===undefined||String(v).trim()===''||String(v).trim()==='nan')?null:parseFloat(v)||null;};
   const gs=(r,c)=>{const v=rows[r]?rows[r][c]:null;return(v===null||v===undefined)?'':String(v).trim();};
 
+  // Find dynamic row offsets by searching for key headers
+  // IMPORTANT: keywords are in column 1, not column 0
+  // Column 0 always contains "Регіон / Магазини" or seller names
   function findRow(keyword,maxRow=400){
     for(let i=0;i<maxRow;i++){
+      // Search columns 0-3 to be robust
       for(let c=0;c<4;c++){
         const v=gs(i,c);
         if(v.includes(keyword))return i;
@@ -1550,6 +1638,7 @@ function parseAccFile(ab){
     'Міщук Анастасія Володимирівна':'Міщук А.',
   };
 
+  // Build seller list from the plan section
   const sellerRows={};
   if(planHead>=0){
     for(let i=planHead+5;i<planHead+20;i++){
@@ -1561,7 +1650,9 @@ function parseAccFile(ab){
   }
   const sellerNames=Object.keys(SELLER_MAP);
 
+  // Helper: get seller row in a section (section starts at dm2+1)
   function sectionRows(headRow){
+    // find DM2 row from headRow
     let dm2=headRow+2;
     for(let i=headRow+1;i<headRow+6;i++){
       if(gs(i,0).includes('ДМ2')){dm2=i;break;}
@@ -1582,10 +1673,12 @@ function parseAccFile(ab){
   const tv=tvHead>=0?sectionRows(tvHead):{avgRow:-1,dm2Row:-1,sellers:{}};
   const wm=wmHead>=0?sectionRows(wmHead):{avgRow:-1,dm2Row:-1,sellers:{}};
 
+  // Extract period from ACC file header (row 0 has "Щоденний звіт магазинів по АСС і Home на 20.04.2026 11:25")
   const headerStr=gs(0,0);
   const dateMatch=headerStr.match(/(\d{2}\.\d{2}\.\d{4})/);
   const period=dateMatch?'Щоденний звіт АСС · '+dateMatch[1]:headerStr.replace('Щоденний звіт магазинів по АСС і Home на ','').replace('Щоденний звіт магазинів по АСС і Home','').trim()||'';
 
+  // Benchmarks
   const bench={
     sm_avg:{qty:g(sm.avgRow,1),cover:g(sm.avgRow,2),glass:g(sm.avgRow,3)},
     sm_dm2:{qty:g(sm.dm2Row,1),cover:g(sm.dm2Row,2),glass:g(sm.dm2Row,3)},
@@ -1600,7 +1693,7 @@ function parseAccFile(ab){
     wm_avg:{qty:g(wm.avgRow,1),deterg:g(wm.avgRow,2),clean:g(wm.avgRow,3)},
     wm_dm2:{qty:g(wm.dm2Row,1),deterg:g(wm.dm2Row,2),clean:g(wm.dm2Row,3)},
     acc_avg:{plan:null,fact:g(planHead>=0?planHead+2:-1,2),pct_plan:null,pct_fact:g(pctHead>=0?pctHead+2:-1,2)},
-    acc_dm2:{plan:g(planHead>=0?planHead+4:-1,1),fact:g(planHead>=0?planHead+4:-1,2),pct_plan:g(planHead>=0?planHead+4:-1,1),pct_fact:g(planHead>=0?planHead+4:-1,2)},
+    acc_dm2:{plan:g(planHead>=0?planHead+4:-1,1),fact:g(planHead>=0?planHead+4:-1,2),pct_plan:g(pctHead>=0?pctHead+4:-1,1),pct_fact:g(pctHead>=0?pctHead+4:-1,2)},
   };
 
   const sellers=sellerNames.map(name=>{
@@ -1642,11 +1735,13 @@ async function fetchGoogleSheet(){
 
   toast('Завантажуємо Google Sheets...','info');
 
+  // Use gviz/tq endpoint — works without CORS for public sheets
   const tqUrl=`https://docs.google.com/spreadsheets/d/${sheetId}/gviz/tq?tqx=out:json&gid=${gid}`;
   try{
     const resp=await fetch(tqUrl);
     if(!resp.ok)throw new Error(`HTTP ${resp.status}`);
     const raw=await resp.text();
+    // gviz wraps response: google.visualization.Query.setResponse({...})
     const jsonStr=raw.replace(/^[^(]+\(/,'').replace(/\);?\s*$/,'');
     const data=JSON.parse(jsonStr);
     if(!data.table)throw new Error('Немає даних у таблиці');
@@ -1654,6 +1749,7 @@ async function fetchGoogleSheet(){
     toast(`Google Sheets: ${S.gsheetData.length} рядків завантажено`,'ok');
     render();
   }catch(e){
+    // Fallback: try CSV export
     const csvUrl=`https://docs.google.com/spreadsheets/d/${sheetId}/export?format=csv&gid=${gid}`;
     try{
       const resp2=await fetch(csvUrl);
@@ -1739,23 +1835,1066 @@ function renderQuality(){
     const b=ad.bench;
     const sels=ad.sellers;
 
+    // SMARTPHONES
     const smRows=sels.map(s=>`<tr>
       <td>${s.name}</td>
-      ${pCell(s.sm_qty,null,'qty')}${pCell(s.sm_cover,b.sm_dm2.cover)}
-      ${pCell(s.sm_glass,b.sm_dm2.glass)}${pCell(s.sm_charge,b.ch_dm2.charge)}
-      ${pCell(s.sm_hear_ttl,b.ch_dm2.hear_ttl)}${pCell(s.sm_hear_tws,b.ch_dm2.hear_tws)}
+      ${pCell(s.sm_qty,null,'qty')}
+      ${pCell(s.sm_cover,b.sm_dm2.cover)}
+      ${pCell(s.sm_glass,b.sm_dm2.glass)}
+      ${pCell(s.sm_charge,b.ch_dm2.charge)}
+      ${pCell(s.sm_hear_ttl,b.ch_dm2.hear_ttl)}
+      ${pCell(s.sm_hear_tws,b.ch_dm2.hear_tws)}
     </tr>`).join('');
 
+    // LAPTOPS
     const ltRows=sels.map(s=>`<tr>
-      <td>${s.name}</td>${pCell(s.lt_qty,null,'qty')}
-      ${pCell(s.lt_bag,b.lt_dm2.bag)}${pCell(s.lt_mouse,b.lt_dm2.mouse)}
+      <td>${s.name}</td>
+      ${pCell(s.lt_qty,null,'qty')}
+      ${pCell(s.lt_bag,b.lt_dm2.bag)}
+      ${pCell(s.lt_mouse,b.lt_dm2.mouse)}
     </tr>`).join('');
 
+    // GAMING LAPTOPS
     const glRows=sels.map(s=>`<tr>
       <td>${s.name}</td>
-      ${pCell(s.gl_qty,null,'qty')}${pCell(s.gl_gami,b.gl_dm2.gami)}
+      ${pCell(s.gl_qty,null,'qty')}
+      ${pCell(s.gl_gami,b.gl_dm2.gami)}
       <td class="qty">${s.gl_gami_units!==null?Math.round(s.gl_gami_units):'—'}</td>
     </tr>`).join('');
 
+    // TVs
     const tvRows=sels.map(s=>`<tr>
-      <td>${s.name}</td>${pCell(s.tv
+      <td>${s.name}</td>
+      ${pCell(s.tv_qty,null,'qty')}
+      ${pCell(s.tv_mount,b.tv_dm2.mount)}
+      ${pCell(s.tv_net,b.tv_dm2.net)}
+    </tr>`).join('');
+
+    const benchRow=(label,cells)=>`<tr class="bench"><td>${label}</td>${cells}</tr>`;
+
+    return`${tabs}
+    <div style="font-size:11px;color:var(--t3);margin-bottom:12px">Дані: ${ad.period} · <span style="color:var(--green)">Зелений</span> = вище ДМ2 · <span style="color:var(--red)">Червоний</span> = нижче ДМ2</div>
+
+    <div class="pen-section">
+      <div class="pen-section-title">📱 Смартфони</div>
+      <div style="overflow-x:auto"><table class="pen-table">
+        <thead><tr>
+          <th style="text-align:left;min-width:110px">Продавець</th>
+          <th>Шт</th><th>Чохли</th><th>Скло</th><th>Зарядки</th><th>Нав. ТТЛ</th><th>Нав. TWS</th>
+        </tr></thead>
+        <tbody>
+          ${benchRow('Сер. маг. А',`<td class="qty">${Math.round(b.sm_avg.qty||0)}</td><td>${Math.round((b.sm_avg.cover||0)*100)}%</td><td>${Math.round((b.sm_avg.glass||0)*100)}%</td><td>${Math.round((b.ch_avg.charge||0)*100)}%</td><td>${Math.round((b.ch_avg.hear_ttl||0)*100)}%</td><td>${Math.round((b.ch_avg.hear_tws||0)*100)}%</td>`)}
+          ${benchRow('ДМ2 (план)',`<td class="qty">${Math.round(b.sm_dm2.qty||0)}</td><td>${Math.round((b.sm_dm2.cover||0)*100)}%</td><td>${Math.round((b.sm_dm2.glass||0)*100)}%</td><td>${Math.round((b.ch_dm2.charge||0)*100)}%</td><td>${Math.round((b.ch_dm2.hear_ttl||0)*100)}%</td><td>${Math.round((b.ch_dm2.hear_tws||0)*100)}%</td>`)}
+          ${smRows}
+        </tbody>
+      </table></div>
+    </div>
+
+    <div class="pen-section">
+      <div class="pen-section-title">💻 Ноутбуки</div>
+      <div style="overflow-x:auto"><table class="pen-table">
+        <thead><tr><th style="text-align:left;min-width:110px">Продавець</th><th>Шт</th><th>Сумки</th><th>Миша+Клав.</th></tr></thead>
+        <tbody>
+          ${benchRow('Сер. маг. А',`<td class="qty">${Math.round(b.lt_avg.qty||0)}</td><td>${Math.round((b.lt_avg.bag||0)*100)}%</td><td>${Math.round((b.lt_avg.mouse||0)*100)}%</td>`)}
+          ${benchRow('ДМ2',`<td class="qty">${Math.round(b.lt_dm2.qty||0)}</td><td>${Math.round((b.lt_dm2.bag||0)*100)}%</td><td>${Math.round((b.lt_dm2.mouse||0)*100)}%</td>`)}
+          ${ltRows}
+        </tbody>
+      </table></div>
+    </div>
+
+    <div class="pen-section">
+      <div class="pen-section-title">🎮 Ноутбуки ігрові</div>
+      <div style="overflow-x:auto"><table class="pen-table">
+        <thead><tr><th style="text-align:left;min-width:110px">Продавець</th><th>Шт</th><th>Ігр. Акси %</th><th>Ігр. Акси шт</th></tr></thead>
+        <tbody>
+          ${benchRow('Сер. маг. А',`<td class="qty">${Math.round(b.gl_avg.qty||0)}</td><td>${Math.round((b.gl_avg.gami||0)*100)}%</td><td class="qty">${Math.round(b.gl_avg.gami_units||0)}</td>`)}
+          ${benchRow('ДМ2',`<td class="qty">${Math.round(b.gl_dm2.qty||0)}</td><td>${Math.round((b.gl_dm2.gami||0)*100)}%</td><td class="qty">${Math.round(b.gl_dm2.gami_units||0)}</td>`)}
+          ${glRows}
+        </tbody>
+      </table></div>
+    </div>
+
+    <div class="pen-section">
+      <div class="pen-section-title">📺 Телевізори</div>
+      <div style="overflow-x:auto"><table class="pen-table">
+        <thead><tr><th style="text-align:left;min-width:110px">Продавець</th><th>Шт</th><th>Кріплення</th><th>Мережеве</th></tr></thead>
+        <tbody>
+          ${benchRow('Сер. маг. А',`<td class="qty">${Math.round(b.tv_avg.qty||0)}</td><td>${Math.round((b.tv_avg.mount||0)*100)}%</td><td>${Math.round((b.tv_avg.net||0)*100)}%</td>`)}
+          ${benchRow('ДМ2',`<td class="qty">${Math.round(b.tv_dm2.qty||0)}</td><td>${Math.round((b.tv_dm2.mount||0)*100)}%</td><td>${Math.round((b.tv_dm2.net||0)*100)}%</td>`)}
+          ${tvRows}
+        </tbody>
+      </table></div>
+    </div>
+
+    <div class="pen-section">
+      <div class="pen-section-title">🫧 Пральні машини</div>
+      <div style="overflow-x:auto"><table class="pen-table">
+        <thead><tr><th style="text-align:left;min-width:110px">Продавець</th><th>Шт</th><th>Засоби для прання</th><th>Засіб для чищення</th></tr></thead>
+        <tbody>
+          ${benchRow('Сер. маг. А',`<td class="qty">${Math.round(b.wm_avg.qty||0)}</td><td>${Math.round((b.wm_avg.deterg||0)*100)}%</td><td>${Math.round((b.wm_avg.clean||0)*100)}%</td>`)}
+          ${benchRow('ДМ2',`<td class="qty">${Math.round(b.wm_dm2.qty||0)}</td><td>${Math.round((b.wm_dm2.deterg||0)*100)}%</td><td>${Math.round((b.wm_dm2.clean||0)*100)}%</td>`)}
+          ${sels.map(s=>`<tr>
+            <td>${s.name}</td>
+            ${pCell(s.wm_qty,null,'qty')}
+            ${pCell(s.wm_deterg,b.wm_dm2.deterg)}
+            ${pCell(s.wm_clean,b.wm_dm2.clean)}
+          </tr>`).join('')}
+        </tbody>
+      </table></div>
+    </div>`;
+  }
+
+  // ── Revenue / Plan tab ────────────────────────────────────────
+  const gs=S.gsheetData;
+  const accFact=ad?ad.bench.acc_dm2:{};
+
+  // Google Sheets connect block
+  const gsheetBlock=`
+    <div class="gsheet-connect">
+      <div style="font-size:10px;font-weight:700;letter-spacing:2px;color:var(--t3);text-transform:uppercase;margin-bottom:10px">Підключення Google Sheets</div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        <input type="text" id="gsheetInput" value="${S.gsheetUrl}" placeholder="URL Google Sheets..."
+          style="flex:1;min-width:200px;padding:8px 12px;border-radius:var(--r);border:1px solid var(--bd);background:var(--bg3);color:var(--t1);font-size:12px;font-family:'Outfit',sans-serif;outline:none"
+          oninput="S.gsheetUrl=this.value">
+        <button onclick="fetchGoogleSheet()" style="padding:8px 16px;border-radius:var(--r);border:1px solid var(--blue-bd);background:var(--blue-bg);color:var(--blue);font-size:12px;font-weight:600;cursor:pointer;font-family:'Outfit',sans-serif;white-space:nowrap">
+          Підключити
+        </button>
+      </div>
+      <div class="gsheet-status">
+        <div class="gsheet-dot" style="background:${gs?'var(--green)':'var(--t3)'}"></div>
+        <span style="font-size:11px;color:var(--t2)">${gs?`Підключено · ${gs.length} рядків даних`:'Не підключено. Переконайтесь що таблиця відкрита для перегляду'}</span>
+      </div>
+    </div>`;
+
+  // Build revenue table
+  let revenueRows='';
+  const avgPct=ad?ad.bench.acc_avg.pct_fact:null;
+  const dm2Pct=ad?ad.bench.acc_dm2.pct_fact:null;
+  const dm2Fact=ad?ad.bench.acc_dm2.fact:null;
+
+  // If google sheets has data, try to match sellers
+  let planMap={};
+  let gsTotalRev={};
+  let gsAccPct={};
+  if(gs&&gs.length){
+    const headers=Object.keys(gs[0]);
+    console.log('GSheet headers:', headers); // debug
+    gs.forEach(row=>{
+      // Find name column: contains seller-like name
+      const nameCols=headers.filter(h=>{
+        const hl=h.toLowerCase();
+        return hl.includes('продав')||hl.includes('ім\'я')||hl.includes('прізв')||hl.includes('name')||hl.includes('співробіт');
+      });
+      // Find plan column
+      const planCols=headers.filter(h=>{
+        const hl=h.toLowerCase();
+        return hl.includes('план')&&!hl.includes('%')&&!hl.includes('вик');
+      });
+      // Find total revenue column
+      const factCols=headers.filter(h=>{
+        const hl=h.toLowerCase();
+        return (hl.includes('факт')||hl.includes('виторг')||hl.includes('виручка')||hl.includes('revenue'))&&!hl.includes('%');
+      });
+      // Find % ACC share column
+      const pctCols=headers.filter(h=>{
+        const hl=h.toLowerCase();
+        return hl.includes('%')||hl.includes('відсот')||hl.includes('частка')||hl.includes('share');
+      });
+
+      const nameKey=nameCols[0]||headers[0];
+      if(nameKey&&row[nameKey]){
+        const name=row[nameKey].trim();
+        if(!name)return;
+        // Try to match by exact full name OR short name
+        const matchKey=Object.keys(SELLER_MAP_REV).find(k=>name.includes(k)||k.includes(name))||name;
+        if(planCols[0]){const v=parseFloat(String(row[planCols[0]]).replace(/\s/g,'').replace(',','.'));if(!isNaN(v)&&v>0)planMap[name]=v;planMap[matchKey]=v;}
+        if(factCols[0]){const v=parseFloat(String(row[factCols[0]]).replace(/\s/g,'').replace(',','.'));if(!isNaN(v)&&v>0){gsTotalRev[name]=v;gsTotalRev[matchKey]=v;}}
+        if(pctCols[0]){const v=parseFloat(String(row[pctCols[0]]).replace(/\s/g,'').replace(',','.').replace('%',''));if(!isNaN(v)){const pv=v>1?v/100:v;gsAccPct[name]=pv;gsAccPct[matchKey]=pv;}}
+      }
+    });
+  }
+
+  if(ad){
+    const sels=ad.sellers;
+    const maxFact=Math.max(...sels.map(s=>s.acc_fact||0),1);
+    revenueRows=sels.map(s=>{
+      const plan=planMap[s.full]||planMap[s.name]||null;
+      const planPct=plan&&s.acc_fact?s.acc_fact/plan:null;
+      const pct=s.acc_pct;
+      const pctColor=pct==null?'var(--t3)':pct>=dm2Pct?'var(--green)':pct>=(dm2Pct||0)*.9?'var(--amber)':'var(--red)';
+      return`<tr>
+        <td style="font-weight:600;font-size:13px">${s.full}</td>
+        <td style="text-align:right;font-family:'IBM Plex Mono',monospace;font-size:13px">${s.acc_fact?fmt(s.acc_fact)+' ₴':'—'}</td>
+        <td style="text-align:right">${plan?fmt(plan)+' ₴':'—'}</td>
+        <td style="text-align:right;font-family:'IBM Plex Mono',monospace">
+          ${planPct!=null?`<span style="color:${planPct>=1?'var(--green)':'var(--red)'}">${Math.round(planPct*100)}%</span>`:'—'}
+        </td>
+        <td style="min-width:160px">
+          <div class="pct-bar-wrap">
+            <div class="pct-bar-bg">
+              <div class="pct-bar-fill" style="width:${s.acc_fact?Math.round(s.acc_fact/maxFact*100):0}%;background:var(--blue)"></div>
+            </div>
+          </div>
+        </td>
+        <td style="text-align:right">
+          <span style="font-family:'IBM Plex Mono',monospace;font-size:13px;color:${pctColor}">${pct!=null?Math.round(pct*100)+'%':'—'}</span>
+        </td>
+        <td style="text-align:right;color:var(--t3);font-size:11px;font-family:'IBM Plex Mono',monospace">${dm2Pct!=null&&pct!=null?`${pct>=dm2Pct?'+':''}${Math.round((pct-(dm2Pct||0))*100)}%`:'—'}</td>
+      </tr>`;
+    }).join('');
+  }else{
+    revenueRows=`<tr><td colspan="7" class="empty">Завантажте АСС/Home звіт для відображення даних</td></tr>`;
+  }
+
+  const storeRow=(label,fact,pct,pctColor)=>`<tr style="background:var(--bg3);font-size:11px;color:var(--t3)">
+    <td>${label}</td>
+    <td style="text-align:right;font-family:'IBM Plex Mono',monospace">${fact?fmt(fact)+' ₴':'—'}</td>
+    <td style="text-align:right">—</td><td style="text-align:right">—</td><td></td>
+    <td style="text-align:right;font-family:'IBM Plex Mono',monospace;color:${pctColor}">${pct!=null?Math.round(pct*100)+'%':'—'}</td>
+    <td></td>
+  </tr>`;
+
+  return`${tabs}${gsheetBlock}
+    <div class="card">
+      <div class="card-h">
+        <span class="card-t">Виторг АСС + Home по продавцях</span>
+        <span style="font-size:10px;color:var(--t3)">Факт з АСС файлу · План з Google Sheets</span>
+      </div>
+      <div style="overflow-x:auto"><table class="rev-table">
+        <thead><tr>
+          <th>Продавець</th>
+          <th style="text-align:right">Факт АСС ₴</th>
+          <th style="text-align:right">План ₴</th>
+          <th style="text-align:right">Вик.%</th>
+          <th>Частка</th>
+          <th style="text-align:right">% АСС в виторгу</th>
+          <th style="text-align:right">vs ДМ2</th>
+        </tr></thead>
+        <tbody>
+          ${storeRow('Сер. маг. А',ad?ad.bench.acc_avg.fact:null,avgPct,'var(--t2)')}
+          ${storeRow('ДМ2 (Мост-2)',dm2Fact,dm2Pct,'var(--t1)')}
+          ${revenueRows}
+        </tbody>
+      </table></div>
+    </div>`;
+}
+
+
+// ═══════════════════════════════════════════════════════════════
+// CLOUD SYNC — JSONbin.io
+// ═══════════════════════════════════════════════════════════════
+const JBIN_KEY='$2a$10$dcNaYXy.HTAuAkfpAPjdfOY1B4SGJ8neOTkE.HeHO.HRtm/u.ham2';
+const JBIN_BIN='6ad34fe5ffd5d16053733e11';
+const JBIN_URL='https://api.jsonbin.io/v3/b/'+JBIN_BIN;
+let _syncTimer=null;
+let _lastSyncedAt=null;
+let _syncOk=false;
+
+function setSyncStatus(state,text){
+  const dot=document.getElementById('syncDot');
+  const lbl=document.getElementById('syncLabel');
+  if(dot)dot.className='sync-dot '+state;
+  if(lbl)lbl.textContent=text;
+}
+
+// Load all data from cloud on startup
+async function loadFromCloud(){
+  setSyncStatus('syncing','Завантаження...');
+  try{
+    const r=await fetch(JBIN_URL+'/latest',{
+      headers:{'X-Master-Key':JBIN_KEY,'X-Bin-Meta':false}
+    });
+    if(!r.ok)throw new Error('HTTP '+r.status);
+    const data=await r.json();
+    // Merge cloud data into state (cloud wins over localStorage)
+    if(data.checks&&typeof data.checks==='object')S.checks=data.checks;
+    if(data.rhythmChecks&&typeof data.rhythmChecks==='object')S.rhythmChecks=data.rhythmChecks;
+    if(Array.isArray(data.meetings))M_LOGS=data.meetings;
+    if(data.meetingsDone&&typeof data.meetingsDone==='object')M_DONE=data.meetingsDone;
+    // Also persist to localStorage as cache
+    try{
+      localStorage.setItem('dm2_checks_v3',JSON.stringify(S.checks));
+      localStorage.setItem(getWeekKey(),JSON.stringify(S.rhythmChecks));
+      localStorage.setItem('dm2_1to1_logs',JSON.stringify(M_LOGS));
+      localStorage.setItem('dm2_1to1_done',JSON.stringify(M_DONE));
+    }catch(e){}
+    _lastSyncedAt=new Date();
+    _syncOk=true;
+    setSyncStatus('ok','Синхронізовано '+_lastSyncedAt.toLocaleTimeString('uk-UA',{hour:'2-digit',minute:'2-digit'}));
+    return true;
+  }catch(e){
+    console.warn('Cloud load failed:',e);
+    setSyncStatus('err','Помилка з\'єднання');
+    return false;
+  }
+}
+
+// Save all data to cloud (debounced — waits 1.5s after last change)
+function syncToCloud(){
+  clearTimeout(_syncTimer);
+  setSyncStatus('syncing','Збереження...');
+  _syncTimer=setTimeout(async()=>{
+    const payload={
+      checks:S.checks,
+      rhythmChecks:S.rhythmChecks,
+      meetings:M_LOGS,
+      meetingsDone:M_DONE,
+      updatedAt:new Date().toISOString()
+    };
+    try{
+      const r=await fetch(JBIN_URL,{
+        method:'PUT',
+        headers:{'Content-Type':'application/json','X-Master-Key':JBIN_KEY},
+        body:JSON.stringify(payload)
+      });
+      if(!r.ok)throw new Error('HTTP '+r.status);
+      _lastSyncedAt=new Date();
+      _syncOk=true;
+      setSyncStatus('ok','Збережено '+_lastSyncedAt.toLocaleTimeString('uk-UA',{hour:'2-digit',minute:'2-digit'}));
+    }catch(e){
+      console.warn('Cloud save failed:',e);
+      setSyncStatus('err','Не вдалось зберегти');
+      // localStorage already saved as fallback
+    }
+  },1500);
+}
+
+// Manual sync button
+function manualSync(){
+  syncToCloud();
+}
+
+// ═══════════════════════════════════════════════════════════════
+// MEETINGS 1:1
+// ═══════════════════════════════════════════════════════════════
+
+// Sellers color map (consistent with tier colors)
+const SELLER_COLORS={
+  'Устинова Л.':'#4f46e5','Соболєв А.':'#b45309','Кисельов Д.':'#2563eb',
+  'Дудник А.':'#db2777','Бородай О.':'#7c3aed','Азаров Д.':'#0891b2',
+  'Фесенко Я.':'#0f766e','Кравцова А.':'#be185d','Синицина Г.':'#065f46',
+  'Миценко А.':'#6b7280','Куценко М.':'#dc2626','Пачковський І.':'#1d4ed8',
+  'Мехтієв Р.':'#d97706','Гаврихів Р.':'#059669'
+};
+
+// Full names for modal select
+const SELLER_FULL_NAMES={
+  'Устинова Л.':'Устинова Людмила Олександрівна',
+  'Соболєв А.':'Соболєв Андрій Андрійович',
+  'Кисельов Д.':'Кисельов Дмитро Сергійович',
+  'Дудник А.':'Дудник Анастасія Євгеніївна',
+  'Бородай О.':'Бородай Остап Михайлович',
+  'Азаров Д.':'Азаров Даніїл Сергійович',
+  'Фесенко Я.':'Фесенко Ярослав Юрійович',
+  'Кравцова А.':'Кравцова Анастасія Олександрівна',
+  'Синицина Г.':'Синицина Галина Денисівна',
+  'Миценко А.':'Миценко Альона Миколаївна',
+  'Куценко М.':'Куценко Майя Сергіївна',
+  'Пачковський І.':'Пачковський Ілля Владиславович',
+  'Мехтієв Р.':'Мехтієв Родіон Шамсійович',
+  'Гаврихів Р.':'Гаврихів Роман Вадимович'
+};
+
+// 2-week schedule A/B — customize as needed
+const M_SCHEDULE={
+  A:{'Пн':['Устинова Л.'],'Вт':['Кисельов Д.','Гаврихів Р.'],'Ср':[],'Чт':[],'Пт':['Пачковський І.','Фесенко Я.'],'Сб':['Дудник А.','Азаров Д.'],'Нд':['Бородай О.']},
+  B:{'Пн':['Мехтієв Р.'],'Вт':['Миценко А.','Куценко М.','Синицина Г.'],'Ср':[],'Чт':[],'Пт':['Соболєв А.','Кравцова А.'],'Сб':[],'Нд':['Кисельов Д.']}
+};
+const M_OFF_DAYS=['Ср','Чт'];
+
+// Meeting logs: [{id, seller, date, discuss, agree, deadline}]
+let M_LOGS=[];
+let M_DONE={};
+let M_EDIT_ID=null;
+let M_SEL_SELLER=null;
+
+function mLoadData(){
+  try{
+    const l=localStorage.getItem('dm2_1to1_logs');if(l)M_LOGS=JSON.parse(l);
+    const d=localStorage.getItem('dm2_1to1_done');if(d)M_DONE=JSON.parse(d);
+  }catch(e){}
+}
+function mSaveData(){
+  try{
+    localStorage.setItem('dm2_1to1_logs',JSON.stringify(M_LOGS));
+    localStorage.setItem('dm2_1to1_done',JSON.stringify(M_DONE));
+    syncToCloud();
+  }catch(e){}
+}
+
+function mSellerInitials(name){
+  return name.split(' ').map(w=>w[0]).join('').slice(0,2);
+}
+
+function mDaysAgo(dateStr){
+  if(!dateStr)return null;
+  return Math.floor((Date.now()-new Date(dateStr))/86400000);
+}
+
+function mFreqBadge(seller){
+  const logs=M_LOGS.filter(l=>l.seller===seller);
+  if(!logs.length)return'<span class="freq-badge freq-none">Ще не було</span>';
+  const last=logs.sort((a,b)=>new Date(b.date)-new Date(a.date))[0];
+  const days=mDaysAgo(last.date);
+  if(days<=14)return`<span class="freq-badge freq-ok">${days===0?'Сьогодні':days+'д тому'}</span>`;
+  return`<span class="freq-badge freq-warn">${days}д тому</span>`;
+}
+
+function mToggleDone(key,btn){
+  M_DONE[key]=!M_DONE[key];
+  if(btn)btn.classList.toggle('done',!!M_DONE[key]);
+  mSaveData();
+  // update stats without full re-render
+  const doneCount=Object.values(M_DONE).filter(Boolean).length;
+  const el=document.getElementById('m-stat-done');
+  if(el)el.textContent=doneCount;
+}
+
+function mOpenModal(sellerName){
+  M_EDIT_ID=null;
+  // populate seller select
+  const sel=document.getElementById('m-f-seller');
+  if(sel){
+    // get all sellers
+    const allSellers=Object.keys(SELLER_COLORS);
+    sel.innerHTML=allSellers.map(s=>`<option value="${s}">${s}${typeof SELLER_FULL_NAMES!=='undefined'&&SELLER_FULL_NAMES[s]?' — '+SELLER_FULL_NAMES[s]:''}</option>`).join('');
+    if(sellerName)sel.value=sellerName;
+  }
+  document.getElementById('m-f-date').value=new Date().toISOString().split('T')[0];
+  document.getElementById('m-f-discuss').value='';
+  document.getElementById('m-f-agree').value='';
+  document.getElementById('m-f-deadline').value='';
+  document.getElementById('m-modal').classList.remove('hidden');
+}
+
+function mCloseModal(){
+  document.getElementById('m-modal').classList.add('hidden');
+  M_EDIT_ID=null;
+}
+
+function mSaveLog(){
+  const seller=document.getElementById('m-f-seller').value;
+  const date=document.getElementById('m-f-date').value;
+  const discuss=document.getElementById('m-f-discuss').value.trim();
+  const agree=document.getElementById('m-f-agree').value.trim();
+  const deadline=document.getElementById('m-f-deadline').value.trim();
+  if(!seller||!date)return;
+  if(M_EDIT_ID){
+    const idx=M_LOGS.findIndex(l=>l.id===M_EDIT_ID);
+    if(idx>=0)M_LOGS[idx]={...M_LOGS[idx],seller,date,discuss,agree,deadline};
+  }else{
+    M_LOGS.push({id:Date.now().toString(),seller,date,discuss,agree,deadline});
+  }
+  mSaveData();
+  mCloseModal();
+  render();
+}
+
+function mDeleteLog(id){
+  if(!confirm('Видалити запис?'))return;
+  M_LOGS=M_LOGS.filter(l=>l.id!==id);
+  mSaveData();
+  render();
+}
+
+function mEditLog(id){
+  const log=M_LOGS.find(l=>l.id===id);
+  if(!log)return;
+  M_EDIT_ID=id;
+  const sel=document.getElementById('m-f-seller');
+  if(sel){
+    const allSellers=S.sellers.length?S.sellers.map(s=>s.name):Object.keys(SELLER_COLORS);
+    sel.innerHTML=allSellers.map(s=>`<option value="${s}">${s}</option>`).join('');
+    sel.value=log.seller;
+  }
+  document.getElementById('m-f-date').value=log.date;
+  document.getElementById('m-f-discuss').value=log.discuss||'';
+  document.getElementById('m-f-agree').value=log.agree||'';
+  document.getElementById('m-f-deadline').value=log.deadline||'';
+  document.getElementById('m-modal').classList.remove('hidden');
+}
+
+function mRenderLogEntry(log,hideSeller=false){
+  const d=new Date(log.date).toLocaleDateString('uk-UA',{day:'numeric',month:'short',year:'numeric'});
+  const color=SELLER_COLORS[log.seller]||'#5b9bff';
+  return`<div class="log-entry">
+    <div class="log-header">
+      ${!hideSeller?`<div class="sched-avatar" style="background:${color};width:28px;height:28px;font-size:10px;flex-shrink:0">${mSellerInitials(log.seller)}</div>
+      <div class="log-emp-name">${log.seller}</div>`:`<div class="log-emp-name" style="flex:1"></div>`}
+      <span class="log-date-badge">${d}</span>
+      <button class="log-del" onclick="mEditLog('${log.id}')" title="Редагувати">✏️</button>
+      <button class="log-del" onclick="mDeleteLog('${log.id}')" title="Видалити">✕</button>
+    </div>
+    ${log.discuss?`<div class="log-section">💬 Обговорили</div><div class="log-text">${log.discuss}</div>`:''}
+    ${log.agree?`<div class="log-section">🤝 Домовились</div><div class="log-text">${log.agree}</div>`:''}
+    ${log.deadline?`<div><span class="log-deadline">📅 Дедлайн: ${log.deadline}</span></div>`:''}
+  </div>`;
+}
+
+function renderMeetings(){
+  const tabs=`<div class="m-tabs">
+    <button class="m-tab${S.meetingsTab==='schedule'?' on':''}" onclick="S.meetingsTab='schedule';render()">📅 Графік</button>
+    <button class="m-tab${S.meetingsTab==='sellers'?' on':''}" onclick="S.meetingsTab='sellers';render()">👥 Продавці</button>
+    <button class="m-tab${S.meetingsTab==='history'?' on':''}" onclick="S.meetingsTab='history';render()">📋 Журнал</button>
+  </div>`;
+
+  // Stats
+  const totalScheduled=Object.values(M_SCHEDULE.A).flat().length+Object.values(M_SCHEDULE.B).flat().length;
+  const doneCount=Object.values(M_DONE).filter(Boolean).length;
+  const totalLogs=M_LOGS.length;
+  const thisMonth=M_LOGS.filter(l=>{
+    const d=new Date(l.date);
+    const now=new Date();
+    return d.getMonth()===now.getMonth()&&d.getFullYear()===now.getFullYear();
+  }).length;
+  const allSellers=S.sellers.length?S.sellers.map(s=>s.name):Object.keys(SELLER_COLORS);
+  const coveredSellers=new Set(M_LOGS.map(l=>l.seller)).size;
+  const stats=`<div class="m-stats">
+    <div class="m-stat"><div class="m-stat-n" id="m-stat-done">${doneCount}</div><div class="m-stat-l">Проведено за цикл</div></div>
+    <div class="m-stat"><div class="m-stat-n">${totalScheduled-doneCount}</div><div class="m-stat-l">Заплановано ще</div></div>
+    <div class="m-stat"><div class="m-stat-n">${thisMonth}</div><div class="m-stat-l">Записів цього місяця</div></div>
+    <div class="m-stat"><div class="m-stat-n">${coveredSellers}/${allSellers.length}</div><div class="m-stat-l">Продавців охоплено</div></div>
+  </div>`;
+
+  let content='';
+
+  if(S.meetingsTab==='schedule'){
+    // If seller detail view
+    if(S.meetingSelSeller){
+      const seller=S.meetingSelSeller;
+      const color=SELLER_COLORS[seller]||'#5b9bff';
+      const sellerLogs=M_LOGS.filter(l=>l.seller===seller).sort((a,b)=>new Date(b.date)-new Date(a.date));
+      const entries=sellerLogs.length
+        ?sellerLogs.map(l=>mRenderLogEntry(l,true)).join('')
+        :`<div class="empty" style="padding:32px">Ще немає записів 1:1 з цим продавцем</div>`;
+      content=`
+        <button class="emp-detail-back" onclick="S.meetingSelSeller=null;render()">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M10 3L5 8l5 5"/></svg>
+          Назад до графіку
+        </button>
+        <div class="card" style="margin-bottom:16px">
+          <div class="card-h" style="gap:12px">
+            <div class="sched-avatar" style="background:${color};width:36px;height:36px;font-size:13px">${mSellerInitials(seller)}</div>
+            <div style="flex:1">
+              <div style="font-size:15px;font-weight:700">${seller}</div>
+              <div style="font-size:12px;color:var(--t3);margin-top:2px">${sellerLogs.length} зустрічей · ${mFreqBadge(seller).replace(/<[^>]+>/g,'').replace(/</g,'').replace(/>/g,'')}</div>
+            </div>
+            ${mFreqBadge(seller)}
+            <button onclick="mOpenModal('${seller}')" style="padding:7px 14px;border-radius:var(--r);background:var(--blue-bg);border:1px solid var(--blue-bd);color:var(--blue);font-size:13px;font-weight:600;cursor:pointer;font-family:'Outfit',sans-serif;white-space:nowrap">+ Запис</button>
+          </div>
+        </div>
+        ${entries}`;
+    }else{
+      // Schedule view: weeks A and B
+      let schedHtml='';
+      ['A','B'].forEach(week=>{
+        const dayEntries=Object.entries(M_SCHEDULE[week]);
+        schedHtml+=`<div class="week-group"><div class="week-lbl">🔄 Тиждень ${week}</div>`;
+        dayEntries.forEach(([day,sellers])=>{
+          const isOff=M_OFF_DAYS.includes(day);
+          if(isOff){
+            schedHtml+=`<div class="sched-day is-off"><div class="sched-day-h"><span class="sched-day-name">${day}</span><span style="font-size:12px;color:var(--t3)">Вихідний</span></div></div>`;
+            return;
+          }
+          const hasMeetings=sellers.length>0;
+          schedHtml+=`<div class="sched-day${hasMeetings?' has-meetings':''}"><div class="sched-day-h"><span class="sched-day-name">${day}</span>${!hasMeetings?'<span style="font-size:12px;color:var(--t3)">Зустрічей немає</span>':''}</div>`;
+          sellers.forEach(seller=>{
+            const key=`${week}_${day}_${seller}`;
+            const isDone=!!M_DONE[key];
+            const color=SELLER_COLORS[seller]||'#5b9bff';
+            const lastLog=M_LOGS.filter(l=>l.seller===seller).sort((a,b)=>new Date(b.date)-new Date(a.date))[0];
+            const lastDate=lastLog?new Date(lastLog.date).toLocaleDateString('uk-UA',{day:'numeric',month:'short'}):'';
+            schedHtml+=`<div class="sched-person">
+              <div class="sched-avatar" style="background:${color}">${mSellerInitials(seller)}</div>
+              <span class="sched-name" onclick="S.meetingSelSeller='${seller}';render()" style="cursor:pointer">${seller}</span>
+              ${lastDate?`<span style="font-size:11px;color:var(--t3);font-family:'IBM Plex Mono',monospace;margin-right:8px">${lastDate}</span>`:''}
+              <button class="sched-log-btn" onclick="mOpenModal('${seller}')">+ Запис</button>
+              <button class="sched-done-btn${isDone?' done':''}" onclick="mToggleDone('${key}',this)" title="${isDone?'Скасувати':'Позначити як проведену'}">✓</button>
+            </div>`;
+          });
+          schedHtml+='</div>';
+        });
+        schedHtml+='</div>';
+      });
+      content=`<button onclick="mOpenModal()" style="margin-bottom:16px;padding:9px 18px;border-radius:var(--r);background:var(--blue-bg);border:1px solid var(--blue-bd);color:var(--blue);font-size:13px;font-weight:600;cursor:pointer;font-family:'Outfit',sans-serif">+ Новий запис 1:1</button>${schedHtml}`;
+    }
+  }
+
+  else if(S.meetingsTab==='sellers'){
+    if(S.meetingSelSeller){
+      const seller=S.meetingSelSeller;
+      const color=SELLER_COLORS[seller]||'#5b9bff';
+      const sellerLogs=M_LOGS.filter(l=>l.seller===seller).sort((a,b)=>new Date(b.date)-new Date(a.date));
+      const entries=sellerLogs.length
+        ?sellerLogs.map(l=>mRenderLogEntry(l,true)).join('')
+        :`<div class="empty" style="padding:32px">Ще немає записів 1:1 з цим продавцем</div>`;
+      content=`
+        <button class="emp-detail-back" onclick="S.meetingSelSeller=null;render()">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M10 3L5 8l5 5"/></svg>
+          Назад до списку
+        </button>
+        <div class="card" style="margin-bottom:14px">
+          <div class="card-h">
+            <div class="sched-avatar" style="background:${color};width:36px;height:36px;font-size:13px">${mSellerInitials(seller)}</div>
+            <div style="flex:1;margin-left:4px"><div style="font-size:15px;font-weight:700">${seller}</div><div style="font-size:12px;color:var(--t3)">${sellerLogs.length} зустрічей</div></div>
+            ${mFreqBadge(seller)}
+            <button onclick="mOpenModal('${seller}')" style="margin-left:8px;padding:7px 14px;border-radius:var(--r);background:var(--blue-bg);border:1px solid var(--blue-bd);color:var(--blue);font-size:13px;font-weight:600;cursor:pointer;font-family:'Outfit',sans-serif">+ Запис</button>
+          </div>
+        </div>
+        ${entries}`;
+    }else{
+      const sellersToShow=Object.keys(SELLER_COLORS);
+      const rows=sellersToShow.map(seller=>{
+        const color=SELLER_COLORS[seller]||'#5b9bff';
+        const logs=M_LOGS.filter(l=>l.seller===seller);
+        return`<div class="emp-1to1" onclick="S.meetingSelSeller='${seller}';render()">
+          <div class="emp-avatar-big" style="background:${color}">${mSellerInitials(seller)}</div>
+          <div class="emp-1to1-meta">
+            <div class="emp-1to1-name">${seller}</div>
+            <div class="emp-1to1-sub">${logs.length} записів 1:1</div>
+          </div>
+          ${mFreqBadge(seller)}
+          <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="var(--t3)" stroke-width="1.5" style="margin-left:8px"><path d="M6 3l5 5-5 5"/></svg>
+        </div>`;
+      }).join('');
+      content=`<div class="card"><div>${rows}</div></div>`;
+    }
+  }
+
+  else if(S.meetingsTab==='history'){
+    const sorted=[...M_LOGS].sort((a,b)=>new Date(b.date)-new Date(a.date));
+    const searchVal=S.meetingSearch||'';
+    const filtered=searchVal?sorted.filter(l=>l.seller.toLowerCase().includes(searchVal.toLowerCase())||(l.discuss||'').toLowerCase().includes(searchVal.toLowerCase())||(l.agree||'').toLowerCase().includes(searchVal.toLowerCase())):sorted;
+    const entries=filtered.length
+      ?filtered.map(l=>mRenderLogEntry(l,false)).join('')
+      :`<div class="empty" style="padding:48px">${searchVal?'Нічого не знайдено':'Ще немає жодного запису 1:1.<br>Проведи першу зустріч і додай нотатку!'}</div>`;
+    content=`
+      <div style="display:flex;gap:10px;margin-bottom:14px">
+        <div class="search-wrap" style="flex:1;margin:0">
+          <svg class="search-icon" width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="7" cy="7" r="5"/><path d="M11 11l3 3"/></svg>
+          <input class="search" placeholder="Пошук по продавцю або тексту..." value="${searchVal}" oninput="S.meetingSearch=this.value;render()">
+        </div>
+        <button onclick="mOpenModal()" style="padding:9px 16px;border-radius:var(--r);background:var(--blue-bg);border:1px solid var(--blue-bd);color:var(--blue);font-size:13px;font-weight:600;cursor:pointer;font-family:'Outfit',sans-serif;white-space:nowrap">+ Новий запис</button>
+      </div>
+      <div style="font-size:12px;color:var(--t3);margin-bottom:12px">${filtered.length} записів${searchVal?' (фільтр)':''}</div>
+      ${entries}`;
+  }
+
+  return`${tabs}${stats}${content}`;
+}
+
+function toggleTheme(){
+  S.theme=S.theme==='dark'?'light':'dark';
+  applyTheme();
+  saveState();
+}
+function applyTheme(){
+  document.documentElement.setAttribute('data-theme',S.theme==='light'?'light':'');
+  const isDark=S.theme==='dark';
+  const icon=isDark?'☀️':'🌙';
+  const label=isDark?'Світла тема':'Темна тема';
+  const ti=document.getElementById('themeIcon');if(ti)ti.textContent=icon;
+  const tl=document.getElementById('themeLabel');if(tl)tl.textContent=label;
+  const mb=document.getElementById('mobThemeBtn');if(mb)mb.textContent=icon;
+  // Show bnav scroll hint on mobile
+  const hint=document.getElementById('bnavHint');
+  if(hint&&window.innerWidth<=768)hint.style.display='flex';
+}
+
+// ═══════════════════════════════════════════════════════════════
+// MOBILE INTERACTIONS
+// ═══════════════════════════════════════════════════════════════
+function sellerClick(name){
+  if(isMobile()){
+    S.selSeller=name;
+    openMobOverlay(name);
+  } else {
+    S.selSeller=S.selSeller===name?null:name;
+    if(S.view==='overview'){S.view='sellers';}
+    render();
+  }
+}
+
+function selCatIdx(idx){
+  const cat=window._CNAMES?window._CNAMES[idx]:null;
+  if(!cat)return;
+  if(isMobile()){
+    S.selCat=cat;
+    openMobCatOverlay(cat);
+  } else {
+    S.selCat=S.selCat===cat?null:cat;
+    render();
+  }
+}
+function catClick(cat){
+  if(isMobile()){
+    S.selCat=cat;
+    openMobCatOverlay(cat);
+  } else {
+    S.selCat=S.selCat===cat?null:cat;
+    render();
+  }
+}
+
+function openMobCatOverlay(cat){
+  const allCats=S.cats.length?S.cats:buildCatIndex(S.sellers);
+  const c=allCats.find(x=>x.cat===cat);
+  if(!c){return;}
+  const sorted=[...c.sellers].sort((a,b)=>b.rev-a.rev);
+  const maxU=Math.max(...sorted.map(s=>s.units||0),1);
+  const rows=sorted.map((s,i)=>`
+    <div style="display:flex;align-items:center;gap:8px;padding:10px 14px;border-bottom:1px solid var(--bd)">
+      <div style="font-size:11px;color:var(--t3);font-family:'IBM Plex Mono',monospace;min-width:18px">${i+1}</div>
+      <span class="tier ${tc(s.tier)}" style="width:22px;height:22px;font-size:11px">${s.tier}</span>
+      <div style="flex:1;font-size:13px;font-weight:500">${s.full||s.name}</div>
+      <div style="flex-shrink:0;width:70px">${vsBar(s.revVs,3)}</div>
+      <div style="flex-shrink:0;font-family:'IBM Plex Mono',monospace;font-size:12px;color:var(--t2);white-space:nowrap">${fmt(s.rev)} ₴</div>
+    </div>`).join('');
+  const totRev=sorted.reduce((a,s)=>a+s.rev,0);
+  const totUnits=sorted.reduce((a,s)=>a+(s.units||0),0);
+  document.getElementById('mobOverlayContent').innerHTML=`
+    <div style="background:var(--bg2);border:1px solid var(--bd);border-radius:var(--r3);padding:16px 18px;margin-bottom:12px">
+      <div style="font-size:11px;color:var(--t3);margin-bottom:4px;text-transform:uppercase;letter-spacing:.5px">${c.biz||''}</div>
+      <div style="font-size:18px;font-weight:700;margin-bottom:10px">${cat}</div>
+      <div style="display:flex;gap:16px">
+        <div><div style="font-size:10px;color:var(--t3)">Загалом</div><div style="font-size:16px;font-weight:700;font-family:'IBM Plex Mono',monospace">${fmt(totRev)} ₴</div></div>
+        <div><div style="font-size:10px;color:var(--t3)">Штуки</div><div style="font-size:16px;font-weight:700;font-family:'IBM Plex Mono',monospace">${totUnits}</div></div>
+      </div>
+    </div>
+    <div class="card"><div class="card-h"><span class="card-t">Продавці</span><span style="font-size:11px;color:var(--t3)">виторг vs · сума</span></div><div>${rows}</div></div>`;
+  document.getElementById('mobOverlay').classList.add('visible');
+}
+
+function planSelClick(name){
+  if(isMobile()){
+    S.selSeller=name;
+    openMobPlanOverlay(name);
+  } else {
+    S.selSeller=S.selSeller===name?null:name;
+    render();
+  }
+}
+
+function openMobOverlay(name){
+  const sellers=S.sellers.filter(s=>s.revenue>0).sort((a,b)=>b.revenue-a.revenue);
+  const s=sellers.find(x=>x.name===name);
+  if(!s)return;
+  document.getElementById('mobOverlayContent').innerHTML=sellerDetailHTML(s,sellers);
+  document.getElementById('mobOverlay').classList.add('visible');
+}
+
+function openMobPlanOverlay(name){
+  const sellers=S.sellers.filter(s=>s.revenue>0).sort((a,b)=>b.revenue-a.revenue);
+  const s=sellers.find(x=>x.name===name);
+  const plan=PLANS[name]||PLANS.default;
+  const tot=plan.reduce((a,d)=>a+d.actions.length,0);
+  const done=plan.reduce((a,d,di)=>a+d.actions.filter((_,ai)=>S.checks[`${name}-${di}-${ai}`]).length,0);
+  const prog=tot>0?Math.round(done/tot*100):0;
+  const days=plan.map((day,di)=>{
+    const items=day.actions.map((a,ai)=>{
+      const k=`${name}-${di}-${ai}`,dn=!!S.checks[k],ad=adef(a.type);
+      return `<div class="action${dn?' done':''}" onclick="toggleCheckMob('${k}','${name}')">
+        <div class="chk${dn?' on':''}">${dn?'✓':''}</div>
+        <div><span class="abadge" style="background:${ad.bg};color:${ad.color}">${ad.label}</span><div class="atxt">${a.text}</div></div>
+      </div>`;
+    }).join('');
+    const dc=day.actions.filter((_,ai)=>S.checks[`${name}-${di}-${ai}`]).length;
+    return `<div class="day-block">
+      <div class="day-h"><span class="day-lbl">${day.day}</span><span style="font-size:10px;color:var(--t3);font-family:'IBM Plex Mono',monospace">${dc}/${day.actions.length}</span></div>
+      <div class="day-body">${items}</div>
+    </div>`;
+  }).join('');
+  document.getElementById('mobOverlayContent').innerHTML=`
+    <div class="plan-prog-wrap">
+      <div style="display:flex;justify-content:space-between;margin-bottom:2px">
+        <span style="font-size:13px;font-weight:600">${s?.full||name}</span>
+        <span style="font-size:11px;color:var(--t3);font-family:'IBM Plex Mono',monospace">${prog}%</span>
+      </div>
+      <div class="plan-prog"><div class="plan-prog-f" style="width:${prog}%"></div></div>
+    </div>
+    ${days}`;
+  document.getElementById('mobOverlay').classList.add('visible');
+}
+
+function closeMobOverlay(){
+  document.getElementById('mobOverlay').classList.remove('visible');
+}
+
+function toggleCheckMob(k,name){
+  S.checks[k]=!S.checks[k];
+  saveState();
+  openMobPlanOverlay(name);
+}
+
+// ═══════════════════════════════════════════════════════════════
+// RENDER
+// ═══════════════════════════════════════════════════════════════
+function render(){
+  try{
+    renderKPI();
+    // Update plan badge
+    const allTot=Object.values(PLANS).filter(v=>Array.isArray(v)).reduce((a,plan)=>a+plan.reduce((b,d)=>b+d.actions.length,0),0);
+    const allDone=Object.keys(S.checks).filter(k=>S.checks[k]).length;
+    const pb=document.getElementById('planBadge');
+    if(pb){
+      if(allDone===0&&allTot===0){pb.style.display='none';}
+      else{pb.style.display='';pb.textContent=allDone+'/'+allTot;pb.className='nav-badge'+(allDone===allTot?' done':'');}
+    }
+  }catch(e){
+    console.error('renderKPI error:',e);
+    const kr=document.getElementById('kpiRow');
+    if(kr)kr.innerHTML='';
+  }
+  try{closeMobOverlay();}catch(e){}
+  const titles={overview:'Огляд магазину',sellers:'Продавці',categories:'Категорії',plan:'План дій',rhythm:'Ритм тижня',focus:'Фокус дня',matrix:'Матриця продавців',insights:'Автоінсайти',quality:'Якість продажів',meetings:'Зустрічі 1:1'};
+  const pt=document.getElementById('pageTitle');
+  if(pt)pt.textContent=titles[S.view]||'';
+    const ps=document.getElementById('pageSub');
+  if(ps&&(!S.sellers||!S.sellers.length)){
+    ps.textContent='Завантажте звіт щоб побачити дані';
+  }
+  const el=document.getElementById('content');
+  if(!el)return;
+  try{
+    el.className='anim';void el.offsetWidth;
+    if(S.view==='overview')el.innerHTML=renderOverview();
+    else if(S.view==='sellers')el.innerHTML=renderSellers();
+    else if(S.view==='categories')el.innerHTML=renderCategories();
+    else if(S.view==='plan')el.innerHTML=renderPlan();
+    else if(S.view==='rhythm')el.innerHTML=renderRhythm();
+    else if(S.view==='focus')el.innerHTML=renderFocus();
+    else if(S.view==='matrix')el.innerHTML=renderMatrix();
+    else if(S.view==='insights')el.innerHTML=renderInsights();
+    else if(S.view==='quality')el.innerHTML=renderQuality();
+    else if(S.view==='meetings')el.innerHTML=renderMeetings();
+  }catch(e){
+    console.error('render error (view='+S.view+'):',e);
+    el.innerHTML=`<div style="padding:32px;color:#ff6b6b;font-family:monospace;font-size:13px;background:rgba(255,107,107,.08);border-radius:10px;border:1px solid rgba(255,107,107,.3)">
+      <div style="font-size:15px;font-weight:700;margin-bottom:8px">Помилка відображення</div>
+      <div>${e.message}</div>
+      <div style="margin-top:12px;font-size:11px;color:#9eaabf">Перевірте консоль браузера (F12) для деталей</div>
+      <div style="margin-top:10px"><button onclick="clearFileData();location.reload()" style="padding:7px 14px;border-radius:8px;border:1px solid rgba(255,107,107,.4);background:rgba(255,107,107,.12);color:#ff6b6b;cursor:pointer;font-family:inherit">Очистити кеш і перезавантажити</button></div>
+    </div>`;
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════
+// NAVIGATION
+// ═══════════════════════════════════════════════════════════════
+function go(v){
+  S.view=v;S.selSeller=null;S.selCat=null;
+  document.querySelectorAll('[data-v]').forEach(el=>el.classList.toggle('active',el.dataset.v===v));
+  render();
+}
+
+function toggleCheck(k){S.checks[k]=!S.checks[k];saveState();render()}
+function toggleRhythm(id){S.rhythmChecks[id]=!S.rhythmChecks[id];saveState();render()}
+function resetRhythm(){if(confirm('Скинути прогрес поточного тижня?')){S.rhythmChecks={};saveState();render();toast('Ритм тижня скинуто','info')}}
+
+// ═══════════════════════════════════════════════════════════════
+// PERSISTENCE
+// ═══════════════════════════════════════════════════════════════
+function saveState(){
+  try{
+    localStorage.setItem('dm2_checks_v3',JSON.stringify(S.checks));
+    localStorage.setItem(getWeekKey(),JSON.stringify(S.rhythmChecks));
+    localStorage.setItem('dm2_theme',S.theme);
+    localStorage.setItem('dm2_ropen',JSON.stringify(S.rhythmOpen));
+    syncToCloud();
+  }catch(e){}
+}
+
+function saveFileData(){
+  try{
+    if(S.sellers&&S.sellers.length){
+      const payload={sellers:S.sellers,cats:S.cats,period:document.getElementById('sbPeriod')?.textContent||''};
+      localStorage.setItem('dm2_filedata_v1',JSON.stringify(payload));
+    }
+    if(S.accData){
+      localStorage.setItem('dm2_accdata_v1',JSON.stringify(S.accData));
+      const lbl=document.getElementById('accUpLabel');
+      const lname=lbl?.textContent||'';
+      if(lname&&!lname.includes('АСС/Home'))localStorage.setItem('dm2_accname_v1',lname);
+    }
+  }catch(e){
+    console.warn('Не вдалося зберегти дані у localStorage (можливо, перевищено ліміт)');
+    toast('Увага: дані не збережено (ліміт памяті браузера)','err');
+  }
+}
+
+function clearFileData(){
+  localStorage.removeItem('dm2_filedata_v1');
+  localStorage.removeItem('dm2_accdata_v1');
+  localStorage.removeItem('dm2_accname_v1');
+}
+function loadState(){
+  try{
+    // Version guard - clear stale cache on app update
+    const APP_VER='v6';
+    const cachedVer=localStorage.getItem('dm2_app_ver');
+    if(cachedVer&&cachedVer!==APP_VER){
+      // New version deployed - clear file cache to avoid structure mismatch
+      clearFileData();
+    }
+    localStorage.setItem('dm2_app_ver',APP_VER);
+    const c=localStorage.getItem('dm2_checks_v3');if(c)S.checks=JSON.parse(c);
+    const r=localStorage.getItem(getWeekKey());if(r)S.rhythmChecks=JSON.parse(r);
+    const t=localStorage.getItem('dm2_theme');if(t)S.theme=t;
+    const ro=localStorage.getItem('dm2_ropen');if(ro)S.rhythmOpen=JSON.parse(ro);
+  }catch(e){}
+}
+
+function loadFileData(){
+  try{
+    const fd=localStorage.getItem('dm2_filedata_v1');
+    if(fd){
+      const parsed=JSON.parse(fd);
+      const{sellers,cats,period}=parsed;
+      // Validate structure before using
+      if(sellers&&Array.isArray(sellers)&&sellers.length&&sellers[0].revenue!==undefined){
+        S.sellers=assignTiers(sellers.map(s=>({...s})));
+        S.cats=Array.isArray(cats)?cats:buildCatIndex(S.sellers);
+        const periodStr=period||'';
+        ['sbPeriod','mobPeriod'].forEach(id=>{const e=document.getElementById(id);if(e)e.textContent=periodStr||'Збережений звіт';});
+        const dot2=document.getElementById('dataStatusDot');if(dot2){dot2.style.background='var(--amber)';}
+        const ps=document.getElementById('pageSub');
+        if(ps)ps.textContent=(periodStr||'Збережений звіт')+' · '+S.sellers.length+' продавців';
+        return true;
+      }
+    }
+  }catch(e){
+    console.warn('loadFileData error:',e);
+    clearFileData(); // Clear corrupt data
+  }
+  return false;
+}
+
+function loadAccData(){
+  try{
+    const ad=localStorage.getItem('dm2_accdata_v1');
+    if(ad){
+      S.accData=JSON.parse(ad);
+      const name=localStorage.getItem('dm2_accname_v1')||'';
+      const lbl=document.getElementById('accUpLabel');
+      if(lbl&&name)lbl.textContent=name;
+      return true;
+    }
+  }catch(e){console.warn('loadAccData error:',e);}
+  return false;
+}
+
+// ═══════════════════════════════════════════════════════════════
+// FILE UPLOAD
+// ═══════════════════════════════════════════════════════════════
+function handleFile(file){
+  if(!file)return;
+  toast('Читаємо файл...','info');
+  const reader=new FileReader();
+  reader.onload=ev=>{
+    try{
+      const{sellers,cats,period}=parseFile(new Uint8Array(ev.target.result));
+      if(!sellers.length){toast('Не знайдено даних. Перевірте формат.','err');return;}
+      S.sellers=sellers;S.cats=cats;S.selSeller=null;S.selCat=null;
+      // Use extracted period; fallback to filename
+      const name=file.name.replace(/\.(xlsx|xls)$/i,'');
+      const displayPeriod=period||name;
+      ['sbPeriod','mobPeriod'].forEach(id=>{const e=document.getElementById(id);if(e)e.textContent=displayPeriod;});
+      const dot=document.getElementById('dataStatusDot');if(dot){dot.style.background='var(--green)';}
+      document.getElementById('pageSub').textContent=`${displayPeriod} · ${sellers.length} продавців`;
+      saveFileData();
+      toast(`Завантажено: ${sellers.length} продавців · Збережено у браузері`,'ok');
+      render();
+    }catch(e){toast('Помилка: '+e.message,'err');}
+  };
+  reader.readAsArrayBuffer(file);
+}
+
+// ═══════════════════════════════════════════════════════════════
+// EVENTS
+// ═══════════════════════════════════════════════════════════════
+function handleAccFile(file){
+  if(!file)return;
+  toast('Читаємо АСС файл...','info');
+  const reader=new FileReader();
+  reader.onload=ev=>{
+    try{
+      S.accData=parseAccFile(new Uint8Array(ev.target.result));
+      const lbl=document.getElementById('accUpLabel');
+      const shortName='✓ '+file.name.replace(/\.(xlsx|xls)$/i,'').slice(0,22);
+      if(lbl)lbl.textContent=shortName;
+      saveFileData();
+      toast(`АСС файл завантажено · ${S.accData.period} · Збережено`,'ok');
+      if(S.view==='quality')render();
+    }catch(e){toast('Помилка АСС файлу: '+e.message,'err');}
+  };
+  reader.readAsArrayBuffer(file);
+}
+
+['fileInput','fileInputMob'].forEach(id=>{
+  const el=document.getElementById(id);
+  if(el)el.addEventListener('change',e=>{handleFile(e.target.files[0]);e.target.value='';});
+});
+
+['fileInputAcc','fileInputMobAcc'].forEach(id=>{
+  const el=document.getElementById(id);
+  if(el)el.addEventListener('change',e=>{handleAccFile(e.target.files[0]);e.target.value='';});
+});
+
+const dz=document.getElementById('dropZone');
+if(dz){
+  dz.addEventListener('dragover',e=>{e.preventDefault();dz.classList.add('drag')});
+  dz.addEventListener('dragleave',()=>dz.classList.remove('drag'));
+  dz.addEventListener('drop',e=>{e.preventDefault();dz.classList.remove('drag');handleFile(e.dataTransfer.files[0]);});
+}
+
+document.addEventListener('keydown',e=>{
+  const map={'1':'overview','2':'sellers','3':'categories','4':'plan','5':'rhythm','6':'focus','7':'matrix','8':'insights','9':'quality','0':'meetings'};
+  if(map[e.key]&&!e.ctrlKey&&!e.metaKey&&!e.altKey&&document.activeElement.tagName!=='INPUT'){go(map[e.key]);}
+});
+
+// ═══════════════════════════════════════════════════════════════
+// INIT
+// ═══════════════════════════════════════════════════════════════
+loadState();
+mLoadData();
+applyTheme();
+const restoredFromCache=loadFileData();
+if(!restoredFromCache){
+  // No cached data — stay empty, show upload prompt
+  S.sellers=[];
+  S.cats=[];
+}
+loadAccData();
+render();
+// Load from cloud after initial render (updates UI when cloud data arrives)
+loadFromCloud().then(ok=>{
+  if(ok)render();
+});
+</script>
+
+<!-- ═══ MEETINGS 1:1 MODAL ═══ -->
+<div class="m-modal hidden" id="m-modal" onclick="if(event.target===this)mCloseModal()">
+  <div class="m-modal-box">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
+      <div style="font-size:17px;font-weight:700;color:var(--t1)">Запис 1:1</div>
+      <button onclick="mCloseModal()" style="font-size:18px;color:var(--t3);border:none;background:transparent;cursor:pointer;line-height:1">✕</button>
+    </div>
+    <label class="m-form-label">Продавець</label>
+    <select id="m-f-seller" class="m-select"></select>
+    <label class="m-form-label">Дата зустрічі</label>
+    <input type="date" id="m-f-date" class="m-input">
+    <label class="m-form-label">💬 Що обговорили</label>
+    <textarea id="m-f-discuss" class="m-textarea" placeholder="Теми, ситуації, що аналізували..."></textarea>
+    <label class="m-form-label">🤝 Про що домовились</label>
+    <textarea id="m-f-agree" class="m-textarea" placeholder="Конкретні кроки, задачі, зобов'язання..."></textarea>
+    <label class="m-form-label">📅 Дедлайн / наступний крок (необов'язково)</label>
+    <input type="text" id="m-f-deadline" class="m-input" placeholder="напр. До п'ятниці провести тренінг">
+    <div class="m-btn-row">
+      <button class="m-btn m-btn-cancel" onclick="mCloseModal()">Скасувати</button>
+      <button class="m-btn m-btn-primary" onclick="mSaveLog()">Зберегти</button>
+    </div>
+  </div>
+</div>
+
+</body>
+</html>
