@@ -50,15 +50,8 @@ html,body{height:100%;background:var(--bg0);color:var(--t1);font-family:'Outfit'
 .up-zone:hover,.up-zone.drag{background:var(--blue-bg);border-color:var(--blue-bd)}
 .up-zone input{display:none}
 .sb-keys{font-size:11px;color:var(--t3);text-align:center;margin-top:10px;line-height:1.5;opacity:.7}
-.sb-clear{font-size:11px;color:var(--t3);text-align:center;margin-top:6px;cursor:pointer;opacity:.6;transition:opacity .15s;text-decoration:none;display:block}
+.sb-clear{font-size:11px;color:var(--t3);text-align:center;margin-top:6px;cursor:pointer;opacity:.6;transition:opacity .15s;text-decoration:none;display:block;width:100%;background:none;border:none}
 .sb-clear:hover{opacity:1;color:var(--red)}
-.sync-status{display:flex;align-items:center;gap:6px;font-size:11px;color:var(--t3);margin-top:8px;padding:6px 10px;border-radius:6px;background:var(--bg3);border:1px solid var(--bd)}
-.sync-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0;transition:background .3s}
-.sync-dot.ok{background:var(--green)}
-.sync-dot.syncing{background:var(--amber);animation:pulse 1s infinite}
-.sync-dot.err{background:var(--red)}
-.sync-dot.idle{background:var(--t3)}
-@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
 .nav-badge{display:inline-flex;align-items:center;justify-content:center;min-width:18px;height:16px;padding:0 4px;border-radius:8px;font-size:9px;font-weight:700;font-family:'IBM Plex Mono',monospace;background:var(--blue-bg);color:var(--blue);border:1px solid var(--blue-bd);margin-left:auto;flex-shrink:0}
 .nav-badge.done{background:var(--green-bg);color:var(--green);border-color:var(--green-bd)}
 
@@ -82,4 +75,1742 @@ html,body{height:100%;background:var(--bg0);color:var(--t1);font-family:'Outfit'
 .tip-box{display:none;position:absolute;bottom:calc(100% + 6px);left:50%;transform:translateX(-50%);background:var(--bg4);border:1px solid var(--bd2);border-radius:8px;padding:8px 11px;z-index:99;min-width:160px;pointer-events:none;font-family:'Outfit',sans-serif;white-space:nowrap}
 .tip-box::after{content:'';position:absolute;top:100%;left:50%;transform:translateX(-50%);border:5px solid transparent;border-top-color:var(--bd2)}
 .tip-line{font-size:11px;color:var(--t2);line-height:1.7}
-.tip-line b{color:var(--t1);font-weight:6
+.tip-line b{color:var(--t1);font-weight:600}
+
+/* ═══ INSIGHTS ═══ */
+.insight-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:20px}
+.insight-card{background:var(--bg2);border:1px solid var(--bd);border-radius:var(--r3);padding:18px 20px;border-left:3px solid;transition:border-color .15s}
+.insight-card:hover{border-top-color:var(--bd2);border-right-color:var(--bd2);border-bottom-color:var(--bd2)}
+.insight-label{font-size:11px;font-weight:600;letter-spacing:.4px;color:var(--t3);text-transform:uppercase;margin-bottom:8px}
+.insight-main{font-size:15px;font-weight:700;color:var(--t1);line-height:1.4;margin-bottom:6px}
+.insight-sub{font-size:13px;color:var(--t2);line-height:1.55}
+.star-row{display:flex;align-items:center;gap:12px;padding:12px 18px;border-bottom:1px solid var(--bd)}
+.star-row:last-child{border-bottom:none}
+.star-medal{font-size:18px;width:32px;text-align:center;flex-shrink:0}
+.star-info{flex:1}
+.star-name{font-size:14px;font-weight:600;color:var(--t1)}
+.star-cat{font-size:12px;color:var(--t2);margin-top:2px}
+
+@media(max-width:768px){.insight-grid{grid-template-columns:1fr}}
+
+/* ═══ MOBILE HEADER ═══ */
+.mob-header{display:none;position:fixed;top:0;left:0;right:0;height:56px;background:var(--bg1);border-bottom:1px solid var(--bd);z-index:100;align-items:center;padding:0 14px;gap:10px}
+.mob-logo{flex:1;min-width:0}
+.mob-logo-t{font-size:15px;font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.mob-logo-s{font-size:10px;color:var(--t3);font-family:'IBM Plex Mono',monospace;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.mob-up{padding:6px 11px;border-radius:var(--r);border:1px solid var(--bd2);background:transparent;color:var(--t2);font-size:11px;font-weight:500;cursor:pointer;font-family:'Outfit',sans-serif;white-space:nowrap;flex-shrink:0}
+.mob-up input{display:none}
+
+/* ═══ BOTTOM NAV (mobile) ═══ */
+.bnav{display:none;position:fixed;bottom:0;left:0;right:0;height:var(--bnav);background:var(--bg1);border-top:1px solid var(--bd2);z-index:100;align-items:stretch;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none}
+.bnav::-webkit-scrollbar{display:none}
+.bnav-item{flex:0 0 auto;min-width:64px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;cursor:pointer;color:var(--t3);font-size:9px;font-weight:600;letter-spacing:.2px;text-transform:uppercase;transition:color .15s;border:none;background:transparent;font-family:'Outfit',sans-serif;padding:0 8px}
+.bnav-item.active{color:var(--blue)}
+.bnav-item svg{width:19px;height:19px}
+.bnav-item.active svg{filter:drop-shadow(0 0 6px rgba(91,155,255,.6))}
+
+/* ═══ MAIN ═══ */
+.main{margin-left:var(--sidebar);min-height:100vh;padding:36px 40px;padding-bottom:24px}
+.page-head{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:28px;flex-wrap:wrap;gap:14px}
+.page-title{font-size:24px;font-weight:700;letter-spacing:-.5px;color:var(--t1)}
+.page-sub{font-size:13px;color:var(--t3);margin-top:5px}
+.btn{padding:7px 14px;border-radius:var(--r);border:1px solid var(--bd2);background:transparent;color:var(--t2);font-size:12px;font-weight:500;cursor:pointer;font-family:'Outfit',sans-serif;transition:all .15s}
+.btn:hover{background:var(--bg3);color:var(--t1)}
+
+/* ═══ TOAST ═══ */
+.toast{position:fixed;bottom:80px;right:20px;z-index:999;padding:13px 18px;border-radius:var(--r2);font-size:13px;font-weight:500;transform:translateY(20px);opacity:0;transition:all .3s cubic-bezier(.34,1.56,.64,1);pointer-events:none;border:1px solid;max-width:320px;line-height:1.4}
+.toast.show{transform:translateY(0);opacity:1}
+.toast.ok{background:#0c2018;color:var(--green);border-color:var(--green-bd)}
+.toast.err{background:#200c0c;color:var(--red);border-color:var(--red-bd)}
+.toast.info{background:#0c1420;color:var(--blue);border-color:var(--blue-bd)}
+
+/* ═══ KPI ═══ */
+.kpi-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;margin-bottom:28px}
+.kpi{background:var(--bg2);border:1px solid var(--bd);border-radius:var(--r3);padding:18px 20px;position:relative;overflow:hidden;transition:border-color .15s}
+.kpi:hover{border-color:var(--bd2)}
+.kpi::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:var(--a,var(--blue));opacity:.9}
+.kpi-l{font-size:11px;letter-spacing:.5px;color:var(--t3);font-weight:600;text-transform:uppercase;margin-bottom:10px}
+.kpi-v{font-size:22px;font-weight:700;font-family:'IBM Plex Mono',monospace;color:var(--t1);line-height:1.1}
+.kpi-s{font-size:12px;color:var(--t3);margin-top:7px;line-height:1.4}
+
+/* ═══ CARD ═══ */
+.card{background:var(--bg2);border:1px solid var(--bd);border-radius:var(--r3);overflow:hidden;margin-bottom:14px}
+.card-h{padding:14px 20px;border-bottom:1px solid var(--bd);display:flex;align-items:center;justify-content:space-between;gap:12px}
+.card-t{font-size:12px;font-weight:700;color:var(--t1);letter-spacing:.2px}
+
+/* ═══ TABLE ═══ */
+table{width:100%;border-collapse:collapse}
+th{padding:11px 16px;text-align:left;font-size:11px;font-weight:600;letter-spacing:.3px;color:var(--t3);text-transform:uppercase;border-bottom:1px solid var(--bd2);background:var(--bg3)}
+th.sortable{transition:color .15s}
+th.sortable:hover{color:var(--t1)}
+td{padding:12px 16px;border-bottom:1px solid var(--bd);vertical-align:middle;font-size:14px;line-height:1.4}
+tbody tr:last-child td{border-bottom:none}
+tbody tr{cursor:pointer;transition:background .1s}
+tbody tr:nth-child(even) td{background:rgba(255,255,255,.02)}
+tbody tr:hover td{background:var(--bg3)}
+[data-theme="light"] tbody tr:nth-child(even) td{background:rgba(0,0,0,.018)}
+
+/* ═══ TIER ═══ */
+.tier{display:inline-flex;align-items:center;justify-content:center;width:26px;height:26px;border-radius:7px;font-size:12px;font-weight:700;font-family:'IBM Plex Mono',monospace;flex-shrink:0}
+.tA{background:var(--green-bg);color:var(--green);border:1px solid var(--green-bd)}
+.tB{background:var(--blue-bg);color:var(--blue);border:1px solid var(--blue-bd)}
+.tC{background:var(--amber-bg);color:var(--amber);border:1px solid var(--amber-bd)}
+.tD{background:var(--red-bg);color:var(--red);border:1px solid var(--red-bd)}
+
+/* ═══ VS ═══ */
+.vs{font-family:'IBM Plex Mono',monospace;font-size:12px;font-weight:600;padding:3px 9px;border-radius:5px;white-space:nowrap;display:inline-block;letter-spacing:.2px}
+.vp{background:var(--green-bg);color:var(--green);border:1px solid var(--green-bd)}
+.vn{background:var(--red-bg);color:var(--red);border:1px solid var(--red-bd)}
+.vz{background:var(--bg4);color:var(--t3);border:1px solid var(--bd)}
+.mbar{display:flex;align-items:center;gap:8px}
+.mbar-t{flex:1;height:6px;background:var(--bg4);border-radius:3px;min-width:50px;overflow:hidden}
+.mbar-f{height:6px;border-radius:3px;transition:width .5s ease}
+.rmono{font-family:'IBM Plex Mono',monospace;font-size:13px;font-weight:600}
+.rbar{height:5px;background:var(--bg4);border-radius:3px;margin-top:5px;overflow:hidden}
+.rbar-f{height:5px;background:var(--blue);border-radius:3px}
+
+/* ═══ SPLIT / PANELS ═══ */
+.split{display:grid;grid-template-columns:220px 1fr;gap:16px;align-items:start}
+.list-panel{background:var(--bg2);border:1px solid var(--bd);border-radius:var(--r2);overflow:hidden;position:sticky;top:0;max-height:calc(100vh - 64px);overflow-y:auto}
+.list-head{padding:12px 16px;border-bottom:1px solid var(--bd2);font-size:11px;font-weight:600;letter-spacing:.3px;color:var(--t2);text-transform:uppercase;background:var(--bg3)}
+.li{padding:12px 16px;cursor:pointer;border-bottom:1px solid var(--bd);border-left:3px solid transparent;transition:all .12s}
+.li:last-child{border-bottom:none}
+.li:hover{background:var(--bg3)}
+.li.sel{background:var(--bg3);border-left-color:var(--blue)}
+.li-name{font-size:14px;font-weight:500;color:var(--t1)}
+.li-sub{font-size:12px;color:var(--t3);font-family:'IBM Plex Mono',monospace;margin-top:3px}
+
+/* ═══ SELLER PROFILE ═══ */
+.profile{background:var(--bg2);border:1px solid var(--bd);border-radius:var(--r3);padding:22px 24px;margin-bottom:14px}
+.pname{font-size:22px;font-weight:700;letter-spacing:-.5px;margin-bottom:8px;color:var(--t1)}
+.pm-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--bd2);border:1px solid var(--bd);border-radius:10px;overflow:hidden;margin:18px 0}
+.pm-item{background:var(--bg2);padding:16px 18px}
+.pm-l{font-size:11px;letter-spacing:.3px;color:var(--t3);text-transform:uppercase;font-weight:600;margin-bottom:7px}
+.pm-v{font-size:20px;font-weight:700;font-family:'IBM Plex Mono',monospace;color:var(--t1)}
+.vs-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+.vs-lbl{font-size:11px;color:var(--t3);letter-spacing:.3px;text-transform:uppercase;margin-bottom:7px;font-weight:600}
+.cat-row{display:flex;align-items:center;gap:8px;padding:10px 16px;border-bottom:1px solid var(--bd);overflow:hidden}
+.cat-row:last-child{border-bottom:none}
+.cat-name{flex:1;font-size:13px;color:var(--t1)}
+.cat-rev{font-family:'IBM Plex Mono',monospace;font-size:12px;color:var(--t2);min-width:80px;text-align:right;font-weight:600;white-space:nowrap;flex-shrink:0}
+
+/* ═══ PLAN ═══ */
+.plan-prog-wrap{background:var(--bg2);border:1px solid var(--bd);border-radius:var(--r2);padding:16px 20px;margin-bottom:14px}
+.plan-prog{height:6px;background:var(--bg4);border-radius:3px;margin:10px 0 8px;overflow:hidden}
+.plan-prog-f{height:6px;border-radius:3px;background:var(--green);transition:width .5s ease}
+.day-block{background:var(--bg2);border:1px solid var(--bd);border-radius:var(--r2);overflow:hidden;margin-bottom:10px}
+.day-h{padding:12px 18px;background:var(--bg3);border-bottom:1px solid var(--bd);display:flex;align-items:center;justify-content:space-between}
+.day-lbl{font-size:12px;font-weight:700;letter-spacing:.4px;color:var(--t1);text-transform:uppercase}
+.day-body{padding:10px 14px}
+.action{display:flex;align-items:flex-start;gap:12px;padding:11px 13px;border-radius:9px;border:1px solid var(--bd);margin-bottom:8px;cursor:pointer;transition:all .12s}
+.action:last-child{margin-bottom:0}
+.action:hover{border-color:var(--bd2);background:var(--bg3)}
+.action.done{opacity:.35}
+.action.done .atxt{text-decoration:line-through}
+.chk{width:18px;height:18px;border-radius:5px;border:1.5px solid var(--bd2);flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:10px;color:#fff;margin-top:2px;transition:all .15s}
+.chk.on{background:var(--green);border-color:var(--green)}
+.abadge{font-size:10px;font-weight:700;padding:3px 8px;border-radius:5px;display:inline-block;margin-bottom:5px;letter-spacing:.3px;text-transform:uppercase}
+.atxt{font-size:13px;color:var(--t2);line-height:1.6}
+
+/* ═══ WEEKLY RHYTHM ═══ */
+.rhythm-grid{display:flex;flex-direction:column;gap:10px}
+.rday{background:var(--bg2);border:1px solid var(--bd);border-radius:var(--r2);overflow:hidden}
+.rday-head{padding:14px 18px;border-bottom:1px solid var(--bd);display:flex;align-items:center;gap:12px;cursor:pointer;user-select:none}
+.rday-icon{font-size:20px;width:36px;height:36px;display:flex;align-items:center;justify-content:center;background:var(--bg3);border-radius:8px;flex-shrink:0}
+.rday-name{font-size:15px;font-weight:700;color:var(--t1);letter-spacing:-.2px}
+.rday-focus{font-size:13px;color:var(--t2);margin-top:3px}
+.rday-prog{margin-left:auto;font-size:12px;font-family:'IBM Plex Mono',monospace;color:var(--t3);font-weight:600}
+.rday-body{padding:14px 18px}
+.rday-section{margin-bottom:14px}
+.rday-section:last-child{margin-bottom:0}
+.rday-s-title{font-size:11px;font-weight:700;letter-spacing:.4px;color:var(--t3);text-transform:uppercase;margin-bottom:10px;padding-bottom:6px;border-bottom:1px solid var(--bd)}
+.rtask{display:flex;align-items:flex-start;gap:12px;padding:10px 13px;border-radius:9px;border:1px solid var(--bd);margin-bottom:8px;cursor:pointer;transition:all .12s}
+.rtask:last-child{margin-bottom:0}
+.rtask:hover{border-color:var(--bd2);background:var(--bg3)}
+.rtask.done{opacity:.38}
+.rtask.done .rtask-txt{text-decoration:line-through;color:var(--t3)}
+.rtask-txt{font-size:13px;color:var(--t2);line-height:1.6;flex:1}
+.rnote{display:flex;align-items:flex-start;gap:8px;padding:10px 12px;background:var(--blue-bg);border:1px solid var(--blue-bd);border-radius:8px;margin-top:10px}
+.rnote-icon{font-size:13px;flex-shrink:0;margin-top:1px}
+.rnote-txt{font-size:11px;color:var(--blue);line-height:1.55}
+.rexample{padding:10px 14px;background:var(--bg3);border-left:3px solid var(--amber);border-radius:0 6px 6px 0;font-size:12px;color:var(--t2);line-height:1.6;font-style:italic;margin-top:8px}
+.rday-mini-prog{height:3px;background:var(--bg4);border-radius:2px;margin-top:8px;overflow:hidden}
+.rday-mini-prog-f{height:3px;border-radius:2px;background:var(--green);transition:width .4s ease}
+.week-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;flex-wrap:wrap;gap:10px}
+.week-info{font-size:11px;color:var(--t3)}
+.week-reset{padding:5px 12px;border-radius:var(--r);border:1px solid var(--red-bd);background:transparent;color:var(--red);font-size:11px;cursor:pointer;font-family:'Outfit',sans-serif}
+.week-progress{background:var(--bg2);border:1px solid var(--bd);border-radius:var(--r3);padding:18px 22px;margin-bottom:16px;display:grid;grid-template-columns:1fr auto;gap:12px;align-items:center}
+.wp-bar{height:8px;background:var(--bg4);border-radius:4px;overflow:hidden;margin-top:10px}
+.wp-bar-f{height:8px;border-radius:4px;background:linear-gradient(90deg,var(--blue),var(--green));transition:width .6s ease}
+.rday-body{overflow:hidden;transition:max-height .3s ease,padding .3s ease}
+.rday-body.collapsed{max-height:0!important;padding-top:0!important;padding-bottom:0!important}
+.rday.today{border-color:var(--blue-bd);box-shadow:0 0 0 1px var(--blue-bd)}
+.rday.today .rday-head{background:var(--blue-bg)}
+.rday-chevron{margin-left:auto;font-size:11px;color:var(--t3);transition:transform .25s;flex-shrink:0}
+.rday-chevron.open{transform:rotate(180deg)}
+
+/* ═══ FOCUS ═══ */
+.focus-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.fc{background:var(--bg2);border:1px solid var(--bd);border-radius:var(--r3);padding:18px 20px;transition:border-color .15s,background .15s}
+.fc:hover{border-color:var(--bd2);background:var(--bg3)}
+.fbadge{font-size:10px;font-weight:700;padding:4px 10px;border-radius:5px;letter-spacing:.3px;text-transform:uppercase;display:inline-block;margin-bottom:10px}
+.fname{font-size:14px;font-weight:600;margin-bottom:5px;color:var(--t1)}
+.fsub{font-size:13px;color:var(--t2);line-height:1.6}
+.flink{margin-top:10px;font-size:12px;color:var(--blue);cursor:pointer;font-weight:600;display:inline-block}
+
+/* ═══ SEARCH ═══ */
+.search-wrap{position:relative;margin-bottom:12px}
+.search{width:100%;padding:9px 14px 9px 36px;border-radius:var(--r);border:1px solid var(--bd);background:var(--bg2);color:var(--t1);font-size:13px;font-family:'Outfit',sans-serif;outline:none;transition:border .15s}
+.search:focus{border-color:var(--bd2)}
+.search::placeholder{color:var(--t3)}
+.search-icon{position:absolute;left:12px;top:50%;transform:translateY(-50%);color:var(--t3);pointer-events:none}
+.pills{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px}
+.pill{padding:5px 12px;border-radius:20px;border:1px solid var(--bd);background:transparent;color:var(--t3);font-size:11px;font-weight:500;cursor:pointer;font-family:'Outfit',sans-serif;transition:all .12s}
+.pill:hover{border-color:var(--bd2);color:var(--t1)}
+.pill.on{background:var(--blue-bg);border-color:var(--blue-bd);color:var(--blue)}
+
+/* ═══ MOBILE OVERLAY (seller detail) ═══ */
+.mob-overlay{display:none;position:fixed;top:56px;left:0;right:0;bottom:var(--bnav);background:var(--bg0);z-index:90;overflow-y:auto;padding:16px;animation:slideIn .2s ease}
+@keyframes slideIn{from{transform:translateX(20px);opacity:0}to{transform:translateX(0);opacity:1}}
+.mob-back{display:flex;align-items:center;gap:8px;margin-bottom:16px;color:var(--blue);font-size:13px;font-weight:500;cursor:pointer;border:none;background:transparent;font-family:'Outfit',sans-serif}
+
+/* ═══ MISC ═══ */
+.empty{color:var(--t3);font-size:14px;padding:48px;text-align:center;line-height:1.6}
+.anim{animation:fadeUp .28s ease both}
+@keyframes fadeUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+::-webkit-scrollbar{width:4px;height:4px}
+::-webkit-scrollbar-thumb{background:var(--bg4);border-radius:2px}
+
+/* ═══ RESPONSIVE ═══ */
+@media(max-width:768px){
+  .sidebar{display:none}
+  .mob-header{display:flex}
+  .bnav{display:flex}
+  .main{margin-left:0;padding:66px 12px calc(var(--bnav) + 12px);min-height:100vh}
+  .kpi-grid{grid-template-columns:repeat(2,1fr);gap:8px}
+  .kpi-grid>.kpi:last-child{grid-column:1/-1}
+  .kpi{padding:11px 14px}
+  .kpi-v{font-size:17px}
+  .kpi-l{font-size:10px}
+  .kpi-s{font-size:11px}
+  .split{grid-template-columns:1fr}
+  .list-panel{position:static;max-height:none}
+  .focus-grid{grid-template-columns:1fr}
+  .page-head{margin-bottom:16px}
+  .page-title{font-size:18px}
+  .mob-overlay{display:none}
+  .mob-overlay.visible{display:block}
+  .hide-mobile{display:none!important}
+  .mob-back{display:flex}
+  .toast{bottom:calc(var(--bnav) + 12px);right:12px}
+  .pm-grid{grid-template-columns:repeat(3,1fr)}
+  .pm-v{font-size:15px}
+  .pname{font-size:17px}
+  table th:nth-child(n+5),table td:nth-child(n+5){display:none}
+  .mob-only{display:inline!important}
+  .pen-table th:nth-child(n+4),.pen-table td:nth-child(n+4){display:none}
+  .split{gap:10px}
+  .card-h{padding:11px 14px}
+  .profile{padding:16px}
+}
+@media(min-width:769px){
+  .mob-overlay,.mob-back,.mob-header,.bnav{display:none!important}
+  .detail-panel-wrap{display:block!important}
+  .hide-desktop{display:none!important}
+}
+/* ═══ QUALITY / PENETRATION ═══ */
+.qtabs{display:flex;gap:4px;margin-bottom:16px}
+.qtab{padding:7px 16px;border-radius:var(--r);border:1px solid var(--bd);background:transparent;color:var(--t3);font-size:13px;font-weight:500;cursor:pointer;font-family:'Outfit',sans-serif;transition:all .15s}
+.qtab.on{background:var(--blue-bg);border-color:var(--blue-bd);color:var(--blue)}
+.pen-section{margin-bottom:20px}
+.pen-section-title{font-size:12px;font-weight:700;letter-spacing:.4px;color:var(--t2);text-transform:uppercase;margin-bottom:12px;display:flex;align-items:center;gap:10px}
+.pen-section-title::after{content:'';flex:1;height:1px;background:var(--bd2)}
+.pen-table{width:100%;border-collapse:collapse;font-size:13px}
+.pen-table th{padding:10px 12px;font-size:10px;font-weight:700;letter-spacing:.3px;color:var(--t3);text-transform:uppercase;border-bottom:1px solid var(--bd2);white-space:nowrap;background:var(--bg3);text-align:center}
+.pen-table th:first-child{text-align:left}
+.pen-table td{padding:10px 12px;border-bottom:1px solid var(--bd);text-align:center;font-family:'IBM Plex Mono',monospace;font-size:13px;font-weight:600}
+.pen-table td:first-child{text-align:left;font-family:'Outfit',sans-serif;font-weight:500;font-size:13px;color:var(--t1)}
+.pen-table td.qty{color:var(--t2);font-weight:500}
+.pen-table tr.bench{background:var(--bg3)}
+.pen-table tr.bench td{color:var(--t3);font-weight:500;font-size:12px;font-family:'Outfit',sans-serif}
+.pen-table tbody tr:hover td{background:var(--bg3)}
+.pen-table tbody tr:nth-child(even) td{background:rgba(255,255,255,.02)}
+.pc-hi{background:rgba(52,211,153,.12);color:#34d399}
+.pc-ok{background:rgba(52,211,153,.06);color:#6ee7b7}
+.pc-avg{background:var(--bg4);color:var(--t2)}
+.pc-lo{background:rgba(248,113,113,.1);color:#f87171}
+.pc-zero{background:var(--bg4);color:var(--t3)}
+.gsheet-connect{background:var(--bg2);border:1px solid var(--bd);border-radius:var(--r2);padding:16px;margin-bottom:16px}
+.gsheet-status{font-size:11px;margin-top:8px;display:flex;align-items:center;gap:6px}
+.gsheet-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0}
+.rev-table{width:100%;border-collapse:collapse;font-size:14px}
+.rev-table th{padding:11px 16px;font-size:11px;font-weight:600;letter-spacing:.3px;color:var(--t3);text-transform:uppercase;border-bottom:1px solid var(--bd2);text-align:right;background:var(--bg3)}
+.rev-table th:first-child,.rev-table th:nth-child(2){text-align:left}
+.rev-table td{padding:12px 16px;border-bottom:1px solid var(--bd);vertical-align:middle}
+.rev-table tbody tr:nth-child(even) td{background:rgba(255,255,255,.02)}
+.rev-table tbody tr:last-child td{border-bottom:none}
+.rev-table tbody tr:hover td{background:var(--bg3)}
+.pct-bar-wrap{display:flex;align-items:center;gap:6px}
+.pct-bar-bg{flex:1;height:5px;background:var(--bg4);border-radius:3px;overflow:hidden;min-width:40px}
+.pct-bar-fill{height:5px;border-radius:3px}
+.target-line{position:relative}
+.mob-acc-upload{display:none}
+
+/* ═══ MEETINGS 1:1 ═══ */
+.m-tabs{display:flex;gap:4px;margin-bottom:16px;flex-wrap:wrap}
+.m-tab{padding:7px 16px;border-radius:var(--r);border:1px solid var(--bd);background:transparent;color:var(--t3);font-size:13px;font-weight:500;cursor:pointer;font-family:'Outfit',sans-serif;transition:all .15s}
+.m-tab.on{background:var(--blue-bg);border-color:var(--blue-bd);color:var(--blue)}
+.m-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:20px}
+.m-stat{background:var(--bg2);border:1px solid var(--bd);border-radius:var(--r3);padding:14px 16px;text-align:center}
+.m-stat-n{font-size:26px;font-weight:700;font-family:'IBM Plex Mono',monospace;color:var(--t1);line-height:1.1}
+.m-stat-l{font-size:11px;color:var(--t3);margin-top:5px}
+.week-group{margin-bottom:18px}
+.week-lbl{font-size:10px;font-weight:700;letter-spacing:2px;color:var(--t3);text-transform:uppercase;margin-bottom:10px;display:flex;align-items:center;gap:8px}
+.week-lbl::after{content:'';flex:1;height:1px;background:var(--bd)}
+.sched-day{background:var(--bg2);border:1px solid var(--bd);border-radius:var(--r2);margin-bottom:8px;overflow:hidden}
+.sched-day.has-meetings{border-left:3px solid var(--blue)}
+.sched-day.is-off{opacity:.5}
+.sched-day-h{padding:10px 14px;display:flex;align-items:center;gap:10px}
+.sched-day-name{font-size:12px;font-weight:700;color:var(--t2);text-transform:uppercase;letter-spacing:.5px;min-width:32px}
+.sched-person{display:flex;align-items:center;justify-content:space-between;padding:9px 14px;border-top:1px solid var(--bd)}
+.sched-avatar{width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:#fff;flex-shrink:0}
+.sched-name{font-size:13px;font-weight:500;color:var(--t1);margin-left:10px;flex:1}
+.sched-done-btn{width:28px;height:28px;border-radius:50%;border:1.5px solid var(--bd2);background:transparent;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:12px;color:transparent;transition:all .2s;flex-shrink:0}
+.sched-done-btn.done{background:var(--green);border-color:var(--green);color:#fff}
+.sched-log-btn{padding:4px 10px;border-radius:6px;background:var(--blue-bg);color:var(--blue);border:1px solid var(--blue-bd);font-size:11px;font-weight:600;cursor:pointer;font-family:'Outfit',sans-serif;margin-right:8px;transition:all .15s}
+.sched-log-btn:hover{background:rgba(91,155,255,.25)}
+.emp-1to1{display:flex;align-items:center;gap:12px;padding:12px 16px;border-bottom:1px solid var(--bd);cursor:pointer;transition:background .1s}
+.emp-1to1:last-child{border-bottom:none}
+.emp-1to1:hover{background:var(--bg3)}
+.emp-avatar-big{width:40px;height:40px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;color:#fff;flex-shrink:0}
+.emp-1to1-meta{flex:1}
+.emp-1to1-name{font-size:14px;font-weight:600;color:var(--t1)}
+.emp-1to1-sub{font-size:11px;color:var(--t3);margin-top:2px}
+.freq-badge{font-size:11px;font-weight:600;padding:3px 9px;border-radius:5px;white-space:nowrap}
+.freq-ok{background:var(--green-bg);color:var(--green);border:1px solid var(--green-bd)}
+.freq-warn{background:var(--amber-bg);color:var(--amber);border:1px solid var(--amber-bd)}
+.freq-none{background:var(--bg4);color:var(--t3);border:1px solid var(--bd)}
+.log-entry{background:var(--bg2);border:1px solid var(--bd);border-radius:var(--r2);padding:14px 16px;margin-bottom:10px}
+.log-header{display:flex;align-items:center;gap:8px;margin-bottom:10px}
+.log-emp-name{font-size:13px;font-weight:700;color:var(--t1);flex:1}
+.log-date-badge{font-size:11px;font-family:'IBM Plex Mono',monospace;color:var(--t3);background:var(--bg4);padding:2px 8px;border-radius:4px;white-space:nowrap}
+.log-del{padding:3px 8px;border-radius:5px;border:none;background:transparent;color:var(--t3);cursor:pointer;font-size:12px;transition:color .15s}
+.log-del:hover{color:var(--red)}
+.log-section{font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--t3);margin-bottom:4px;margin-top:8px}
+.log-text{font-size:13px;color:var(--t2);line-height:1.6}
+.log-deadline{display:inline-flex;align-items:center;gap:5px;margin-top:8px;font-size:11px;font-weight:600;padding:3px 9px;border-radius:5px;background:var(--amber-bg);color:var(--amber);border:1px solid var(--amber-bd)}
+.m-modal{position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:300;display:flex;align-items:flex-end;justify-content:center}
+.m-modal.hidden{display:none}
+.m-modal-box{background:var(--bg1);border-radius:20px 20px 0 0;padding:22px 20px;width:100%;max-width:600px;max-height:90vh;overflow-y:auto;padding-bottom:max(env(safe-area-inset-bottom,20px),20px)}
+.m-form-label{font-size:12px;font-weight:600;color:var(--t2);text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px;margin-top:14px;display:block}
+.m-form-label:first-of-type{margin-top:0}
+.m-input,.m-textarea,.m-select{width:100%;padding:10px 13px;border:1px solid var(--bd2);border-radius:var(--r);font-size:14px;background:var(--bg3);color:var(--t1);font-family:'Outfit',sans-serif;outline:none;transition:border .15s}
+.m-input:focus,.m-textarea:focus,.m-select:focus{border-color:var(--blue-bd)}
+.m-textarea{resize:vertical;min-height:70px;line-height:1.55}
+[data-theme="light"] .m-input,[data-theme="light"] .m-textarea,[data-theme="light"] .m-select{background:#f8f9fc}
+.m-btn-row{display:flex;gap:10px;margin-top:16px}
+.m-btn{padding:12px;border-radius:var(--r);font-size:14px;font-weight:700;border:none;cursor:pointer;flex:1;font-family:'Outfit',sans-serif;transition:all .15s}
+.m-btn-primary{background:var(--blue);color:#fff}
+.m-btn-primary:hover{background:#4a8ef0}
+.m-btn-cancel{background:var(--bg4);color:var(--t2)}
+.m-btn-cancel:hover{background:var(--bg3)}
+.emp-detail-back{display:flex;align-items:center;gap:8px;color:var(--blue);font-size:13px;font-weight:600;cursor:pointer;margin-bottom:16px;border:none;background:transparent;font-family:'Outfit',sans-serif}
+.freq-bar{display:flex;gap:4px;margin-top:12px;flex-wrap:wrap}
+.freq-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0}
+@media(max-width:768px){.m-stats{grid-template-columns:repeat(2,1fr)}.m-stat-n{font-size:22px}}
+
+@media print{.sidebar,.toast,.bnav,.mob-header{display:none!important}.main{margin-left:0!important;padding:16px!important}}
+</style>
+</head>
+<body>
+
+<!-- ═══ SIDEBAR (desktop) ═══ -->
+<aside class="sidebar">
+  <div class="sb-logo">
+    <div class="sb-tag">Sales OS</div>
+    <div class="sb-name" id="sbName">ДМ2 Мост-2</div>
+    <div style="display:flex;align-items:center;gap:5px;margin-top:4px">
+    <div id="dataStatusDot" style="width:6px;height:6px;border-radius:50%;background:var(--t3);flex-shrink:0"></div>
+    <div class="sb-period" id="sbPeriod">Немає даних</div>
+  </div>
+  </div>
+  <nav class="nav">
+    <div class="ni active" data-v="overview" onclick="go('overview')">
+      <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="1" y="1" width="6" height="6" rx="1.2"/><rect x="9" y="1" width="6" height="6" rx="1.2"/><rect x="1" y="9" width="6" height="6" rx="1.2"/><rect x="9" y="9" width="6" height="6" rx="1.2"/></svg>
+      Огляд
+    </div>
+    <div class="ni" data-v="sellers" onclick="go('sellers')">
+      <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="6" cy="5" r="2.5"/><path d="M1 13c0-2.76 2.24-5 5-5s5 2.24 5 5"/><circle cx="12.5" cy="5.5" r="1.8"/><path d="M15 12c0-1.66-1.12-2.5-2.5-2.5"/></svg>
+      Продавці
+    </div>
+    <div class="ni" data-v="categories" onclick="go('categories')">
+      <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 4h12M2 8h12M2 12h12"/><circle cx="5" cy="4" r="1.2" fill="currentColor" stroke="none"/><circle cx="8" cy="8" r="1.2" fill="currentColor" stroke="none"/><circle cx="11" cy="12" r="1.2" fill="currentColor" stroke="none"/></svg>
+      Категорії
+    </div>
+    <div class="ni" data-v="plan" onclick="go('plan')" id="planNavItem">
+      <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="2" width="12" height="12" rx="1.5"/><path d="M5.5 8l2 2 3.5-3.5"/></svg>
+      План дій
+      <span id="planBadge" class="nav-badge" style="display:none"></span>
+    </div>
+    <div class="ni" data-v="rhythm" onclick="go('rhythm')">
+      <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="1.5" y="3" width="13" height="11" rx="1.5"/><path d="M5 1v2M11 1v2M1.5 7h13"/><path d="M5 10h2M9 10h2"/></svg>
+      Ритм тижня
+    </div>
+    <div class="ni" data-v="focus" onclick="go('focus')">
+      <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="8" cy="8" r="6"/><circle cx="8" cy="8" r="2.5"/><path d="M8 2v1.5M8 12.5V14M2 8h1.5M12.5 8H14"/></svg>
+      Фокус дня
+    </div>
+    <div class="ni" data-v="matrix" onclick="go('matrix')">
+      <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="1" y="1" width="4" height="4" rx=".8"/><rect x="6" y="1" width="4" height="4" rx=".8"/><rect x="11" y="1" width="4" height="4" rx=".8"/><rect x="1" y="6" width="4" height="4" rx=".8"/><rect x="6" y="6" width="4" height="4" rx=".8"/><rect x="11" y="6" width="4" height="4" rx=".8"/><rect x="1" y="11" width="4" height="4" rx=".8"/><rect x="6" y="11" width="4" height="4" rx=".8"/><rect x="11" y="11" width="4" height="4" rx=".8"/></svg>
+      Матриця
+    </div>
+    <div class="ni" data-v="insights" onclick="go('insights')">
+      <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M8 1v5l3 3"/><circle cx="8" cy="9" r="6"/></svg>
+      Інсайти
+    </div>
+    <div class="ni" data-v="quality" onclick="go('quality')">
+      <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 8h2l2 4 3-8 2 4h3"/></svg>
+      Якість продажів
+    </div>
+    <div class="ni" data-v="meetings" onclick="go('meetings')">
+      <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="8" cy="6" r="3"/><path d="M3 14c0-2.76 2.24-5 5-5s5 2.24 5 5"/><path d="M12 3l1 1M12 9l1-1M4 3L3 4M4 9l-1-1"/></svg>
+      Зустрічі 1:1
+    </div>
+  </nav>
+  <div class="sb-foot">
+    <button class="theme-btn" onclick="toggleTheme()">
+      <span class="theme-icon" id="themeIcon">☀️</span>
+      <span id="themeLabel">Світла тема</span>
+    </button>
+    
+    <!-- ☁️ ОБЛАЧНАЯ СИНХРОНИЗАЦИЯ -->
+    <div style="margin-bottom:10px;padding-bottom:10px;border-bottom:1px solid var(--bd);">
+      <div style="font-size:10px;color:var(--t3);margin-bottom:4px;text-transform:uppercase;font-weight:600">Облачна база данных</div>
+      <input type="text" id="cloudScriptUrl" placeholder="URL Apps Script..." 
+        style="width:100%;padding:6px 8px;border-radius:var(--r);border:1px solid var(--bd);background:var(--bg3);color:var(--t1);font-size:11px;font-family:'Outfit',sans-serif;outline:none;margin-bottom:6px;"
+        onchange="localStorage.setItem('dm2_cloud_url', this.value)">
+      <button onclick="syncWithCloud()" style="width:100%;padding:6px;border-radius:var(--r);border:1px solid var(--blue-bd);background:var(--blue-bg);color:var(--blue);font-size:11px;font-weight:600;cursor:pointer;font-family:'Outfit',sans-serif;">
+        ☁️ Синхронізувати
+      </button>
+    </div>
+
+    <label class="up-zone" id="dropZone" style="margin-bottom:6px">
+      <input type="file" id="fileInput" accept=".xlsx,.xls">
+      <div style="font-size:12px;color:var(--t2);font-weight:500;cursor:pointer">Продажі (головний)</div>
+      <div style="font-size:10px;color:var(--t3);margin-top:2px">Продажі по категоріях</div>
+    </label>
+    <label class="up-zone" id="dropZoneAcc">
+      <input type="file" id="fileInputAcc" accept=".xlsx,.xls">
+      <div id="accUpLabel" style="font-size:12px;color:var(--t2);font-weight:500;cursor:pointer">АСС/Home звіт</div>
+      <div style="font-size:10px;color:var(--t3);margin-top:2px">Щоденний звіт АСС</div>
+    </label>
+    <div class="sb-keys">Клавіші 1–9 для навігації</div>
+    <button class="sb-clear" onclick="if(confirm('Очистити збережені файли?')){clearFileData();location.reload();}" title="Очистити кеш файлів">🗑 Очистити збережені дані</button>
+  </div>
+</aside>
+
+<!-- ═══ MOBILE HEADER ═══ -->
+<header class="mob-header">
+  <div class="mob-logo">
+    <div class="mob-logo-t" id="mobName">ДМ2 Мост-2</div>
+    <div class="mob-logo-s" id="mobPeriod">–</div>
+  </div>
+  <button onclick="toggleTheme()" style="padding:6px 10px;border-radius:var(--r);border:1px solid var(--bd2);background:transparent;color:var(--t2);font-size:16px;cursor:pointer;line-height:1" id="mobThemeBtn">☀️</button>
+  <label class="mob-up">
+    <input type="file" id="fileInputMobAcc" accept=".xlsx,.xls">
+    АСС
+  </label>
+  <label class="mob-up">
+    <input type="file" id="fileInputMob" accept=".xlsx,.xls">
+    Звіт
+  </label>
+</header>
+
+<!-- ═══ MOBILE OVERLAY (seller/category detail) ═══ -->
+<div class="mob-overlay" id="mobOverlay">
+  <button class="mob-back" onclick="closeMobOverlay()">
+    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M10 3L5 8l5 5"/></svg>
+    Назад
+  </button>
+  <div id="mobOverlayContent"></div>
+</div>
+
+<!-- ═══ BOTTOM NAV ═══ -->
+<nav class="bnav">
+  <button class="bnav-item active" data-v="overview" onclick="go('overview')">
+    <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="1" y="1" width="6" height="6" rx="1.2"/><rect x="9" y="1" width="6" height="6" rx="1.2"/><rect x="1" y="9" width="6" height="6" rx="1.2"/><rect x="9" y="9" width="6" height="6" rx="1.2"/></svg>
+    Огляд
+  </button>
+  <button class="bnav-item" data-v="sellers" onclick="go('sellers')">
+    <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="6" cy="5" r="2.5"/><path d="M1 13c0-2.76 2.24-5 5-5s5 2.24 5 5"/><circle cx="12.5" cy="5.5" r="1.8"/><path d="M15 12c0-1.66-1.12-2.5-2.5-2.5"/></svg>
+    Продавці
+  </button>
+  <button class="bnav-item" data-v="categories" onclick="go('categories')">
+    <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 4h12M2 8h12M2 12h12"/><circle cx="5" cy="4" r="1.2" fill="currentColor" stroke="none"/><circle cx="8" cy="8" r="1.2" fill="currentColor" stroke="none"/><circle cx="11" cy="12" r="1.2" fill="currentColor" stroke="none"/></svg>
+    Категорії
+  </button>
+  <button class="bnav-item" data-v="plan" onclick="go('plan')">
+    <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="2" width="12" height="12" rx="1.5"/><path d="M5.5 8l2 2 3.5-3.5"/></svg>
+    План
+  </button>
+  <button class="bnav-item" data-v="rhythm" onclick="go('rhythm')">
+    <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="1.5" y="3" width="13" height="11" rx="1.5"/><path d="M5 1v2M11 1v2M1.5 7h13"/></svg>
+    Ритм
+  </button>
+  <button class="bnav-item" data-v="focus" onclick="go('focus')">
+    <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="8" cy="8" r="6"/><circle cx="8" cy="8" r="2.5"/><path d="M8 2v1.5M8 12.5V14M2 8h1.5M12.5 8H14"/></svg>
+    Фокус
+  </button>
+  <button class="bnav-item" data-v="matrix" onclick="go('matrix')">
+    <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="1" y="1" width="4" height="4" rx=".8"/><rect x="6" y="1" width="4" height="4" rx=".8"/><rect x="11" y="1" width="4" height="4" rx=".8"/><rect x="1" y="6" width="4" height="4" rx=".8"/><rect x="6" y="6" width="4" height="4" rx=".8"/><rect x="11" y="6" width="4" height="4" rx=".8"/><rect x="1" y="11" width="4" height="4" rx=".8"/><rect x="6" y="11" width="4" height="4" rx=".8"/><rect x="11" y="11" width="4" height="4" rx=".8"/></svg>
+    Матриця
+  </button>
+  <button class="bnav-item" data-v="insights" onclick="go('insights')">
+    <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M8 1v5l3 3"/><circle cx="8" cy="9" r="6"/></svg>
+    Інсайти
+  </button>
+  <button class="bnav-item" data-v="quality" onclick="go('quality')">
+    <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 8h2l2 4 3-8 2 4h3"/></svg>
+    Якість
+  </button>
+  <button class="bnav-item" data-v="meetings" onclick="go('meetings')">
+    <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="8" cy="6" r="3"/><path d="M3 14c0-2.76 2.24-5 5-5s5 2.24 5 5"/></svg>
+    1:1
+  </button>
+</nav>
+<div id="bnavHint" style="display:none;position:fixed;bottom:calc(var(--bnav) - 2px);right:0;width:36px;height:calc(var(--bnav) - 2px);background:linear-gradient(90deg,transparent,var(--bg1));z-index:101;pointer-events:none;align-items:center;justify-content:center">
+  <svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="var(--t3)" stroke-width="2"><path d="M6 3l5 5-5 5"/></svg>
+</div>
+
+<!-- ═══ MAIN CONTENT ═══ -->
+<main class="main">
+  <div class="page-head">
+    <div>
+      <div class="page-title" id="pageTitle">Огляд магазину</div>
+      <div class="page-sub" id="pageSub">Завантажте звіт</div>
+    </div>
+    <button class="btn hide-mobile" onclick="window.print()">Друк / PDF</button>
+  </div>
+  <div id="kpiRow" class="kpi-grid"></div>
+  <div id="content" class="anim"></div>
+</main>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ═══════════════════════════════════════════════════════════════
+// DATA
+// ═══════════════════════════════════════════════════════════════
+const SHORT={
+  'Зуєва Ольга Андріївна':'Зуєва О.','Кисельов Дмитро Сергійович':'Кисельов Д.',
+  'Гаврихів Роман Вадимович':'Гаврихів Р.','Пачковський Ілля Владиславович':'Пачковський І.',
+  'Фесенко Ярослав Юрійович':'Фесенко Я.','Дудник Анастасія Євгеніївна':'Дудник А.',
+  'Бугас Данило Олександрович':'Бугас Д.','Куценко Майя Сергіївна':'Куценко М.',
+  'Устинова Людмила Олександрівна':'Устинова Л.','Міщук Анастасія Володимирівна':'Міщук А.',
+  'Переяслов Микита Олегович':'Переяслов М.'
+};
+
+const ACTDEF=[
+  {type:'talk',label:'Особиста бесіда',color:'#4f8ef7',bg:'rgba(79,142,247,.15)'},
+  {type:'train',label:'Навчання',color:'#a78bfa',bg:'rgba(167,139,250,.15)'},
+  {type:'test',label:'Тестова консультація',color:'#f5a623',bg:'rgba(245,166,35,.15)'},
+  {type:'coaching',label:'Тренінг',color:'#34d399',bg:'rgba(52,211,153,.15)'},
+  {type:'stock',label:'Контроль залишків',color:'#f87171',bg:'rgba(248,113,113,.15)'}
+];
+
+// ── WEEKLY RHYTHM ──────────────────────────────────────────────
+const WEEK_RHYTHM=[
+  {
+    day:'Понеділок',short:'Пн',icon:'📊',
+    focus:'Аналітика та планування',subtitle:'Фокус: зрозуміти де гроші',
+    sections:[
+      {title:'Що аналізуєш',tasks:[
+        {id:'m1',text:'Продажі минулого тижня — ТОП та антиТОП товари'},
+        {id:'m2',text:'Хто з продавців просів — конкретні цифри та порівняння з бенчмарком'},
+        {id:'m3',text:'Середній чек по кожному продавцю — тренд вгору чи вниз?'},
+        {id:'m4',text:'Аксесуари та допродажі — пенетрація по кожному'}
+      ]},
+      {title:'Що виписуєш',tasks:[
+        {id:'m5',text:'3 проблеми тижня (конкретні, з цифрами)'},
+        {id:'m6',text:'3 точки зростання — де реально є потенціал'}
+      ]},
+      {title:'Що плануєш',tasks:[
+        {id:'m7',text:'Який товар/категорію пушимо цього тижня'},
+        {id:'m8',text:'Які навички качаємо у команді'},
+        {id:'m9',text:'Розподіл завдань на тиждень по продавцях'}
+      ]}
+    ],
+    note:'Не більше 2–3 фокусів на тиждень — інакше увага розсіюється'
+  },
+  {
+    day:'Вівторок',short:'Вт',icon:'🎯',
+    focus:'Навчання команди',subtitle:'Фокус: прокачка навичок',
+    sections:[
+      {title:'Мініт-тренінг 20–30 хвилин',tasks:[
+        {id:'t1',text:'Обрати 1 тему (не більше!) — наприклад: "як продавати комплект"'},
+        {id:'t2',text:'Підготувати конкретний скрипт або формулювання фрази'},
+        {id:'t3',text:'Провести тренінг з усією командою або групою'}
+      ]},
+      {title:'Після тренінгу',tasks:[
+        {id:'t4',text:'Поставити конкретну задачу: кожен робить X допродаж сьогодні'},
+        {id:'t5',text:'Записати хто був присутній, хто засвоїв матеріал'}
+      ]}
+    ],
+    example:'"До телефону одразу беруть стекло і зарядку — це захист і зручність в одному чеку"',
+    note:'Один навик — один тренінг. Не пробуй навчити всьому за раз'
+  },
+  {
+    day:'Середа',short:'Ср',icon:'👁',
+    focus:'Контроль та зворотній зв\'язок',subtitle:'Фокус: впровадження',
+    sections:[
+      {title:'Спостереження в залі',tasks:[
+        {id:'w1',text:'Спостерігати за продавцями — хто застосовує навичку з вівторка?'},
+        {id:'w2',text:'Фіксувати: хто застосовує, хто ні (без оцінки — просто факт)'}
+      ]},
+      {title:'3–5 коротких особистих бесід',tasks:[
+        {id:'w3',text:'Що виходить — закріпити, похвалити конкретно'},
+        {id:'w4',text:'Що заважає — виявити реальну причину, не відмазку'},
+        {id:'w5',text:'Скоригувати підхід для кожного індивідуально'}
+      ]}
+    ],
+    example:'"Ти не пропонуєш другий товар — чому? Давай розберемо конкретну ситуацію"',
+    note:'Не загальні слова — конкретика. Не "треба краще", а "зроби ось так"'
+  },
+  {
+    day:'Четвер',short:'Чт',icon:'📦',
+    focus:'Робота з товаром',subtitle:'Фокус: гроші лежать на полиці',
+    sections:[
+      {title:'Перевірка товару',tasks:[
+        {id:'th1',text:'Наявність топових позицій — що відсутнє, що мало залишилось'},
+        {id:'th2',text:'Вітрина та викладка — чи видно товар, чи виглядає привабливо?'},
+        {id:'th3',text:'Що не продається — є залежані позиції?'}
+      ]},
+      {title:'Дії',tasks:[
+        {id:'th4',text:'Зробити замовлення товару на наступний тиждень'},
+        {id:'th5',text:'Дати задачу продавцям: просувати конкретні позиції'},
+        {id:'th6',text:'Переставити вітрину якщо потрібно'}
+      ]}
+    ],
+    note:'Якщо товару немає — продажів немає. Товарна робота = пряма дія на виторг'
+  },
+  {
+    day:'П\'ятниця',short:'Пт',icon:'🔥',
+    focus:'Посилення продажів',subtitle:'Фокус: вичавити максимум',
+    sections:[
+      {title:'Активація команди',tasks:[
+        {id:'f1',text:'Нагадати команді ціль тижня — конкретну цифру'},
+        {id:'f2',text:'Дати мікро-задачу: "сьогодні кожен продає мінімум 3 аксесуари"'},
+        {id:'f3',text:'Особисто пройтися по кожному — рівень енергії та настрій'}
+      ]},
+      {title:'Елемент гри',tasks:[
+        {id:'f4',text:'Міні-конкурс: хто більше продасть — публічне визнання або бонус'},
+        {id:'f5',text:'Оголосити результати вголос у кінці дня'}
+      ]}
+    ],
+    note:'Публічне визнання працює сильніше, ніж тихе "молодець" наодинці'
+  },
+  {
+    day:'Субота',short:'Сб',icon:'⚡',
+    focus:'Піковий день — контроль та енергія',subtitle:'Фокус: особистий вплив',
+    sections:[
+      {title:'Особисте включення',tasks:[
+        {id:'s1',text:'Сам вийти в зал і допомагати продавати'},
+        {id:'s2',text:'Давати швидкий фідбек прямо в моменті — не чекати вечора'},
+        {id:'s3',text:'Показати приклад: закрити 1–2 складних чеки особисто'}
+      ]},
+      {title:'Бустинг команди',tasks:[
+        {id:'s4',text:'Відмітити хто добре продає прямо зараз — вголос'},
+        {id:'s5',text:'Перевірити завантаженість — потрібна ротація між зонами?'}
+      ]}
+    ],
+    note:'Субота дає 30–40% тижневого виторгу. Твоя присутність реально бустить команду'
+  },
+  {
+    day:'Неділя',short:'Нд',icon:'📋',
+    focus:'Підведення підсумків',subtitle:'Фокус: фіксація та рефлексія',
+    sections:[
+      {title:'Швидкий контроль',tasks:[
+        {id:'su1',text:'Виконані задачі тижня — що зроблено, що ні'},
+        {id:'su2',text:'Хто з продавців молодець цього тижня — зафіксувати'},
+        {id:'su3',text:'Хто просів — яка причина, що робити наступного тижня'}
+      ]},
+      {title:'Підготовка до понеділка',tasks:[
+        {id:'su4',text:'Записати 3 головних інсайти тижня'},
+        {id:'su5',text:'Що змінити в підході наступного тижня'},
+        {id:'su6',text:'Перевірити дашборд: завантажити новий звіт якщо є'}
+      ]}
+    ],
+    note:'5 хвилин рефлексії в неділю = кращий понеділок. Не пропускай цей крок'
+  }
+];
+
+// ── SELLER PLANS ───────────────────────────────────────────────
+const PLANS={
+  'Зуєва О.':[
+    {day:'Пн',actions:[{type:'talk',text:'Обговорити ASP Мультипіч та Кавомашина — нижче бенчмарку'},{type:'stock',text:'Перевірити залишки Philips прасок (лідер категорії)'}]},
+    {day:'Вт',actions:[{type:'train',text:'Навчання апселлу — Кавомашина та Пилосос ручний'}]},
+    {day:'Ср',actions:[{type:'test',text:'Тестова консультація — продаж пилососа вище середньої ціни'}]},
+    {day:'Чт',actions:[{type:'stock',text:'Аудит залишків — Навушники та Мультипіч'}]},
+    {day:'Пт',actions:[{type:'coaching',text:'Тренінг: підвищення ASP Мультипіч — ціль від 4407 до 5000+'}]}
+  ],
+  'Кисельов Д.':[
+    {day:'Пн',actions:[{type:'talk',text:'Кухонна машина — розібрати разом чому просідає'}]},
+    {day:'Вт',actions:[{type:'train',text:'Навчання Bosch/SEB для Кухонних машин'},{type:'stock',text:'Перевірити залишки'}]},
+    {day:'Ср',actions:[{type:'test',text:'Тестова консультація — Акустична система'}]},
+    {day:'Чт',actions:[{type:'coaching',text:'Тренінг: перенести навичку з Навушників на інші категорії'}]},
+    {day:'Пт',actions:[{type:'talk',text:'Підсумки тижня, план на наступний'}]}
+  ],
+  'Гаврихів Р.':[
+    {day:'Пн',actions:[{type:'talk',text:'Багато штук (+37%), але низький ASP 3215 — стратегія апселлу'}]},
+    {day:'Вт',actions:[{type:'train',text:'Преміальний асортимент Мультипіч (Ninja, Philips Airfryer)'}]},
+    {day:'Ср',actions:[{type:'test',text:'Тестова: продаж Philips фену замість базового'}]},
+    {day:'Чт',actions:[{type:'stock',text:'Тример — результат +231%! Тримати наявність'}]},
+    {day:'Пт',actions:[{type:'coaching',text:'Тренінг: продаж за цінністю, а не за ціною'}]}
+  ],
+  'Міщук А.':[
+    {day:'Пн',actions:[{type:'talk',text:'ПРІОРИТЕТ: виторг -58% нижче бенчмарку. Виявити причину'}]},
+    {day:'Вт',actions:[{type:'train',text:'Інтенсивне навчання: Мультипіч + Навушники + Праски'},{type:'test',text:'Тестова консультація одразу після навчання'}]},
+    {day:'Ср',actions:[{type:'coaching',text:'Практична робота в парі зі старшим продавцем'}]},
+    {day:'Чт',actions:[{type:'test',text:'Контрольна тестова — 3 різних категорії'}]},
+    {day:'Пт',actions:[{type:'talk',text:'Підсумки: що покращилось, план на наступний тиждень'}]}
+  ],
+  'Переяслов М.':[
+    {day:'Пн',actions:[{type:'talk',text:'КРИТИЧНО: виторг -64% нижче бенчмарку. Першочергова розмова'}]},
+    {day:'Вт',actions:[{type:'train',text:'Базове навчання: Мультипіч + Навушники'}]},
+    {day:'Ср',actions:[{type:'test',text:'2 тестові консультації під спостереженням'}]},
+    {day:'Чт',actions:[{type:'coaching',text:'Наставництво: тандем з Гаврихівим або Кисельовим'}]},
+    {day:'Пт',actions:[{type:'talk',text:'Якщо немає динаміки — переглянути розстановку'}]}
+  ],
+  default:[
+    {day:'Пн',actions:[{type:'talk',text:'Огляд показників тижня, постановка завдань'}]},
+    {day:'Вт',actions:[{type:'train',text:'Навчання по слабкій категорії'}]},
+    {day:'Ср',actions:[{type:'test',text:'Тестова консультація'}]},
+    {day:'Чт',actions:[{type:'stock',text:'Перевірка залишків ключових категорій'}]},
+    {day:'Пт',actions:[{type:'coaching',text:'Груповий тренінг + підсумки тижня'}]}
+  ]
+};
+
+// ═══════════════════════════════════════════════════════════════
+// STATE
+// ═══════════════════════════════════════════════════════════════
+const S={
+  view:'overview',sellers:[],cats:[],
+  selSeller:null,selCat:null,
+  tierFilter:'all',bizFilter:'all',search:'',sortCol:'revenue',sortDir:-1,
+  checks:{},rhythmChecks:{},
+  theme:'dark',mobOverlay:false,
+  accData:null,gsheetData:null,rhythmOpen:{},
+  gsheetUrl:'https://docs.google.com/spreadsheets/d/1oodpZ_j07v0xBVsenrpyHXoqtXTdTp7v_u37iQEwzZs/edit?gid=897965126',
+  qualityTab:'penetration',meetingsTab:'schedule',meetingSelSeller:null
+};
+
+const ACC_CATS=new Set(['Навушники','Акустична система',"Миша комп'ютерна",'Миша комп.','Гарнітура комп\'ютерна','Гарнітура комп.','Ігровий маніпулятор','Клавіатура комп\'ютерна','Клавіатура','Кріплення для телевізора','Батарея мобільна','З/пристрій для мобільного пристрою','З/пристрій для моб.','Чохол для мобільного пристрою','Чохол для моб.']);
+const getBiz=cat=>ACC_CATS.has(cat)?'Аксесуари':'ДП техніка';
+
+const SELLER_MAP_REV={
+  'Зуєва О.':'Зуєва Ольга Андріївна',
+  'Кисельов Д.':'Кисельов Дмитро Сергійович',
+  'Гаврихів Р.':'Гаврихів Роман Вадимович',
+  'Пачковський І.':'Пачковський Ілля Владиславович',
+  'Фесенко Я.':'Фесенко Ярослав Юрійович',
+  'Дудник А.':'Дудник Анастасія Євгеніївна',
+  'Бугас Д.':'Бугас Данило Олександрович',
+  'Куценко М.':'Куценко Майя Сергіївна',
+  'Устинова Л.':'Устинова Людмила Олександрівна',
+  'Міщук А.':'Міщук Анастасія Володимирівна',
+  'Переяслов М.':'Переяслов Микита Олегович',
+};
+
+// ═══════════════════════════════════════════════════════════════
+// CLOUD SYNC FUNCTIONS
+// ═══════════════════════════════════════════════════════════════
+function getCloudUrl() {
+  const input = document.getElementById('cloudScriptUrl');
+  if (input && input.value.trim()) return input.value.trim();
+  return localStorage.getItem('dm2_cloud_url') || '';
+}
+
+async function loadFromCloud() {
+  const url = getCloudUrl();
+  if (!url) return;
+  try {
+    toast('Завантаження з облака...', 'info');
+    const resp = await fetch(url);
+    const data = await resp.json();
+    if (data && typeof data === 'object') {
+      if (data.dm2_checks_v3) {
+        S.checks = data.dm2_checks_v3;
+        localStorage.setItem('dm2_checks_v3', JSON.stringify(S.checks));
+      }
+      const rKey = getWeekKey();
+      if (data[rKey]) {
+        S.rhythmChecks = data[rKey];
+        localStorage.setItem(rKey, JSON.stringify(S.rhythmChecks));
+      }
+      if (data.dm2_1to1_logs) {
+        M_LOGS = data.dm2_1to1_logs;
+        localStorage.setItem('dm2_1to1_logs', JSON.stringify(M_LOGS));
+      }
+      if (data.dm2_1to1_done) {
+        M_DONE = data.dm2_1to1_done;
+        localStorage.setItem('dm2_1to1_done', JSON.stringify(M_DONE));
+      }
+      toast('Данні з облака завантажено!', 'ok');
+      render();
+    }
+  } catch (e) {
+    console.error('Cloud load error:', e);
+    toast('Помилка завантаження з облака', 'err');
+  }
+}
+
+async function saveToCloudState(key, value) {
+  const url = getCloudUrl();
+  if (!url) return;
+  try {
+    await fetch(url, {
+      method: 'POST',
+      mode: 'no-cors',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        action: 'saveState',
+        sheet: 'SyncData',
+        key: key,
+        value: value
+      })
+    });
+  } catch (e) {
+    console.error('Cloud save error:', e);
+  }
+}
+
+async function syncWithCloud() {
+  const url = getCloudUrl();
+  if (!url) {
+    toast('Введіть URL Apps Script', 'err');
+    return;
+  }
+  await saveToCloudState('dm2_checks_v3', S.checks);
+  await saveToCloudState(getWeekKey(), S.rhythmChecks);
+  await saveToCloudState('dm2_1to1_logs', M_LOGS);
+  await saveToCloudState('dm2_1to1_done', M_DONE);
+  await loadFromCloud();
+}
+
+// ═══════════════════════════════════════════════════════════════
+// UTILS
+// ═══════════════════════════════════════════════════════════════
+const fmt=n=>new Intl.NumberFormat('uk-UA').format(Math.round(n));
+const pct=n=>(n==null?'—':(n>=0?'+':'')+Math.round(n*100)+'%');
+const avg=a=>a.length?a.reduce((s,v)=>s+v,0)/a.length:0;
+const tc=t=>({A:'tA',B:'tB',C:'tC',D:'tD'}[t]||'tD');
+const vc=v=>v>=.03?'vp':v<=-.03?'vn':'vz';
+const adef=t=>ACTDEF.find(a=>a.type===t)||ACTDEF[0];
+const isMobile=()=>window.innerWidth<=768;
+
+function assignTiers(arr){
+  const pos=arr.filter(s=>s.revenue>0).sort((a,b)=>b.revenue-a.revenue);
+  const n=pos.length;
+  pos.forEach((s,i)=>{
+    s.tier=i<Math.ceil(n*.36)?'A':i<Math.ceil(n*.55)?'B':i<Math.ceil(n*.82)?'C':'D';
+  });
+  arr.filter(s=>s.revenue<=0).forEach(s=>s.tier='D');
+  return arr;
+}
+
+function buildCatIndex(sellers){
+  const m={};
+  sellers.forEach(s=>(s.cats||[]).forEach(c=>{
+    if(!m[c.cat])m[c.cat]={cat:c.cat,biz:c.biz||getBiz(c.cat),sellers:[]};
+    m[c.cat].sellers.push({name:s.name,full:s.full,rev:c.rev,units:c.units||0,revVs:c.revVs,aspVs:c.aspVs,tier:s.tier});
+  }));
+  return Object.values(m).sort((a,b)=>a.cat.localeCompare(b.cat));
+}
+
+function getWeekKey(){
+  const d=new Date();
+  const start=new Date(d.getFullYear(),0,1);
+  const wk=Math.ceil((((d-start)/86400000)+start.getDay()+1)/7);
+  return `dm2_rw_${d.getFullYear()}_${wk}`;
+}
+
+function toast(msg,type='info'){
+  const el=document.getElementById('toast');
+  el.textContent=msg;el.className='toast '+type+' show';
+  clearTimeout(el._t);el._t=setTimeout(()=>el.classList.remove('show'),3500);
+}
+
+function vsBar(v,max=2){
+  const c=Math.max(-max,Math.min(max,v||0));
+  const p=Math.round(Math.abs(c)/max*100);
+  const col=v>=0?'#36d98c':'#ff6b6b';
+  const cls=vc(v);
+  return '<div class="mbar" style="min-width:0">'+
+    '<div class="mbar-t" style="flex:1;min-width:28px">'+
+    '<div class="mbar-f" style="height:6px;border-radius:3px;width:'+p+'%;background:'+col+'"></div></div>'+
+    '<span class="vs '+cls+'" style="flex-shrink:0;min-width:46px;text-align:center">'+pct(v)+'</span></div>';
+}
+
+function parseFile(ab){
+  const wb=XLSX.read(ab,{type:'array'});
+  const ws=wb.Sheets[wb.SheetNames[0]];
+  const rows=XLSX.utils.sheet_to_json(ws,{header:1,defval:''});
+  let filePeriod='';
+  for(let i=0;i<25;i++){
+    for(let c=0;c<9;c++){
+      const v=String(rows[i]?rows[i][c]:'').trim();
+      if(/\d{2}\.\d{2}\.\d{2,4}\s*[-–]\s*\d{2}\.\d{2}\.\d{2,4}/.test(v)){
+        filePeriod=v.replace('- ','– ').replace(' -',' –');
+        break;
+      }
+    }
+    if(filePeriod)break;
+  }
+  if(!filePeriod){
+    const r0=String(rows[0]?rows[0][0]:'');
+    const m=r0.match(/\d{2}\.\d{2}\.\d{4}/);
+    if(m)filePeriod=m[0];
+  }
+  const sm={};
+  for(let i=18;i<rows.length;i++){
+    const r=rows[i];
+    if(String(r[7]||'').trim()!=='Прод')continue;
+    const brand=String(r[4]||'').trim();
+    if(brand&&brand!=='nan'&&brand.length>2&&!/^\s+$/.test(brand))continue;
+    const seller=String(r[5]||'').trim();
+    if(!seller||seller.length<3||/^\s+$/.test(seller))continue;
+    const cat=String(r[2]||'').trim();if(!cat)continue;
+    const biz=String(r[3]||'').trim()||getBiz(cat);
+    const rev=parseFloat(r[9])||0,revVs=parseFloat(r[11])||0;
+    const units=parseFloat(r[12])||0,unitsVs=parseFloat(r[14])||0,aspVs=parseFloat(r[17])||0;
+    const sn=SHORT[seller]||seller.split(' ').slice(0,2).join(' ');
+    if(!sm[seller])sm[seller]={name:sn,full:seller,revenue:0,units:0,rv:[],av:[],uv:[],cats:{}};
+    sm[seller].revenue+=rev;sm[seller].units+=units;
+    sm[seller].rv.push(revVs);sm[seller].av.push(aspVs);sm[seller].uv.push(unitsVs);
+    if(rev>0){
+      if(!sm[seller].cats[cat])sm[seller].cats[cat]={rev:0,units:0,rv:[],av:[],biz};
+      sm[seller].cats[cat].rev+=rev;sm[seller].cats[cat].units+=units;
+      sm[seller].cats[cat].rv.push(revVs);sm[seller].cats[cat].av.push(aspVs);
+    }
+  }
+  const sellers=Object.values(sm).map(s=>({
+    name:s.name,full:s.full,revenue:s.revenue,units:s.units,
+    asp:s.units>0?s.revenue/s.units:0,
+    revVs:avg(s.rv),aspVs:avg(s.av),unitsVs:avg(s.uv),
+    cats:Object.entries(s.cats).map(([cat,v])=>({cat,biz:v.biz,rev:v.rev,units:v.units,revVs:avg(v.rv),aspVs:avg(v.av)})).sort((a,b)=>b.rev-a.rev)
+  })).sort((a,b)=>b.revenue-a.revenue);
+  return{sellers:assignTiers(sellers),cats:buildCatIndex(sellers),period:filePeriod};
+}
+
+function sellerDetailHTML(s,sellers){
+  const filtered=(s.cats||[]).filter(c=>S.bizFilter==='all'||c.biz===S.bizFilter);
+  const bizPills=['all','ДП техніка','Аксесуари'].map(b=>{
+    const lbl=b==='all'?'Всі бізнеси':b;
+    return `<button style="padding:4px 12px;border-radius:20px;border:1px solid ${S.bizFilter===b?'var(--blue-bd)':'var(--bd)'};background:${S.bizFilter===b?'var(--blue-bg)':'transparent'};color:${S.bizFilter===b?'var(--blue)':'var(--t3)'};font-size:11px;font-weight:500;cursor:pointer;font-family:'Outfit',sans-serif" onclick="S.bizFilter='${b}';render()">${lbl}</button>`;
+  }).join('');
+  const cats=filtered.map(c=>`
+    <div class="cat-row">
+      <div class="cat-name">${c.cat}<span style="font-size:10px;color:var(--t3);margin-left:5px">${c.biz==='Аксесуари'?'АСС':'ДП'}</span></div>
+      <div style="flex-shrink:0;font-family:'IBM Plex Mono',monospace;font-size:12px;color:var(--t2);white-space:nowrap">${c.units||0} шт</div>
+      <div style="flex-shrink:0;min-width:90px">${vsBar(c.revVs,3)}</div>
+      <div style="flex-shrink:0;min-width:90px">${vsBar(c.aspVs,3)}</div>
+      <div class="cat-rev">${fmt(c.rev)} ₴</div>
+    </div>`).join('')||`<div class="empty" style="padding:16px">Немає даних або завантажте звіт</div>`;
+
+  const vs=(v,lbl)=>`<div>
+    <div class="vs-lbl">${lbl}</div>
+    ${vsBar(v,2.5)}
+  </div>`;
+
+  const dp=s.cats.filter(c=>c.biz!=='Аксесуари');
+  const acc=s.cats.filter(c=>c.biz==='Аксесуари');
+  const dpR=dp.reduce((a,c)=>a+c.rev,0),dpU=dp.reduce((a,c)=>a+(c.units||0),0);
+  const accR=acc.reduce((a,c)=>a+c.rev,0),accU=acc.reduce((a,c)=>a+(c.units||0),0);
+
+  return `
+    <div class="profile">
+      <div class="pname">${s.full}</div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:4px">
+        <span class="tier ${tc(s.tier)}" style="width:auto;padding:0 10px">Тир ${s.tier}</span>
+        <span style="font-size:11px;color:var(--t3);display:flex;align-items:center">#${sellers.indexOf(s)+1} рейтинг</span>
+      </div>
+      <div class="pm-grid">
+        <div class="pm-item"><div class="pm-l">Виторг</div><div class="pm-v">${fmt(s.revenue)} ₴</div></div>
+        <div class="pm-item"><div class="pm-l">Штуки</div><div class="pm-v">${s.units}</div></div>
+        <div class="pm-item"><div class="pm-l">Сер. чек</div><div class="pm-v">${fmt(s.asp)} ₴</div></div>
+      </div>
+      <div class="vs-grid">
+        ${vs(s.revVs,'Виторг vs бенчм.')}
+        ${vs(s.aspVs,'ASP vs бенчм.')}
+        ${vs(s.unitsVs,'Штуки vs бенчм.')}
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:12px">
+        <div style="background:var(--bg3);border:1px solid var(--bd);border-radius:8px;padding:10px 12px">
+          <div style="font-size:9px;color:var(--t3);letter-spacing:1px;text-transform:uppercase;margin-bottom:4px">ДП Техніка</div>
+          <div style="font-family:'IBM Plex Mono',monospace;font-size:14px;font-weight:600">${fmt(dpR)} ₴</div>
+          <div style="font-size:11px;color:var(--t3);margin-top:2px">${dpU} шт</div>
+        </div>
+        <div style="background:var(--bg3);border:1px solid var(--bd);border-radius:8px;padding:10px 12px">
+          <div style="font-size:9px;color:var(--t3);letter-spacing:1px;text-transform:uppercase;margin-bottom:4px">Аксесуари</div>
+          <div style="font-family:'IBM Plex Mono',monospace;font-size:14px;font-weight:600">${fmt(accR)} ₴</div>
+          <div style="font-size:11px;color:var(--t3);margin-top:2px">${accU} шт</div>
+        </div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-h">
+        <span class="card-t">Категорії</span>
+        <div style="display:flex;gap:5px">${bizPills}</div>
+      </div>
+      <div style="padding:8px 14px 4px;border-bottom:1px solid var(--bd2);display:flex;gap:8px;font-size:10px;color:var(--t3);font-weight:700;letter-spacing:.5px;text-transform:uppercase;background:var(--bg3)">
+        <div style="flex:1">Категорія</div>
+        <div style="flex-shrink:0;white-space:nowrap">Шт</div>
+        <div style="min-width:90px">Вир.vs</div>
+        <div style="min-width:90px">ASP vs</div>
+        <div style="min-width:80px;text-align:right;white-space:nowrap">Виторг ₴</div>
+      </div>
+      <div>${cats}</div>
+    </div>`;
+}
+
+// ═══════════════════════════════════════════════════════════════
+// VIEWS
+// ═══════════════════════════════════════════════════════════════
+function renderKPI(){
+  const el=document.getElementById('kpiRow');
+  if(!el)return;
+  const s=S.sellers.filter(x=>x.revenue>0);
+  if(!s.length){el.innerHTML='';return;}
+  const totR=s.reduce((a,x)=>a+x.revenue,0);
+  const totU=s.reduce((a,x)=>a+x.units,0);
+  const aspA=totU>0?totR/totU:0;
+  const vsA=s.length?avg(s.map(x=>x.revVs)):0;
+  const d=s.filter(x=>x.tier==='D').length;
+  const defs=[
+    {l:'Виторг',v:fmt(totR)+' ₴',s:'за поточний період',a:'var(--blue)'},
+    {l:'Штуки',v:fmt(totU),s:'продаж',a:'var(--purple)'},
+    {l:'Сер. чек',v:fmt(aspA)+' ₴',s:'грн на шт.',a:'var(--green)'},
+    {l:'Vs бенчмарк',v:pct(vsA),s:'виторг до ср. маг.',a:vsA>=0?'var(--green)':'var(--red)'},
+    {l:'Продавців',v:String(s.length),s:`тир D: ${d}`,a:d>0?'var(--red)':'var(--amber)'}
+  ];
+  el.innerHTML=defs.map(k=>`
+    <div class="kpi" style="--a:${k.a}">
+      <div class="kpi-l">${k.l}</div>
+      <div class="kpi-v" style="color:${k.a}">${k.v}</div>
+      <div class="kpi-s">${k.s}</div>
+    </div>`).join('');
+}
+
+function renderEmptyState(){
+  return `<div style="display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:400px;text-align:center;padding:40px">
+    <div style="width:64px;height:64px;border-radius:18px;background:var(--blue-bg);border:1px solid var(--blue-bd);display:flex;align-items:center;justify-content:center;margin-bottom:20px">
+      <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="var(--blue)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+    </div>
+    <div style="font-size:18px;font-weight:700;color:var(--t1);margin-bottom:8px">Завантажте звіт щоб почати</div>
+    <div style="font-size:14px;color:var(--t3);max-width:360px;line-height:1.6;margin-bottom:24px">Натисніть кнопку "Продажі (головний)" у бічній панелі або перетягніть файл .xlsx сюди</div>
+    <label style="display:inline-flex;align-items:center;gap:8px;padding:11px 22px;border-radius:var(--r2);background:var(--blue-bg);border:1px solid var(--blue-bd);color:var(--blue);font-size:14px;font-weight:600;cursor:pointer;font-family:'Outfit',sans-serif">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+      Обрати файл
+      <input type="file" accept=".xlsx,.xls" style="display:none" onchange="handleFile(this.files[0])">
+    </label>
+    <div style="margin-top:16px;font-size:12px;color:var(--t3)">Файл зберігається у браузері — наступного разу завантажувати не потрібно</div>
+  </div>`;
+}
+
+function renderOverview(){
+  if(!S.sellers||!S.sellers.length) return renderEmptyState();
+  const sellers=S.sellers.filter(s=>s.revenue>0&&(S.tierFilter==='all'||s.tier===S.tierFilter));
+  const pills=['all','A','B','C','D'].map(t=>`
+    <button class="pill${S.tierFilter===t?' on':''}" onclick="S.tierFilter='${t}';render()">${t==='all'?'Всі':'Тир '+t}</button>`).join('');
+
+  const sortedSellers=[...sellers].sort((a,b)=>{
+    const v=S.sortCol==='tier'?'ABCD'.indexOf(a.tier)-'ABCD'.indexOf(b.tier):
+      S.sortCol==='revVs'?a.revVs-b.revVs:
+      S.sortCol==='aspVs'?a.aspVs-b.aspVs:
+      S.sortCol==='units'?a.units-b.units:
+      S.sortCol==='asp'?a.asp-b.asp:
+      a.revenue-b.revenue;
+    return v*S.sortDir;
+  });
+  const maxR=Math.max(...sortedSellers.map(s=>s.revenue),1);
+  function sortTh(col,label,extraClass){
+    const active=S.sortCol===col;
+    const arrow=active?(S.sortDir===-1?'↓':'↑'):'';
+    const cls=(extraClass||'')+' sortable';
+    return '<th class="'+cls.trim()+'" onclick="S.sortCol=\''+col+'\';S.sortDir=S.sortCol===\''+col+'\'?-S.sortDir:-1;render()" style="cursor:pointer;user-select:none;white-space:nowrap">'+label+(active?'<span style="color:var(--blue);margin-left:3px">'+arrow+'</span>':'')+'</th>';
+  }
+  const rows=sortedSellers.map((s,i)=>`
+    <tr onclick="sellerClick('${s.name}')" style="cursor:pointer;${s.tier==='D'?'background:rgba(255,107,107,.045)':s.tier==='A'?'background:rgba(54,217,140,.035)':''}">
+      <td style="color:var(--t3);font-family:'IBM Plex Mono',monospace;font-size:12px" class="hide-mobile">${i+1}</td>
+      <td>
+        <div style="font-weight:600;font-size:13px">${s.full}</div>
+        <div style="display:flex;align-items:center;gap:6px;margin-top:3px">
+          <span class="tier ${tc(s.tier)}" style="width:20px;height:20px;font-size:10px" class="hide-desktop">${s.tier}</span>
+          <span style="font-size:11px;color:var(--t3);font-family:'IBM Plex Mono',monospace">${fmt(s.revenue)} ₴ · ${s.units} шт</span>
+        </div>
+      </td>
+      <td class="hide-mobile"><span class="tier ${tc(s.tier)}">${s.tier}</span></td>
+      <td class="hide-mobile">
+        <div class="rmono">${fmt(s.revenue)} ₴</div>
+        <div class="rbar"><div class="rbar-f" style="width:${Math.round(s.revenue/maxR*100)}%"></div></div>
+      </td>
+      <td class="rmono hide-mobile" style="color:var(--t2)">${s.units}</td>
+      <td class="rmono hide-mobile" style="color:var(--t2)">${fmt(s.asp)}</td>
+      <td>${vsBar(s.revVs)}</td>
+      <td class="hide-mobile">${vsBar(s.aspVs)}</td>
+    </tr>`).join('');
+  return `
+    <div class="pills">${pills}</div>
+    <div class="card">
+      <div class="card-h"><span class="card-t">Рейтинг продавців</span><span style="font-size:11px;color:var(--t3)">клік → деталі</span></div>
+      <div style="overflow-x:auto">
+        <table>
+          <thead><tr><th class="hide-mobile">#</th><th>Продавець</th>${sortTh('tier','Тир')}${sortTh('revenue','Виторг ₴','hide-mobile')}${sortTh('units','Шт','hide-mobile')}${sortTh('asp','ASP','hide-mobile')}${sortTh('revVs','Вир.vs')}${sortTh('aspVs','ASP vs','hide-mobile')}</tr></thead>
+          <tbody>${rows}</tbody>
+        </table>
+      </div>
+    </div>`;
+}
+
+function renderSellers(){
+  if(!S.sellers||!S.sellers.length) return renderEmptyState();
+  const sellers=S.sellers.filter(s=>s.revenue>0).sort((a,b)=>b.revenue-a.revenue);
+  const q=S.search.toLowerCase();
+  const filtered=q?sellers.filter(s=>s.full.toLowerCase().includes(q)):sellers;
+  const list=filtered.map(s=>`
+    <div class="li${S.selSeller===s.name?' sel':''}" onclick="sellerClick('${s.name}')">
+      <div style="display:flex;justify-content:space-between;align-items:center">
+        <div class="li-name">${s.full}</div>
+        <span class="tier ${tc(s.tier)}" style="width:20px;height:20px;font-size:10px">${s.tier}</span>
+      </div>
+      <div class="li-sub">${fmt(s.revenue)} ₴ · ${s.units} шт</div>
+    </div>`).join('');
+  const detail=S.selSeller?(()=>{
+    const s=sellers.find(x=>x.name===S.selSeller);
+    return s?sellerDetailHTML(s,sellers):`<div class="empty">Не знайдено</div>`;
+  })():`<div class="empty">← Оберіть продавця</div>`;
+
+  return `
+    <div class="split">
+      <div>
+        <div class="search-wrap">
+          <svg class="search-icon" width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="7" cy="7" r="5"/><path d="M11 11l3 3"/></svg>
+          <input class="search" placeholder="Пошук продавця..." value="${S.search}" oninput="S.search=this.value;render()">
+        </div>
+        <div class="list-panel"><div class="list-head">Продавці</div>${list}</div>
+      </div>
+      <div class="detail-panel-wrap">${detail}</div>
+    </div>`;
+}
+
+function renderCategories(){
+  const allCats=S.cats.length?S.cats:buildCatIndex(S.sellers);
+  if(!allCats.length)return`<div class="empty">Завантажте звіт (.xlsx) для аналізу категорій</div>`;
+  const cats=S.bizFilter==='all'?allCats:allCats.filter(c=>c.biz===S.bizFilter);
+  const bizPills=['all','ДП техніка','Аксесуари'].map(b=>`
+    <button class="pill${S.bizFilter===b?' on':''}" onclick="S.bizFilter='${b}';S.selCat=null;render()">${b==='all'?'Всі бізнеси':b}</button>`).join('');
+  window._CNAMES=cats.map(c=>c.cat);
+  const list=cats.map((c,_i)=>`
+    <div class="li${S.selCat===c.cat?' sel':''}" onclick="selCatIdx(${_i})">
+      <div style="display:flex;justify-content:space-between;align-items:center">
+        <div class="li-name">${c.cat}</div>
+        <span style="font-size:9px;padding:1px 5px;border-radius:3px;${c.biz==='Аксесуари'?'background:var(--purple-bg);color:var(--purple)':'background:var(--blue-bg);color:var(--blue)'}">${c.biz==='Аксесуари'?'АСС':'ДП'}</span>
+      </div>
+      <div class="li-sub">${c.sellers.length} продавців · ${c.sellers.reduce((a,s)=>a+(s.units||0),0)} шт</div>
+    </div>`).join('');
+  let detail=`<div class="empty">← Оберіть категорію</div>`;
+  if(S.selCat){
+    const c=allCats.find(x=>x.cat===S.selCat);
+    if(c){
+      const sorted=[...c.sellers].sort((a,b)=>b.rev-a.rev);
+      const maxU=Math.max(...sorted.map(s=>s.units||0),1);
+      const rows=sorted.map((s,i)=>`
+        <div style="display:flex;align-items:center;gap:8px;padding:9px 14px;border-bottom:1px solid var(--bd)">
+          <div style="font-size:11px;color:var(--t3);font-family:'IBM Plex Mono',monospace;min-width:18px">${i+1}</div>
+          <span class="tier ${tc(s.tier)}" style="width:20px;height:20px;font-size:10px">${s.tier}</span>
+          <div style="flex:1;font-size:12px;font-weight:500">${s.full||s.name}</div>
+          <div style="width:36px;text-align:center">
+            <div style="font-family:'IBM Plex Mono',monospace;font-size:12px;font-weight:600;color:var(--t1)">${s.units||0}</div>
+            <div style="height:3px;background:var(--bg4);border-radius:2px;margin-top:3px;overflow:hidden"><div style="height:3px;background:var(--blue);border-radius:2px;width:${Math.round((s.units||0)/maxU*100)}%"></div></div>
+            <div style="font-size:9px;color:var(--t3)">шт</div>
+          </div>
+          <div style="width:75px">${vsBar(s.revVs,3)}</div>
+          <div style="width:70px">${vsBar(s.aspVs,3)}</div>
+          <div class="rmono hide-mobile" style="font-size:11px;color:var(--t2);min-width:88px;text-align:right">${fmt(s.rev)} ₴</div>
+        </div>`).join('');
+      const totRev=sorted.reduce((a,s)=>a+s.rev,0);
+      const totUnits=sorted.reduce((a,s)=>a+(s.units||0),0);
+      detail=`<div class="card">
+        <div class="card-h">
+          <div>
+            <span class="card-t">${S.selCat}</span>
+            <span style="margin-left:8px;font-size:9px;padding:1px 6px;border-radius:3px;${c.biz==='Аксесуари'?'background:var(--purple-bg);color:var(--purple)':'background:var(--blue-bg);color:var(--blue)'}">${c.biz}</span>
+          </div>
+          <span style="font-size:11px;color:var(--t3)">${fmt(totUnits)} шт · ${fmt(totRev)} ₴</span>
+        </div>
+        <div style="padding:7px 14px;border-bottom:1px solid var(--bd);display:flex;gap:8px;font-size:9px;color:var(--t3);font-weight:700;letter-spacing:1px;text-transform:uppercase">
+          <div style="min-width:38px"></div><div style="flex:1">Продавець</div>
+          <div style="width:36px;text-align:center">Шт</div>
+          <div style="width:75px">Вир.vs</div><div style="width:70px">ASP vs</div>
+          <div class="hide-mobile" style="min-width:88px;text-align:right">Виторг ₴</div>
+        </div>
+        <div>${rows}</div>
+      </div>`;
+    }
+  }
+  return `
+    <div class="pills">${bizPills}</div>
+    <div class="split"><div class="list-panel"><div class="list-head">Категорії</div>${list}</div><div>${detail}</div></div>`;
+}
+
+function renderPlan(){
+  const sellers=S.sellers.filter(s=>s.revenue>0).sort((a,b)=>b.revenue-a.revenue);
+  const list=sellers.map(s=>`
+    <div class="li${S.selSeller===s.name?' sel':''}" onclick="planSelClick('${s.name}')">
+      <div style="display:flex;justify-content:space-between;align-items:center">
+        <div class="li-name">${s.full}</div>
+        <span class="tier ${tc(s.tier)}" style="width:20px;height:20px;font-size:10px">${s.tier}</span>
+      </div>
+    </div>`).join('');
+
+  let detail=`<div class="empty">← Оберіть продавця щоб переглянути план дій на тиждень</div>`;
+  if(S.selSeller){
+    const s=sellers.find(x=>x.name===S.selSeller);
+    const plan=PLANS[S.selSeller]||PLANS.default;
+    const tot=plan.reduce((a,d)=>a+d.actions.length,0);
+    const done=plan.reduce((a,d,di)=>a+d.actions.filter((_,ai)=>S.checks[`${S.selSeller}-${di}-${ai}`]).length,0);
+    const prog=tot>0?Math.round(done/tot*100):0;
+    const days=plan.map((day,di)=>{
+      const items=day.actions.map((a,ai)=>{
+        const k=`${S.selSeller}-${di}-${ai}`,dn=!!S.checks[k],ad=adef(a.type);
+        return `<div class="action${dn?' done':''}" onclick="toggleCheck('${k}')">
+          <div class="chk${dn?' on':''}">${dn?'✓':''}</div>
+          <div><span class="abadge" style="background:${ad.bg};color:${ad.color}">${ad.label}</span><div class="atxt">${a.text}</div></div>
+        </div>`;
+      }).join('');
+      const dc=day.actions.filter((_,ai)=>S.checks[`${S.selSeller}-${di}-${ai}`]).length;
+      return `<div class="day-block">
+        <div class="day-h"><span class="day-lbl">${day.day}</span><span style="font-size:10px;color:var(--t3);font-family:'IBM Plex Mono',monospace">${dc}/${day.actions.length}</span></div>
+        <div class="day-body">${items}</div>
+      </div>`;
+    }).join('');
+    detail=`
+      <div class="plan-prog-wrap">
+        <div style="display:flex;justify-content:space-between;margin-bottom:2px">
+          <span style="font-size:13px;font-weight:600">${s?.full||S.selSeller}</span>
+          <span style="font-size:11px;color:var(--t3);font-family:'IBM Plex Mono',monospace">${done}/${tot} · ${prog}%</span>
+        </div>
+        <div class="plan-prog"><div class="plan-prog-f" style="width:${prog}%"></div></div>
+        <div style="font-size:10px;color:var(--t3)">Прогрес зберігається між сесіями</div>
+      </div>
+      ${days}`;
+  }
+  return `<div class="split">
+    <div class="list-panel"><div class="list-head">Оберіть продавця</div>${list}</div>
+    <div class="detail-panel-wrap">${detail}</div>
+  </div>`;
+}
+
+function renderRhythm(){
+  const totAll=WEEK_RHYTHM.reduce((a,d)=>a+d.sections.reduce((b,s)=>b+s.tasks.length,0),0);
+  const doneAll=Object.values(S.rhythmChecks).filter(Boolean).length;
+  const progAll=totAll>0?Math.round(doneAll/totAll*100):0;
+  const wk=getWeekKey().replace('dm2_rw_','');
+  const todayIdx=new Date().getDay();
+  const dayMap={1:0,2:1,3:2,4:3,5:4,6:5,0:6};
+  const todayRhythmIdx=dayMap[todayIdx];
+  if(Object.keys(S.rhythmOpen).length===0){
+    WEEK_RHYTHM.forEach((_,i)=>{S.rhythmOpen[i]=(i===todayRhythmIdx);});
+  }
+  const days=WEEK_RHYTHM.map((day,di)=>{
+    const dayTot=day.sections.reduce((a,s)=>a+s.tasks.length,0);
+    const dayDone=day.sections.reduce((a,s)=>a+s.tasks.filter(t=>S.rhythmChecks[t.id]).length,0);
+    const dayProg=dayTot>0?Math.round(dayDone/dayTot*100):0;
+    const isToday=di===todayRhythmIdx;
+    const isOpen=S.rhythmOpen[di]!==false;
+    const sections=day.sections.map(sec=>`
+      <div class="rday-section">
+        <div class="rday-s-title">${sec.title}</div>
+        ${sec.tasks.map(task=>{
+          const dn=!!S.rhythmChecks[task.id];
+          return `<div class="rtask${dn?' done':''}" onclick="toggleRhythm('${task.id}')">
+            <div class="chk${dn?' on':''}">${dn?'✓':''}</div>
+            <div class="rtask-txt">${task.text}</div>
+          </div>`;
+        }).join('')}
+      </div>`).join('');
+    const ex=day.example?`<div class="rexample">${day.example}</div>`:'';
+    const note=day.note?`<div class="rnote"><div class="rnote-icon">👉</div><div class="rnote-txt">${day.note}</div></div>`:'';
+    return `<div class="rday${isToday?' today':''}">
+      <div class="rday-head" onclick="S.rhythmOpen[${di}]=!S.rhythmOpen[${di}];render()" style="cursor:pointer">
+        <div class="rday-icon">${day.icon}</div>
+        <div style="flex:1">
+          <div style="display:flex;align-items:center;gap:8px">
+            <div class="rday-name">${day.day}</div>
+            ${isToday?'<span style="font-size:9px;padding:2px 7px;border-radius:4px;background:var(--blue-bg);color:var(--blue);font-weight:700;letter-spacing:.5px">СЬОГОДНІ</span>':''}
+          </div>
+          <div class="rday-focus">${day.focus}</div>
+          <div class="rday-mini-prog"><div class="rday-mini-prog-f" style="width:${dayProg}%"></div></div>
+        </div>
+        <div class="rday-prog">${dayDone}/${dayTot}</div>
+        <div class="rday-chevron${isOpen?' open':''}">▼</div>
+      </div>
+      <div class="rday-body${isOpen?'':' collapsed'}" style="max-height:${isOpen?'2000px':'0'}">${sections}${ex}${note}</div>
+    </div>`;
+  }).join('');
+
+  return `
+    <div class="week-header">
+      <div>
+        <div style="font-size:14px;font-weight:600">Менеджерський ритм тижня</div>
+        <div class="week-info">Тиждень: ${wk} · ${doneAll} з ${totAll} задач виконано</div>
+      </div>
+      <button class="week-reset" onclick="resetRhythm()">Новий тиждень</button>
+    </div>
+    <div class="week-progress">
+      <div>
+        <div style="font-size:12px;font-weight:500">Загальний прогрес тижня</div>
+        <div class="wp-bar"><div class="wp-bar-f" style="width:${progAll}%"></div></div>
+      </div>
+      <div style="font-size:24px;font-weight:700;font-family:'IBM Plex Mono',monospace;color:${progAll>=70?'var(--green)':progAll>=40?'var(--amber)':'var(--red)'}">${progAll}%</div>
+    </div>
+    <div class="rhythm-grid">${days}</div>`;
+}
+
+function renderFocus(){
+  if(!S.sellers||!S.sellers.length) return renderEmptyState();
+  const active=S.sellers.filter(s=>s.revenue>0).sort((a,b)=>a.revVs-b.revVs);
+  const urgent=active.filter(s=>s.tier==='D');
+  const aspWeak=active.filter(s=>s.aspVs<-.1&&s.tier!=='D').slice(0,3);
+  const stars=active.filter(s=>s.revVs>.3&&s.tier==='A').slice(0,2);
+  const allC={};
+  S.sellers.forEach(s=>(s.cats||[]).forEach(c=>{
+    if(!allC[c.cat])allC[c.cat]={cat:c.cat,total:0};
+    allC[c.cat].total+=c.rev;
+  }));
+  const topC=Object.values(allC).sort((a,b)=>b.total-a.total).slice(0,5);
+
+  const pairs=[];
+  S.sellers.forEach(s=>(s.cats||[]).forEach(c=>{if(c.revVs>1.5&&c.rev>5000)pairs.push({seller:s.full,name:s.name,cat:c.cat,revVs:c.revVs,rev:c.rev,units:c.units||0});}));
+  pairs.sort((a,b)=>b.revVs-a.revVs);
+  const medals=['🥇','🥈','🥉','⭐','⭐'];
+
+  const fc=(title,badge,bsty,items,empty)=>`<div>
+    <div style="font-size:10px;font-weight:700;letter-spacing:2px;color:var(--t3);text-transform:uppercase;margin-bottom:8px">${title}</div>
+    ${items.length?items.map(it=>`<div class="fc">
+      <div class="fbadge" style="${bsty}">${badge}</div>
+      <div class="fname">${it.full||it.name}</div>
+      <div class="fsub">${it.sub}</div>
+      ${it.link?`<span class="flink" onclick="${it.link}">Відкрити план дій →</span>`:''}
+    </div>`).join(''):`<div class="fc"><div style="color:var(--t3);font-size:12px">${empty}</div></div>`}
+  </div>`;
+
+  return `<div class="focus-grid">
+    ${fc('Термінові дії','Тир D · Увага','background:var(--red-bg);color:var(--red)',
+      urgent.map(s=>({...s,sub:`Виторг нижче бенчм. на ${pct(Math.abs(s.revVs))}. Особиста бесіда — сьогодні.`,
+        link:`go('plan');S.selSeller='${s.name}';render()`})),'Немає критичних ситуацій')}
+    ${fc('Низький ASP','Увага ASP','background:var(--amber-bg);color:var(--amber)',
+      aspWeak.map(s=>({...s,sub:`ASP vs: ${pct(s.aspVs)}. Рекомендація: тренінг апселлу цього тижня`})),'ASP в нормі')}
+    ${fc('Лідери → наставники','Тир A · Лідер','background:var(--green-bg);color:var(--green)',
+      stars.map(s=>({...s,sub:`Виторг ${pct(s.revVs)} vs бенчм. Може навчати продавців тиру D`})),'Завантажте звіт')}
+    <div>
+      <div style="font-size:10px;font-weight:700;letter-spacing:2px;color:var(--t3);text-transform:uppercase;margin-bottom:8px">Топ категорії</div>
+      <div class="card">
+        ${topC.length?topC.map((c,i)=>`<div style="display:flex;align-items:center;gap:10px;padding:9px 16px;border-bottom:1px solid var(--bd)">
+          <div style="font-size:11px;color:var(--t3);font-family:'IBM Plex Mono',monospace;min-width:18px">${i+1}</div>
+          <div style="flex:1;font-size:12px;font-weight:500">${c.cat}</div>
+          <div class="rmono" style="font-size:11px;color:var(--t2)">${fmt(c.total)} ₴</div>
+        </div>`).join(''):`<div class="empty" style="padding:16px">Завантажте звіт</div>`}
+      </div>
+    </div>
+  </div>`;
+}
+
+function renderMatrix(){
+  if(!S.sellers||!S.sellers.length) return renderEmptyState();
+  const sellers=S.sellers.filter(s=>s.revenue>0).sort((a,b)=>b.revenue-a.revenue);
+  if(!sellers.length)return`<div class="empty">Завантажте звіт для відображення матриці</div>`;
+
+  const catSet=new Map();
+  sellers.forEach(s=>(s.cats||[]).forEach(c=>{
+    if(S.bizFilter==='all'||c.biz===S.bizFilter)
+      if(!catSet.has(c.cat))catSet.set(c.cat,{cat:c.cat,biz:c.biz,totalRev:0});
+    if(catSet.has(c.cat))catSet.get(c.cat).totalRev+=c.rev;
+  }));
+  const cats=[...catSet.values()].sort((a,b)=>b.totalRev-a.totalRev).slice(0,16);
+
+  function cellColor(v){
+    if(v==null)return{bg:'var(--bg4)',fg:'var(--t3)'};
+    if(v>=1.5)return{bg:'#064e3b',fg:'#34d399'};
+    if(v>=0.5)return{bg:'#065f46',fg:'#6ee7b7'};
+    if(v>=0.1)return{bg:'#0d3d26',fg:'#86efac'};
+    if(v>=-0.1)return{bg:'var(--bg3)',fg:'var(--t2)'};
+    if(v>=-0.5)return{bg:'#450a0a',fg:'#fca5a5'};
+    if(v>=-0.8)return{bg:'#7f1d1d',fg:'#f87171'};
+    return{bg:'#991b1b',fg:'#fecaca'};
+  }
+
+  const bizPills=['all','ДП техніка','Аксесуари'].map(b=>`
+    <button class="pill${S.bizFilter===b?' on':''}" onclick="S.bizFilter='${b}';render()">${b==='all'?'Всі бізнеси':b}</button>`).join('');
+
+  const header=`<tr><th style="position:sticky;left:0;background:var(--bg2);z-index:3;min-width:110px">Продавець</th>${cats.map(c=>`<th style="max-width:54px;overflow:hidden;writing-mode:vertical-lr;transform:rotate(180deg);height:90px;padding:6px 4px;vertical-align:bottom">${c.cat}</th>`).join('')}</tr>`;
+
+  const rows=sellers.map(s=>{
+    const catMap={};
+    (s.cats||[]).forEach(c=>{catMap[c.cat]=c.revVs;});
+    const cells=cats.map(c=>{
+      const v=catMap[c.cat];
+      if(v==null)return`<td class="mc mc-none mc-tip">—<div class="tip-box"><div class="tip-line"><b>${s.full}</b></div><div class="tip-line">${c.cat}</div><div class="tip-line">Немає продажів</div></div></td>`;
+      const{bg,fg}=cellColor(v);
+      const catData=(s.cats||[]).find(cx=>cx.cat===c.cat);
+      const tipRev=catData?fmt(catData.rev)+' ₴':'—';
+      const tipUnits=catData?catData.units+' шт':'—';
+      return`<td class="mc mc-tip" style="background:${bg};color:${fg}">${v>=0?'+':''}${Math.round(v*100)}%<div class="tip-box"><div class="tip-line"><b>${s.full}</b></div><div class="tip-line">${c.cat}</div><div class="tip-line">Виторг: <b>${tipRev}</b></div><div class="tip-line">Штуки: <b>${tipUnits}</b></div><div class="tip-line">vs бенчм.: <b>${v>=0?'+':''}${Math.round(v*100)}%</b></div></div></td>`;
+    }).join('');
+    return`<tr><td class="rh"><div style="font-size:12px;font-weight:600">${s.full}</div><div style="font-size:10px;color:var(--t3)">${pct(s.revVs)} загалом</div></td>${cells}</tr>`;
+  }).join('');
+
+  return`
+    <div class="pills">${bizPills}</div>
+    <div class="matrix-wrap">
+      <table class="matrix-table">
+        <thead>${header}</thead>
+        <tbody>${rows}</tbody>
+      </table>
+    </div>`;
+}
+
+function renderInsights(){
+  if(!S.sellers||!S.sellers.length) return renderEmptyState();
+  const sellers=S.sellers.filter(s=>s.revenue>0).sort((a,b)=>b.revenue-a.revenue);
+  if(!sellers.length)return`<div class="empty">Завантажте звіт для автоматичного аналізу</div>`;
+
+  const totRev=sellers.reduce((a,s)=>a+s.revenue,0);
+  const totUnits=sellers.reduce((a,s)=>a+s.units,0);
+  const aspLeader=sellers.slice().sort((a,b)=>b.aspVs-a.aspVs)[0];
+  const revLeader=sellers[0];
+
+  const ic=(label,main,sub,color)=>`<div class="insight-card" style="border-left-color:${color}">
+    <div class="insight-label">${label}</div>
+    <div class="insight-main">${main}</div>
+    <div class="insight-sub">${sub}</div>
+  </div>`;
+
+  return`
+    <div class="insight-grid">
+      ${ic('Виторг магазину',`${fmt(totRev)} ₴`,`${fmt(totUnits)} шт · середній чек ${fmt(totRev/totUnits)} ₴`,'var(--blue)')}
+      ${ic('Лідер виторгу',revLeader.full,`${fmt(revLeader.revenue)} ₴ · ${revLeader.units} шт · ASP ${fmt(revLeader.asp)}`,'var(--green)')}
+      ${ic('ASP лідер',aspLeader.full,`Середній чек ${fmt(aspLeader.asp)} ₴ · ${pct(aspLeader.aspVs)} vs бенчм.`,'var(--purple)')}
+    </div>`;
+}
+
+function renderQuality(){
+  return `<div class="card" style="padding:24px"><div style="font-size:16px;font-weight:600;margin-bottom:8px">Якість продажів</div><div style="font-size:13px;color:var(--t2)">Завантажте додатковий файл АСС для перегляду аналітики проникнення.</div></div>`;
+}
+
+// ── MEETINGS 1:1 ─────────────────────────────────────────────
+const SELLER_COLORS={
+  'Зуєва О.':'#059669','Кисельов Д.':'#2563eb','Гаврихів Р.':'#0891b2',
+  'Пачковський І.':'#7c3aed','Фесенко Я.':'#0f766e','Дудник А.':'#db2777',
+  'Бугас Д.':'#b45309','Куценко М.':'#dc2626','Устинова Л.':'#4f46e5',
+  'Міщук А.':'#6b7280','Переяслов М.':'#d97706'
+};
+
+const M_SCHEDULE={
+  A:{'Пн':['Зуєва О.'],'Вт':['Кисельов Д.','Гаврихів Р.'],'Ср':[],'Чт':[],'Пт':['Пачковський І.','Фесенко Я.'],'Сб':['Дудник А.'],'Нд':[]},
+  B:{'Пн':['Бугас Д.'],'Вт':['Куценко М.','Устинова Л.'],'Ср':[],'Чт':[],'Пт':['Міщук А.'],'Сб':[],'Нд':[]}
+};
+const M_OFF_DAYS=['Ср','Чт'];
+
+let M_LOGS=[];
+let M_DONE={};
+let M_EDIT_ID=null;
+
+function mLoadData(){
+  try{
+    const l=localStorage.getItem('dm2_1to1_logs');if(l)M_LOGS=JSON.parse(l);
+    const d=localStorage.getItem('dm2_1to1_done');if(d)M_DONE=JSON.parse(d);
+  }catch(e){}
+}
+function mSaveData(){
+  try{
+    localStorage.setItem('dm2_1to1_logs',JSON.stringify(M_LOGS));
+    localStorage.setItem('dm2_1to1_done',JSON.stringify(M_DONE));
+    saveToCloudState('dm2_1to1_logs', M_LOGS);
+    saveToCloudState('dm2_1to1_done', M_DONE);
+  }catch(e){}
+}
+
+function mSellerInitials(name){return name.split(' ').map(w=>w[0]).join('').slice(0,2);}
+
+function mToggleDone(key,btn){
+  M_DONE[key]=!M_DONE[key];
+  if(btn)btn.classList.toggle('done',!!M_DONE[key]);
+  mSaveData();
+}
+
+function mOpenModal(sellerName){
+  M_EDIT_ID=null;
+  const sel=document.getElementById('m-f-seller');
+  if(sel){
+    const allSellers=S.sellers.length?S.sellers.map(s=>s.name):Object.keys(SELLER_COLORS);
+    sel.innerHTML=allSellers.map(s=>`<option value="${s}">${s}</option>`).join('');
+    if(sellerName)sel.value=sellerName;
+  }
+  document.getElementById('m-f-date').value=new Date().toISOString().split('T')[0];
+  document.getElementById('m-f-discuss').value='';
+  document.getElementById('m-f-agree').value='';
+  document.getElementById('m-f-deadline').value='';
+  document.getElementById('m-modal').classList.remove('hidden');
+}
+
+function mCloseModal(){document.getElementById('m-modal').classList.add('hidden');M_EDIT_ID=null;}
+
+function mSaveLog(){
+  const seller=document.getElementById('m-f-seller').value;
+  const date=document.getElementById('m-f-date').value;
+  const discuss=document.getElementById('m-f-discuss').value.trim();
+  const agree=document.getElementById('m-f-agree').value.trim();
+  const deadline=document.getElementById('m-f-deadline').value.trim();
+  if(!seller||!date)return;
+  if(M_EDIT_ID){
+    const idx=M_LOGS.findIndex(l=>l.id===M_EDIT_ID);
+    if(idx>=0)M_LOGS[idx]={...M_LOGS[idx],seller,date,discuss,agree,deadline};
+  }else{
+    M_LOGS.push({id:Date.now().toString(),seller,date,discuss,agree,deadline});
+  }
+  mSaveData();
+  mCloseModal();
+  render();
+}
+
+function mDeleteLog(id){
+  if(!confirm('Видалити запис?'))return;
+  M_LOGS=M_LOGS.filter(l=>l.id!==id);
+  mSaveData();
+  render();
+}
+
+function mRenderLogEntry(log){
+  const d=new Date(log.date).toLocaleDateString('uk-UA',{day:'numeric',month:'short',year:'numeric'});
+  const color=SELLER_COLORS[log.seller]||'#5b9bff';
+  return`<div class="log-entry">
+    <div class="log-header">
+      <div class="sched-avatar" style="background:${color};width:28px;height:28px;font-size:10px;flex-shrink:0">${mSellerInitials(log.seller)}</div>
+      <div class="log-emp-name">${log.seller}</div>
+      <span class="log-date-badge">${d}</span>
+      <button class="log-del" onclick="mDeleteLog('${log.id}')" title="Видалити">✕</button>
+    </div>
+    ${log.discuss?`<div class="log-section">💬 Обговорили</div><div class="log-text">${log.discuss}</div>`:''}
+    ${log.agree?`<div class="log-section">🤝 Домовились</div><div class="log-text">${log.agree}</div>`:''}
+    ${log.deadline?`<div><span class="log-deadline">📅 Дедлайн: ${log.deadline}</span></div>`:''}
+  </div>`;
+}
+
+function renderMeetings(){
+  const sorted=[...M_LOGS].sort((a,b)=>new Date(b.date)-new Date(a.date));
+  const entries=sorted.length
+    ?sorted.map(l=>mRenderLogEntry(l)).join('')
+    :`<div class="empty" style="padding:48px">Ще немає жодного запису 1:1.<br>Проведи першу зустріч і додай нотатку!</div>`;
+  return`
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
+      <div style="font-size:16px;font-weight:700">Журнал зустрічей 1:1</div>
+      <button onclick="mOpenModal()" style="padding:8px 16px;border-radius:var(--r);background:var(--blue-bg);border:1px solid var(--blue-bd);color:var(--blue);font-size:13px;font-weight:600;cursor:pointer">+ Новий запис</button>
+    </div>
+    ${entries}`;
+}
+
+// ═══════════════════════════════════════════════════════════════
+// GLOBAL ACTIONS
+// ═══════════════════════════════════════════════════════════════
+function toggleTheme(){
+  S.theme=S.theme==='dark'?'light':'dark';
+  applyTheme();
+  saveState();
+}
+function applyTheme(){
+  document.documentElement.setAttribute('data-theme',S.theme==='light'?'light':'');
+  const isDark=S.theme==='dark';
+  const icon=isDark?'☀️':'🌙';
+  const label=isDark?'Світла тема':'Темна тема';
+  const ti=document.getElementById('themeIcon');if(ti)ti.textContent=icon;
+  const tl=document.getElementById('themeLabel');if(tl)tl.textContent=label;
+  const mb=document.getElementById('mobThemeBtn');if(mb)mb.textContent=icon;
+}
+
+function sellerClick(name){
+  if(isMobile()){S.selSeller=name;openMobOverlay(name);}
+  else{S.selSeller=S.selSeller===name?null:name;if(S.view==='overview'){S.view='sellers';}render();}
+}
+function selCatIdx(idx){
+  const cat=window._CNAMES?window._CNAMES[idx]:null;
+  if(!cat)return;
+  S.selCat=S.selCat===cat?null:cat;
+  render();
+}
+function planSelClick(name){S.selSeller=S.selSeller===name?null:name;render();}
+
+function openMobOverlay(name){
+  const sellers=S.sellers.filter(s=>s.revenue>0).sort((a,b)=>b.revenue-a.revenue);
+  const s=sellers.find(x=>x.name===name);
+  if(!s)return;
+  document.getElementById('mobOverlayContent').innerHTML=sellerDetailHTML(s,sellers);
+  document.getElementById('mobOverlay').classList.add('visible');
+}
+function closeMobOverlay(){document.getElementById('mobOverlay').classList.remove('visible');}
+
+function toggleCheck(k){
+  S.checks[k]=!S.checks[k];
+  saveState();
+  render();
+}
+function toggleRhythm(id){
+  S.rhythmChecks[id]=!S.rhythmChecks[id];
+  saveState();
+  render();
+}
+function resetRhythm(){
+  if(confirm('Скинути прогрес тижня?')){
+    S.rhythmChecks={};
+    saveState();
+    render();
+  }
+}
+
+function render(){
+  renderKPI();
+  const titles={overview:'Огляд магазину',sellers:'Продавці',categories:'Категорії',plan:'План дій',rhythm:'Ритм тижня',focus:'Фокус дня',matrix:'Матриця продавців',insights:'Автоінсайти',quality:'Якість продажів',meetings:'Зустрічі 1:1'};
+  const pt=document.getElementById('pageTitle');if(pt)pt.textContent=titles[S.view]||'';
+  const el=document.getElementById('content');
+  if(!el)return;
+  if(S.view==='overview')el.innerHTML=renderOverview();
+  else if(S.view==='sellers')el.innerHTML=renderSellers();
+  else if(S.view==='categories')el.innerHTML=renderCategories();
+  else if(S.view==='plan')el.innerHTML=renderPlan();
+  else if(S.view==='rhythm')el.innerHTML=renderRhythm();
+  else if(S.view==='focus')el.innerHTML=renderFocus();
+  else if(S.view==='matrix')el.innerHTML=renderMatrix();
+  else if(S.view==='insights')el.innerHTML=renderInsights();
+  else if(S.view==='quality')el.innerHTML=renderQuality();
+  else if(S.view==='meetings')el.innerHTML=renderMeetings();
+}
+
+function go(v){
+  S.view=v;S.selSeller=null;S.selCat=null;
+  document.querySelectorAll('[data-v]').forEach(el=>el.classList.toggle('active',el.dataset.v===v));
+  render();
+}
+
+function saveState(){
+  try{
+    localStorage.setItem('dm2_checks_v3',JSON.stringify(S.checks));
+    localStorage.setItem(getWeekKey(),JSON.stringify(S.rhythmChecks));
+    localStorage.setItem('dm2_theme',S.theme);
+    saveToCloudState('dm2_checks_v3', S.checks);
+    saveToCloudState(getWeekKey(), S.rhythmChecks);
+  }catch(e){}
+}
+
+function saveFileData(){
+  try{
+    if(S.sellers&&S.sellers.length){
+      localStorage.setItem('dm2_filedata_v1',JSON.stringify({sellers:S.sellers,cats:S.cats}));
+    }
+  }catch(e){}
+}
+
+function clearFileData(){
+  localStorage.removeItem('dm2_filedata_v1');
+  localStorage.removeItem('dm2_checks_v3');
+  localStorage.removeItem('dm2_1to1_logs');
+}
+
+function loadState(){
+  try{
+    const c=localStorage.getItem('dm2_checks_v3');if(c)S.checks=JSON.parse(c);
+    const r=localStorage.getItem(getWeekKey());if(r)S.rhythmChecks=JSON.parse(r);
+    const t=localStorage.getItem('dm2_theme');if(t)S.theme=t;
+  }catch(e){}
+}
+
+function loadFileData(){
+  try{
+    const fd=localStorage.getItem('dm2_filedata_v1');
+    if(fd){
+      const parsed=JSON.parse(fd);
+      if(parsed.sellers&&parsed.sellers.length){
+        S.sellers=assignTiers(parsed.sellers);
+        S.cats=parsed.cats||buildCatIndex(S.sellers);
+        return true;
+      }
+    }
+  }catch(e){}
+  return false;
+}
+
+function handleFile(file){
+  if(!file)return;
+  toast('Читаємо файл...','info');
+  const reader=new FileReader();
+  reader.onload=ev=>{
+    try{
+      const{sellers,cats,period}=parseFile(new Uint8Array(ev.target.result));
+      if(!sellers.length){toast('Файл порожній або невірний формат','err');return;}
+      S.sellers=sellers;S.cats=cats;
+      saveFileData();
+      toast('Файл завантажено!','ok');
+      render();
+    }catch(e){toast('Помилка файлу: '+e.message,'err');}
+  };
+  reader.readAsArrayBuffer(file);
+}
+
+// ═══════════════════════════════════════════════════════════════
+// INIT
+// ═══════════════════════════════════════════════════════════════
+loadState();
+mLoadData();
+applyTheme();
+loadFileData();
+
+const savedCloudUrl = localStorage.getItem('dm2_cloud_url');
+if (savedCloudUrl) {
+  const input = document.getElementById('cloudScriptUrl');
+  if (input) input.value = savedCloudUrl;
+  loadFromCloud();
+} else {
+  render();
+}
+
+['fileInput','fileInputMob'].forEach(id=>{
+  const el=document.getElementById(id);
+  if(el)el.addEventListener('change',e=>{handleFile(e.target.files[0]);e.target.value='';});
+});
+</script>
+
+<!-- ═══ MEETINGS 1:1 MODAL ═══ -->
+<div class="m-modal hidden" id="m-modal" onclick="if(event.target===this)mCloseModal()">
+  <div class="m-modal-box">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
+      <div style="font-size:17px;font-weight:700;color:var(--t1)">Запис 1:1</div>
+      <button onclick="mCloseModal()" style="font-size:18px;color:var(--t3);border:none;background:transparent;cursor:pointer;line-height:1">✕</button>
+    </div>
+    <label class="m-form-label">Продавець</label>
+    <select id="m-f-seller" class="m-select"></select>
+    <label class="m-form-label">Дата зустрічі</label>
+    <input type="date" id="m-f-date" class="m-input">
+    <label class="m-form-label">💬 Що обговорили</label>
+    <textarea id="m-f-discuss" class="m-textarea" placeholder="Теми, ситуації, що аналізували..."></textarea>
+    <label class="m-form-label">🤝 Про що домовились</label>
+    <textarea id="m-f-agree" class="m-textarea" placeholder="Конкретні кроки, задачі..."></textarea>
+    <label class="m-form-label">📅 Дедлайн (необов'язково)</label>
+    <input type="text" id="m-f-deadline" class="m-input" placeholder="До п'ятниці провести тренінг">
+    <div class="m-btn-row">
+      <button class="m-btn m-btn-cancel" onclick="mCloseModal()">Скасувати</button>
+      <button class="m-btn m-btn-primary" onclick="mSaveLog()">Зберегти</button>
+    </div>
+  </div>
+</div>
+
+</body>
+</html>
