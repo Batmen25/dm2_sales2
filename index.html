@@ -926,7 +926,7 @@ const SUPABASE_URL = 'https://xtvxgubscrxzyiploiqw.supabase.co/rest/v1/';
 const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inh0dnhndWJzY3J4enlpcGxvaXF3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTIzMjY4MjUsImV4cCI6MjEwNzkwMjgyNX0.gWLWZILyZ7wTxtQvHi8GQe6XpQbKVWS-vxURI5Np3s0';
 
 let _supabase = null;
-if (SUPABASE_URL !== 'https://xtvxgubscrxzyiploiqw.supabase.co/rest/v1/' && typeof supabase !== 'undefined') {
+if (SUPABASE_URL !== 'YOUR_SUPABASE_PROJECT_URL' && typeof supabase !== 'undefined') {
   _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 }
 
