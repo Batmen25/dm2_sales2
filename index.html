@@ -50,7 +50,7 @@ html,body{height:100%;background:var(--bg0);color:var(--t1);font-family:'Outfit'
 .up-zone:hover,.up-zone.drag{background:var(--blue-bg);border-color:var(--blue-bd)}
 .up-zone input{display:none}
 .sb-keys{font-size:11px;color:var(--t3);text-align:center;margin-top:10px;line-height:1.5;opacity:.7}
-.sb-clear{font-size:11px;color:var(--t3);text-align:center;margin-top:6px;cursor:pointer;opacity:.6;transition:opacity .15s;text-decoration:none;display:block}
+.sb-clear{font-size:11px;color:var(--t3);text-align:center;margin-top:6px;cursor:pointer;opacity:.6;transition:opacity .15s;text-decoration:none;display:block;background:none;border:none;width:100%}
 .sb-clear:hover{opacity:1;color:var(--red)}
 .sync-status{display:flex;align-items:center;gap:6px;font-size:11px;color:var(--t3);margin-top:8px;padding:6px 10px;border-radius:6px;background:var(--bg3);border:1px solid var(--bd)}
 .sync-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0;transition:background .3s}
@@ -502,8 +502,9 @@ tbody tr:hover td{background:var(--bg3)}
     <div class="sb-keys">Клавіші 1–9 для навігації</div>
     <div class="sync-status" id="syncStatus" onclick="manualSync()" style="cursor:pointer;user-select:none" title="Натисни для ручної синхронізації">
   <div class="sync-dot idle" id="syncDot"></div>
-  <span id="syncLabel">Хмара не підключена</span>
+  <span id="syncLabel">GitHub Gist не підключений</span>
 </div>
+<button class="sb-clear" onclick="configureGistCreds()" title="Налаштування GitHub Gist" style="margin-top:8px;color:var(--blue)">⚙️ Налаштувати Gist API</button>
 <button class="sb-clear" onclick="if(confirm('Очистити збережені файли?')){clearFileData();location.reload();}" title="Очистити кеш файлів">🗑 Очистити збережені дані</button>
   </div>
 </aside>
@@ -944,7 +945,6 @@ function parseFile(ab){
   const wb=XLSX.read(ab,{type:'array'});
   const ws=wb.Sheets[wb.SheetNames[0]];
   const rows=XLSX.utils.sheet_to_json(ws,{header:1,defval:''});
-  // Extract period from header rows (row 15-17 contain dates like "01.04.26 - 19.04.26")
   let filePeriod='';
   for(let i=0;i<25;i++){
     for(let c=0;c<9;c++){
@@ -956,7 +956,6 @@ function parseFile(ab){
     }
     if(filePeriod)break;
   }
-  // Also look at file header row 0 for report title with date
   if(!filePeriod){
     const r0=String(rows[0]?rows[0][0]:'');
     const m=r0.match(/\d{2}\.\d{2}\.\d{4}/);
@@ -1016,7 +1015,6 @@ function sellerDetailHTML(s,sellers){
     ${vsBar(v,2.5)}
   </div>`;
 
-  // Summary by biz
   const dp=s.cats.filter(c=>c.biz!=='Аксесуари');
   const acc=s.cats.filter(c=>c.biz==='Аксесуари');
   const dpR=dp.reduce((a,c)=>a+c.rev,0),dpU=dp.reduce((a,c)=>a+(c.units||0),0);
@@ -1321,10 +1319,9 @@ function renderRhythm(){
   const doneAll=Object.values(S.rhythmChecks).filter(Boolean).length;
   const progAll=totAll>0?Math.round(doneAll/totAll*100):0;
   const wk=getWeekKey().replace('dm2_rw_','');
-  const todayIdx=new Date().getDay();// 0=Sun,1=Mon,...
-  const dayMap={1:0,2:1,3:2,4:3,5:4,6:5,0:6};// map to WEEK_RHYTHM index
+  const todayIdx=new Date().getDay();
+  const dayMap={1:0,2:1,3:2,4:3,5:4,6:5,0:6};
   const todayRhythmIdx=dayMap[todayIdx];
-  // Init open state: today open, others closed (only on first render)
   if(Object.keys(S.rhythmOpen).length===0){
     WEEK_RHYTHM.forEach((_,i)=>{S.rhythmOpen[i]=(i===todayRhythmIdx);});
   }
@@ -1396,7 +1393,6 @@ function renderFocus(){
   }));
   const topC=Object.values(allC).sort((a,b)=>b.total-a.total).slice(0,5);
 
-  // Star pairs: best seller+cat combos
   const pairs=[];
   S.sellers.forEach(s=>(s.cats||[]).forEach(c=>{if(c.revVs>1.5&&c.rev>5000)pairs.push({seller:s.full,name:s.name,cat:c.cat,revVs:c.revVs,rev:c.rev,units:c.units||0});}));
   pairs.sort((a,b)=>b.revVs-a.revVs);
@@ -1453,7 +1449,6 @@ function renderMatrix(){
   const sellers=S.sellers.filter(s=>s.revenue>0).sort((a,b)=>b.revenue-a.revenue);
   if(!sellers.length)return`<div class="empty">Завантажте звіт для відображення матриці</div>`;
 
-  // Collect all unique categories (filtered by biz)
   const catSet=new Map();
   sellers.forEach(s=>(s.cats||[]).forEach(c=>{
     if(S.bizFilter==='all'||c.biz===S.bizFilter)
@@ -1485,7 +1480,6 @@ function renderMatrix(){
       const v=catMap[c.cat];
       if(v==null)return`<td class="mc mc-none mc-tip">—<div class="tip-box"><div class="tip-line"><b>${s.full}</b></div><div class="tip-line">${c.cat}</div><div class="tip-line">Немає продажів</div></div></td>`;
       const{bg,fg}=cellColor(v);
-      // Find rev and units from seller cats
       const catData=(s.cats||[]).find(cx=>cx.cat===c.cat);
       const tipRev=catData?fmt(catData.rev)+' ₴':'—';
       const tipUnits=catData?catData.units+' шт':'—';
@@ -1532,21 +1526,18 @@ function renderInsights(){
   const revLeader=sellers[0];
   const unitsLeader=sellers.slice().sort((a,b)=>b.units-a.units)[0];
 
-  // Best and worst category-seller pairs
   const pairs=[];
   sellers.forEach(s=>(s.cats||[]).forEach(c=>{if(c.rev>3000)pairs.push({seller:s.full,sname:s.name,cat:c.cat,revVs:c.revVs,rev:c.rev,units:c.units||0,asp:c.rev/(c.units||1)});}));
   pairs.sort((a,b)=>b.revVs-a.revVs);
   const bestPair=pairs[0];
   const worstPair=[...pairs].sort((a,b)=>a.revVs-b.revVs)[0];
 
-  // Category totals
   const catTotals={};
   sellers.forEach(s=>(s.cats||[]).forEach(c=>{if(!catTotals[c.cat])catTotals[c.cat]={rev:0,units:0};catTotals[c.cat].rev+=c.rev;catTotals[c.cat].units+=(c.units||0);}));
   const catArr=Object.entries(catTotals).map(([cat,v])=>({cat,...v,asp:v.units>0?v.rev/v.units:0})).sort((a,b)=>b.rev-a.rev);
   const topCat=catArr[0],bottomCat=catArr[catArr.length-1];
   const highAspCat=catArr.slice().sort((a,b)=>b.asp-a.asp)[0];
 
-  // Tier distribution
   const tiers={A:0,B:0,C:0,D:0};
   sellers.forEach(s=>tiers[s.tier]=(tiers[s.tier]||0)+1);
   const avgVs=sellers.reduce((a,s)=>a+s.revVs,0)/sellers.length;
@@ -1601,12 +1592,8 @@ function parseAccFile(ab){
   const g=(r,c)=>{const v=rows[r]?rows[r][c]:null;return(v===null||v===undefined||String(v).trim()===''||String(v).trim()==='nan')?null:parseFloat(v)||null;};
   const gs=(r,c)=>{const v=rows[r]?rows[r][c]:null;return(v===null||v===undefined)?'':String(v).trim();};
 
-  // Find dynamic row offsets by searching for key headers
-  // IMPORTANT: keywords are in column 1, not column 0
-  // Column 0 always contains "Регіон / Магазини" or seller names
   function findRow(keyword,maxRow=400){
     for(let i=0;i<maxRow;i++){
-      // Search columns 0-3 to be robust
       for(let c=0;c<4;c++){
         const v=gs(i,c);
         if(v.includes(keyword))return i;
@@ -1638,7 +1625,6 @@ function parseAccFile(ab){
     'Міщук Анастасія Володимирівна':'Міщук А.',
   };
 
-  // Build seller list from the plan section
   const sellerRows={};
   if(planHead>=0){
     for(let i=planHead+5;i<planHead+20;i++){
@@ -1650,9 +1636,7 @@ function parseAccFile(ab){
   }
   const sellerNames=Object.keys(SELLER_MAP);
 
-  // Helper: get seller row in a section (section starts at dm2+1)
   function sectionRows(headRow){
-    // find DM2 row from headRow
     let dm2=headRow+2;
     for(let i=headRow+1;i<headRow+6;i++){
       if(gs(i,0).includes('ДМ2')){dm2=i;break;}
@@ -1673,12 +1657,10 @@ function parseAccFile(ab){
   const tv=tvHead>=0?sectionRows(tvHead):{avgRow:-1,dm2Row:-1,sellers:{}};
   const wm=wmHead>=0?sectionRows(wmHead):{avgRow:-1,dm2Row:-1,sellers:{}};
 
-  // Extract period from ACC file header (row 0 has "Щоденний звіт магазинів по АСС і Home на 20.04.2026 11:25")
   const headerStr=gs(0,0);
   const dateMatch=headerStr.match(/(\d{2}\.\d{2}\.\d{4})/);
   const period=dateMatch?'Щоденний звіт АСС · '+dateMatch[1]:headerStr.replace('Щоденний звіт магазинів по АСС і Home на ','').replace('Щоденний звіт магазинів по АСС і Home','').trim()||'';
 
-  // Benchmarks
   const bench={
     sm_avg:{qty:g(sm.avgRow,1),cover:g(sm.avgRow,2),glass:g(sm.avgRow,3)},
     sm_dm2:{qty:g(sm.dm2Row,1),cover:g(sm.dm2Row,2),glass:g(sm.dm2Row,3)},
@@ -1735,13 +1717,11 @@ async function fetchGoogleSheet(){
 
   toast('Завантажуємо Google Sheets...','info');
 
-  // Use gviz/tq endpoint — works without CORS for public sheets
   const tqUrl=`https://docs.google.com/spreadsheets/d/${sheetId}/gviz/tq?tqx=out:json&gid=${gid}`;
   try{
     const resp=await fetch(tqUrl);
     if(!resp.ok)throw new Error(`HTTP ${resp.status}`);
     const raw=await resp.text();
-    // gviz wraps response: google.visualization.Query.setResponse({...})
     const jsonStr=raw.replace(/^[^(]+\(/,'').replace(/\);?\s*$/,'');
     const data=JSON.parse(jsonStr);
     if(!data.table)throw new Error('Немає даних у таблиці');
@@ -1749,7 +1729,6 @@ async function fetchGoogleSheet(){
     toast(`Google Sheets: ${S.gsheetData.length} рядків завантажено`,'ok');
     render();
   }catch(e){
-    // Fallback: try CSV export
     const csvUrl=`https://docs.google.com/spreadsheets/d/${sheetId}/export?format=csv&gid=${gid}`;
     try{
       const resp2=await fetch(csvUrl);
@@ -1835,7 +1814,6 @@ function renderQuality(){
     const b=ad.bench;
     const sels=ad.sellers;
 
-    // SMARTPHONES
     const smRows=sels.map(s=>`<tr>
       <td>${s.name}</td>
       ${pCell(s.sm_qty,null,'qty')}
@@ -1846,7 +1824,6 @@ function renderQuality(){
       ${pCell(s.sm_hear_tws,b.ch_dm2.hear_tws)}
     </tr>`).join('');
 
-    // LAPTOPS
     const ltRows=sels.map(s=>`<tr>
       <td>${s.name}</td>
       ${pCell(s.lt_qty,null,'qty')}
@@ -1854,7 +1831,6 @@ function renderQuality(){
       ${pCell(s.lt_mouse,b.lt_dm2.mouse)}
     </tr>`).join('');
 
-    // GAMING LAPTOPS
     const glRows=sels.map(s=>`<tr>
       <td>${s.name}</td>
       ${pCell(s.gl_qty,null,'qty')}
@@ -1862,7 +1838,6 @@ function renderQuality(){
       <td class="qty">${s.gl_gami_units!==null?Math.round(s.gl_gami_units):'—'}</td>
     </tr>`).join('');
 
-    // TVs
     const tvRows=sels.map(s=>`<tr>
       <td>${s.name}</td>
       ${pCell(s.tv_qty,null,'qty')}
@@ -1948,7 +1923,6 @@ function renderQuality(){
   const gs=S.gsheetData;
   const accFact=ad?ad.bench.acc_dm2:{};
 
-  // Google Sheets connect block
   const gsheetBlock=`
     <div class="gsheet-connect">
       <div style="font-size:10px;font-weight:700;letter-spacing:2px;color:var(--t3);text-transform:uppercase;margin-bottom:10px">Підключення Google Sheets</div>
@@ -1966,36 +1940,29 @@ function renderQuality(){
       </div>
     </div>`;
 
-  // Build revenue table
   let revenueRows='';
   const avgPct=ad?ad.bench.acc_avg.pct_fact:null;
   const dm2Pct=ad?ad.bench.acc_dm2.pct_fact:null;
   const dm2Fact=ad?ad.bench.acc_dm2.fact:null;
 
-  // If google sheets has data, try to match sellers
   let planMap={};
   let gsTotalRev={};
   let gsAccPct={};
   if(gs&&gs.length){
     const headers=Object.keys(gs[0]);
-    console.log('GSheet headers:', headers); // debug
     gs.forEach(row=>{
-      // Find name column: contains seller-like name
       const nameCols=headers.filter(h=>{
         const hl=h.toLowerCase();
         return hl.includes('продав')||hl.includes('ім\'я')||hl.includes('прізв')||hl.includes('name')||hl.includes('співробіт');
       });
-      // Find plan column
       const planCols=headers.filter(h=>{
         const hl=h.toLowerCase();
         return hl.includes('план')&&!hl.includes('%')&&!hl.includes('вик');
       });
-      // Find total revenue column
       const factCols=headers.filter(h=>{
         const hl=h.toLowerCase();
         return (hl.includes('факт')||hl.includes('виторг')||hl.includes('виручка')||hl.includes('revenue'))&&!hl.includes('%');
       });
-      // Find % ACC share column
       const pctCols=headers.filter(h=>{
         const hl=h.toLowerCase();
         return hl.includes('%')||hl.includes('відсот')||hl.includes('частка')||hl.includes('share');
@@ -2005,7 +1972,6 @@ function renderQuality(){
       if(nameKey&&row[nameKey]){
         const name=row[nameKey].trim();
         if(!name)return;
-        // Try to match by exact full name OR short name
         const matchKey=Object.keys(SELLER_MAP_REV).find(k=>name.includes(k)||k.includes(name))||name;
         if(planCols[0]){const v=parseFloat(String(row[planCols[0]]).replace(/\s/g,'').replace(',','.'));if(!isNaN(v)&&v>0)planMap[name]=v;planMap[matchKey]=v;}
         if(factCols[0]){const v=parseFloat(String(row[factCols[0]]).replace(/\s/g,'').replace(',','.'));if(!isNaN(v)&&v>0){gsTotalRev[name]=v;gsTotalRev[matchKey]=v;}}
@@ -2081,11 +2047,12 @@ function renderQuality(){
 
 
 // ═══════════════════════════════════════════════════════════════
-// CLOUD SYNC — JSONbin.io
+// CLOUD SYNC — GITHUB GIST API
 // ═══════════════════════════════════════════════════════════════
-const JBIN_KEY='$2a$10$.qL/.HHOndgLOyFi36F.Qe6n4OP6WwyNsUlcsmPpEo8o1ZkLSuBLy';
-const JBIN_BIN='6ad34fe5ffd5d16053733e11';
-const JBIN_URL='https://api.jsonbin.io/v3/b/'+JBIN_BIN;
+let GIST_TOKEN=localStorage.getItem('dm2_gist_token')||'';
+let GIST_ID=localStorage.getItem('dm2_gist_id')||'';
+const GIST_FILENAME='sales_os_data.json';
+
 let _syncTimer=null;
 let _lastSyncedAt=null;
 let _syncOk=false;
@@ -2097,33 +2064,55 @@ function setSyncStatus(state,text){
   if(lbl)lbl.textContent=text;
 }
 
-function _extractRecord(data){
-  // JSONbin v3 wraps response: {record:{...}, metadata:{...}}
-  // With X-Bin-Meta:false it may return raw or still wrapped
-  if(data&&data.record&&typeof data.record==='object')return data.record;
-  if(data&&data.checks!==undefined)return data;
-  if(data&&data.meetings!==undefined)return data;
-  return null;
+function configureGistCreds(){
+  const t=prompt('Введіть ваш GitHub Personal Access Token (PAT):', GIST_TOKEN);
+  if(t!==null){
+    GIST_TOKEN=t.trim();
+    localStorage.setItem('dm2_gist_token', GIST_TOKEN);
+  }
+  const id=prompt('Введіть ваш Gist ID:', GIST_ID);
+  if(id!==null){
+    GIST_ID=id.trim();
+    localStorage.setItem('dm2_gist_id', GIST_ID);
+  }
+  if(GIST_TOKEN && GIST_ID){
+    toast('GitHub Gist налаштовано!','ok');
+    loadFromCloud().then(ok=>{ if(ok) render(); });
+  } else {
+    toast('Gist токен або ID відсутні','err');
+  }
 }
 
 async function loadFromCloud(){
-  setSyncStatus('syncing','Завантаження...');
+  if(!GIST_TOKEN || !GIST_ID){
+    setSyncStatus('idle','Gist не налаштований');
+    return false;
+  }
+  setSyncStatus('syncing','Завантаження з Gist...');
   try{
-    const r=await fetch(JBIN_URL+'/latest',{
-      headers:{'X-Master-Key':JBIN_KEY,'X-Bin-Meta':'false'}
+    const r=await fetch(`https://api.github.com/gists/${GIST_ID}`,{
+      headers:{
+        'Authorization': `token ${GIST_TOKEN}`,
+        'Accept': 'application/vnd.github.v3+json'
+      }
     });
     if(!r.ok){
-      const errText=await r.text();
-      console.error('JSONbin GET error',r.status,errText);
-      throw new Error('HTTP '+r.status+': '+errText.slice(0,80));
+      throw new Error(`HTTP ${r.status}`);
     }
-    const raw=await r.json();
-    console.log('JSONbin GET response:',raw);
-    const data=_extractRecord(raw)||{};
+    const gistData=await r.json();
+    if(!gistData.files || !gistData.files[GIST_FILENAME]){
+      console.warn('Файл даних у Gist ще не створений. Буде створений при збереженні.');
+      setSyncStatus('ok','Gist готовий (новий)');
+      return false;
+    }
+    const content=gistData.files[GIST_FILENAME].content;
+    const data=JSON.parse(content)||{};
+    
     if(data.checks&&typeof data.checks==='object')S.checks=data.checks;
     if(data.rhythmChecks&&typeof data.rhythmChecks==='object')S.rhythmChecks=data.rhythmChecks;
     if(Array.isArray(data.meetings))M_LOGS=data.meetings;
     if(data.meetingsDone&&typeof data.meetingsDone==='object')M_DONE=data.meetingsDone;
+    
     try{
       localStorage.setItem('dm2_checks_v3',JSON.stringify(S.checks));
       localStorage.setItem(getWeekKey(),JSON.stringify(S.rhythmChecks));
@@ -2135,13 +2124,17 @@ async function loadFromCloud(){
     setSyncStatus('ok','Синхронізовано '+_lastSyncedAt.toLocaleTimeString('uk-UA',{hour:'2-digit',minute:'2-digit'}));
     return true;
   }catch(e){
-    console.error('Cloud load failed:',e.message);
+    console.error('Gist load failed:',e.message);
     setSyncStatus('err','Помилка: '+e.message.slice(0,30));
     return false;
   }
 }
 
 function syncToCloud(){
+  if(!GIST_TOKEN || !GIST_ID){
+    setSyncStatus('idle','Gist не налаштований');
+    return;
+  }
   clearTimeout(_syncTimer);
   setSyncStatus('syncing','Збереження...');
   _syncTimer=setTimeout(async()=>{
@@ -2153,42 +2146,49 @@ function syncToCloud(){
       updatedAt:new Date().toISOString()
     };
     try{
-      const r=await fetch(JBIN_URL,{
-        method:'PUT',
+      const r=await fetch(`https://api.github.com/gists/${GIST_ID}`,{
+        method:'PATCH',
         headers:{
-          'Content-Type':'application/json',
-          'X-Master-Key':JBIN_KEY,
-          'X-Bin-Versioning':'false'
+          'Authorization': `token ${GIST_TOKEN}`,
+          'Accept': 'application/vnd.github.v3+json',
+          'Content-Type': 'application/json'
         },
-        body:JSON.stringify(payload)
+        body:JSON.stringify({
+          files: {
+            [GIST_FILENAME]: {
+              content: JSON.stringify(payload, null, 2)
+            }
+          }
+        })
       });
       if(!r.ok){
         const errText=await r.text();
-        console.error('JSONbin PUT error',r.status,errText);
-        throw new Error('HTTP '+r.status+': '+errText.slice(0,80));
+        throw new Error('HTTP '+r.status+': '+errText.slice(0,50));
       }
-      const result=await r.json();
-      console.log('JSONbin PUT ok:',result);
       _lastSyncedAt=new Date();
       _syncOk=true;
       setSyncStatus('ok','Збережено '+_lastSyncedAt.toLocaleTimeString('uk-UA',{hour:'2-digit',minute:'2-digit'}));
     }catch(e){
-      console.error('Cloud save failed:',e.message);
+      console.error('Gist save failed:',e.message);
       setSyncStatus('err','Не збережено: '+e.message.slice(0,25));
     }
   },1500);
 }
 
 async function manualSync(){
+  if(!GIST_TOKEN || !GIST_ID){
+    configureGistCreds();
+    return;
+  }
   setSyncStatus('syncing','Ручна синхронізація...');
-  await syncToCloud();
+  const ok=await loadFromCloud();
+  if(ok) render();
 }
 
 // ═══════════════════════════════════════════════════════════════
 // MEETINGS 1:1
 // ═══════════════════════════════════════════════════════════════
 
-// Sellers color map (consistent with tier colors)
 const SELLER_COLORS={
   'Устинова Л.':'#4f46e5','Соболєв А.':'#b45309','Кисельов Д.':'#2563eb',
   'Дудник А.':'#db2777','Бородай О.':'#7c3aed','Азаров Д.':'#0891b2',
@@ -2197,7 +2197,6 @@ const SELLER_COLORS={
   'Мехтієв Р.':'#d97706','Гаврихів Р.':'#059669'
 };
 
-// Full names for modal select
 const SELLER_FULL_NAMES={
   'Устинова Л.':'Устинова Людмила Олександрівна',
   'Соболєв А.':'Соболєв Андрій Андрійович',
@@ -2215,14 +2214,12 @@ const SELLER_FULL_NAMES={
   'Гаврихів Р.':'Гаврихів Роман Вадимович'
 };
 
-// 2-week schedule A/B — customize as needed
 const M_SCHEDULE={
   A:{'Пн':['Устинова Л.'],'Вт':['Кисельов Д.','Гаврихів Р.'],'Ср':[],'Чт':[],'Пт':['Пачковський І.','Фесенко Я.'],'Сб':['Дудник А.','Азаров Д.'],'Нд':['Бородай О.']},
   B:{'Пн':['Мехтієв Р.'],'Вт':['Миценко А.','Куценко М.','Синицина Г.'],'Ср':[],'Чт':[],'Пт':['Соболєв А.','Кравцова А.'],'Сб':[],'Нд':['Кисельов Д.']}
 };
 const M_OFF_DAYS=['Ср','Чт'];
 
-// Meeting logs: [{id, seller, date, discuss, agree, deadline}]
 let M_LOGS=[];
 let M_DONE={};
 let M_EDIT_ID=null;
@@ -2264,7 +2261,6 @@ function mToggleDone(key,btn){
   M_DONE[key]=!M_DONE[key];
   if(btn)btn.classList.toggle('done',!!M_DONE[key]);
   mSaveData();
-  // update stats without full re-render
   const doneCount=Object.values(M_DONE).filter(Boolean).length;
   const el=document.getElementById('m-stat-done');
   if(el)el.textContent=doneCount;
@@ -2272,10 +2268,8 @@ function mToggleDone(key,btn){
 
 function mOpenModal(sellerName){
   M_EDIT_ID=null;
-  // populate seller select
   const sel=document.getElementById('m-f-seller');
   if(sel){
-    // get all sellers
     const allSellers=Object.keys(SELLER_COLORS);
     sel.innerHTML=allSellers.map(s=>`<option value="${s}">${s}${typeof SELLER_FULL_NAMES!=='undefined'&&SELLER_FULL_NAMES[s]?' — '+SELLER_FULL_NAMES[s]:''}</option>`).join('');
     if(sellerName)sel.value=sellerName;
@@ -2358,7 +2352,6 @@ function renderMeetings(){
     <button class="m-tab${S.meetingsTab==='history'?' on':''}" onclick="S.meetingsTab='history';render()">📋 Журнал</button>
   </div>`;
 
-  // Stats
   const totalScheduled=Object.values(M_SCHEDULE.A).flat().length+Object.values(M_SCHEDULE.B).flat().length;
   const doneCount=Object.values(M_DONE).filter(Boolean).length;
   const totalLogs=M_LOGS.length;
@@ -2379,7 +2372,6 @@ function renderMeetings(){
   let content='';
 
   if(S.meetingsTab==='schedule'){
-    // If seller detail view
     if(S.meetingSelSeller){
       const seller=S.meetingSelSeller;
       const color=SELLER_COLORS[seller]||'#5b9bff';
@@ -2405,7 +2397,6 @@ function renderMeetings(){
         </div>
         ${entries}`;
     }else{
-      // Schedule view: weeks A and B
       let schedHtml='';
       ['A','B'].forEach(week=>{
         const dayEntries=Object.entries(M_SCHEDULE[week]);
@@ -2516,7 +2507,6 @@ function applyTheme(){
   const ti=document.getElementById('themeIcon');if(ti)ti.textContent=icon;
   const tl=document.getElementById('themeLabel');if(tl)tl.textContent=label;
   const mb=document.getElementById('mobThemeBtn');if(mb)mb.textContent=icon;
-  // Show bnav scroll hint on mobile
   const hint=document.getElementById('bnavHint');
   if(hint&&window.innerWidth<=768)hint.style.display='flex';
 }
@@ -2652,7 +2642,6 @@ function toggleCheckMob(k,name){
 function render(){
   try{
     renderKPI();
-    // Update plan badge
     const allTot=Object.values(PLANS).filter(v=>Array.isArray(v)).reduce((a,plan)=>a+plan.reduce((b,d)=>b+d.actions.length,0),0);
     const allDone=Object.keys(S.checks).filter(k=>S.checks[k]).length;
     const pb=document.getElementById('planBadge');
@@ -2749,11 +2738,9 @@ function clearFileData(){
 }
 function loadState(){
   try{
-    // Version guard - clear stale cache on app update
     const APP_VER='v6';
     const cachedVer=localStorage.getItem('dm2_app_ver');
     if(cachedVer&&cachedVer!==APP_VER){
-      // New version deployed - clear file cache to avoid structure mismatch
       clearFileData();
     }
     localStorage.setItem('dm2_app_ver',APP_VER);
@@ -2770,7 +2757,6 @@ function loadFileData(){
     if(fd){
       const parsed=JSON.parse(fd);
       const{sellers,cats,period}=parsed;
-      // Validate structure before using
       if(sellers&&Array.isArray(sellers)&&sellers.length&&sellers[0].revenue!==undefined){
         S.sellers=assignTiers(sellers.map(s=>({...s})));
         S.cats=Array.isArray(cats)?cats:buildCatIndex(S.sellers);
@@ -2784,7 +2770,7 @@ function loadFileData(){
     }
   }catch(e){
     console.warn('loadFileData error:',e);
-    clearFileData(); // Clear corrupt data
+    clearFileData();
   }
   return false;
 }
@@ -2815,7 +2801,6 @@ function handleFile(file){
       const{sellers,cats,period}=parseFile(new Uint8Array(ev.target.result));
       if(!sellers.length){toast('Не знайдено даних. Перевірте формат.','err');return;}
       S.sellers=sellers;S.cats=cats;S.selSeller=null;S.selCat=null;
-      // Use extracted period; fallback to filename
       const name=file.name.replace(/\.(xlsx|xls)$/i,'');
       const displayPeriod=period||name;
       ['sbPeriod','mobPeriod'].forEach(id=>{const e=document.getElementById(id);if(e)e.textContent=displayPeriod;});
@@ -2880,13 +2865,12 @@ mLoadData();
 applyTheme();
 const restoredFromCache=loadFileData();
 if(!restoredFromCache){
-  // No cached data — stay empty, show upload prompt
   S.sellers=[];
   S.cats=[];
 }
 loadAccData();
 render();
-// Load from cloud after initial render (updates UI when cloud data arrives)
+
 loadFromCloud().then(ok=>{
   if(ok)render();
 });
