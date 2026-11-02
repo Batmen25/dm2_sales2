@@ -8,7 +8,6 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 :root{
@@ -312,11 +311,13 @@ tbody tr:hover td{background:var(--bg3)}
   .mob-back{display:flex}
   .toast{bottom:calc(var(--bnav) + 12px);right:12px}
   .pm-grid{grid-template-columns:repeat(3,1fr)}
+  .trend-table th,.trend-table td{display:table-cell!important}
+  .trend-table td,.trend-table th{padding:8px 7px;font-size:12px}
   .pm-v{font-size:15px}
   .pname{font-size:17px}
   table th:nth-child(n+5),table td:nth-child(n+5){display:none}
   .mob-only{display:inline!important}
-  .pen-table th:nth-child(n+4),.pen-table td:nth-child(n+4){display:none}
+  .pen-table:not(.trend-table) th:nth-child(n+4),.pen-table:not(.trend-table) td:nth-child(n+4){display:none}
   .split{gap:10px}
   .card-h{padding:11px 14px}
   .profile{padding:16px}
@@ -480,6 +481,10 @@ tbody tr:hover td{background:var(--bg3)}
       <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 8h2l2 4 3-8 2 4h3"/></svg>
       Якість продажів
     </div>
+    <div class="ni" data-v="trends" onclick="go('trends')">
+      <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M1.5 13.5h13"/><path d="M2.5 10.5l3.5-3.5 3 2.5 4.5-5"/><path d="M10.5 4.5h3v3"/></svg>
+      Динаміка
+    </div>
     <div class="ni" data-v="meetings" onclick="go('meetings')">
       <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="8" cy="6" r="3"/><path d="M3 14c0-2.76 2.24-5 5-5s5 2.24 5 5"/><path d="M12 3l1 1M12 9l1-1M4 3L3 4M4 9l-1-1"/></svg>
       Зустрічі 1:1
@@ -501,11 +506,12 @@ tbody tr:hover td{background:var(--bg3)}
       <div style="font-size:10px;color:var(--t3);margin-top:2px">Щоденний звіт АСС</div>
     </label>
     <div class="sb-keys">Клавіші 1–9 для навігації</div>
-    <div class="sync-status" id="syncStatus" onclick="manualSync()" style="cursor:pointer;user-select:none" title="Натисни для ручної синхронізації">
+    <div class="sync-status" id="syncStatus" onclick="openBackupModal()" style="cursor:pointer;user-select:none" title="Резервна копія даних">
       <div class="sync-dot idle" id="syncDot"></div>
-      <span id="syncLabel">Синхронізація...</span>
+      <span id="syncLabel">Завантаження...</span>
+      <span style="margin-left:auto">💾</span>
     </div>
-    <button class="sb-clear" onclick="if(confirm('Очистити локально збережені файли?')){clearFileData();location.reload();}" title="Очистити локальні файли">🗑 Очистити локальний кеш</button>
+    <button class="sb-clear" onclick="clearFileData()" title="Видалити завантажені звіти">🗑 Видалити звіти з пристрою</button>
   </div>
 </aside>
 
@@ -516,6 +522,7 @@ tbody tr:hover td{background:var(--bg3)}
     <div class="mob-logo-s" id="mobPeriod">–</div>
   </div>
   <button onclick="toggleTheme()" style="padding:6px 10px;border-radius:var(--r);border:1px solid var(--bd2);background:transparent;color:var(--t2);font-size:16px;cursor:pointer;line-height:1" id="mobThemeBtn">☀️</button>
+  <button class="mob-up" onclick="openBackupModal()" title="Резервна копія">💾</button>
   <label class="mob-up">
     <input type="file" id="fileInputMobAcc" accept=".xlsx,.xls">
     АСС
@@ -572,6 +579,10 @@ tbody tr:hover td{background:var(--bg3)}
   <button class="bnav-item" data-v="quality" onclick="go('quality')">
     <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 8h2l2 4 3-8 2 4h3"/></svg>
     Якість
+  </button>
+  <button class="bnav-item" data-v="trends" onclick="go('trends')">
+    <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M1.5 13.5h13"/><path d="M2.5 10.5l3.5-3.5 3 2.5 4.5-5"/><path d="M10.5 4.5h3v3"/></svg>
+    Динаміка
   </button>
   <button class="bnav-item" data-v="meetings" onclick="go('meetings')">
     <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="8" cy="6" r="3"/><path d="M3 14c0-2.76 2.24-5 5-5s5 2.24 5 5"/></svg>
@@ -899,7 +910,7 @@ function parseFile(ab){
     const biz=String(r[3]||'').trim()||getBiz(cat);
     const rev=parseFloat(r[9])||0,revVs=parseFloat(r[11])||0;
     const units=parseFloat(r[12])||0,unitsVs=parseFloat(r[14])||0,aspVs=parseFloat(r[17])||0;
-    const sn=SHORT[seller]||seller.split(' ').slice(0,2).join(' ');
+    const sn=SHORT[seller]||(p=>p[0]+' '+(p[1]?p[1][0]+'.':''))(seller.split(/\s+/));
     if(!sm[seller])sm[seller]={name:sn,full:seller,revenue:0,units:0,rv:[],av:[],uv:[],cats:{}};
     sm[seller].revenue+=rev;sm[seller].units+=units;
     sm[seller].rv.push(revVs);sm[seller].av.push(aspVs);sm[seller].uv.push(unitsVs);
@@ -919,157 +930,293 @@ function parseFile(ab){
 }
 
 // ═══════════════════════════════════════════════════════════════
-// SUPABASE CONFIGURATION & SYNC
+// ЛОКАЛЬНЕ ЗБЕРЕЖЕННЯ (без хмари) + РЕЗЕРВНА КОПІЯ
 // ═══════════════════════════════════════════════════════════════
-// ВСТАВЬТЕ ВАШИ КЛЮЧИ SUPABASE ЗДЕСЬ:
-const SUPABASE_URL = 'https://xtvxgubscrxzyiploiqw.supabase.co/rest/v1/';
-const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inh0dnhndWJzY3J4enlpcGxvaXF3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTIzMjY4MjUsImV4cCI6MjEwNzkwMjgyNX0.gWLWZILyZ7wTxtQvHi8GQe6XpQbKVWS-vxURI5Np3s0';
+// Усі дані зберігаються тільки в цьому браузері на цьому пристрої.
+// Щоб перенести на інший пристрій або не втратити — «Зберегти копію» / «Відновити».
+const LS_KEYS={file:'dm2_filedata_v1',acc:'dm2_accdata_v1',state:'dm2_state_v2',migrated:'dm2_cloud_migrated_v1',lastBackup:'dm2_last_backup',history:'dm2_history_v1',sync:'dm2_sync_cfg'};
 
-let _supabase = null;
-if (SUPABASE_URL !== 'YOUR_SUPABASE_PROJECT_URL' && typeof supabase !== 'undefined') {
-  _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-}
+function lsGet(k){try{const v=localStorage.getItem(k);return v?JSON.parse(v):null;}catch(e){return null;}}
+function lsSet(k,v){try{localStorage.setItem(k,JSON.stringify(v));return true;}catch(e){console.warn('Не вдалося зберегти',k,e);toast('Не вдалося зберегти дані в браузері','err');return false;}}
 
-function setSyncStatus(state,text){
+function setSaveStatus(text,ok=true){
   const dot=document.getElementById('syncDot');
   const lbl=document.getElementById('syncLabel');
-  if(dot)dot.className='sync-dot '+state;
+  if(dot)dot.className='sync-dot '+(ok?'ok':'err');
   if(lbl)lbl.textContent=text;
 }
 
-let _syncTimer=null;
-
-async function syncToCloud() {
-  if (!_supabase) {
-    setSyncStatus('err', 'Supabase не налаштовано');
-    return;
-  }
-  setSyncStatus('syncing', 'Збереження...');
-  clearTimeout(_syncTimer);
-  _syncTimer = setTimeout(async () => {
-    try {
-      if (M_LOGS.length) {
-        const dbLogs = M_LOGS.map(l => ({
-          id: String(l.id),
-          seller: l.seller,
-          date: l.date,
-          discuss: l.discuss,
-          agree: l.agree,
-          deadline: l.deadline,
-          updated_at: new Date().toISOString()
-        }));
-        await _supabase.from('meetings').upsert(dbLogs);
-      }
-
-      await _supabase.from('app_state').upsert([
-        { key: 'checks', value: S.checks, updated_at: new Date().toISOString() },
-        { key: 'rhythmChecks', value: S.rhythmChecks, updated_at: new Date().toISOString() },
-        { key: 'meetingsDone', value: M_DONE, updated_at: new Date().toISOString() }
-      ]);
-
-      const now = new Date();
-      setSyncStatus('ok', 'Збережено ' + now.toLocaleTimeString('uk-UA', { hour: '2-digit', minute: '2-digit' }));
-    } catch (e) {
-      console.error('Ошибка синхронизации:', e);
-      setSyncStatus('err', 'Помилка мережі');
-    }
-  }, 1000);
+function updateBackupHint(){
+  const el=document.getElementById('backupHint');
+  if(!el)return;
+  const last=lsGet(LS_KEYS.lastBackup);
+  if(!last){el.textContent='Копію ще не робили';el.style.color='var(--amber)';return;}
+  const days=Math.floor((Date.now()-new Date(last))/86400000);
+  el.textContent='Остання копія: '+(days===0?'сьогодні':days+' дн. тому');
+  el.style.color=days>7?'var(--amber)':'var(--t3)';
 }
 
-async function saveFileData() {
-  try {
-    if (S.sellers && S.sellers.length) {
-      const payload = { sellers: S.sellers, cats: S.cats, period: document.getElementById('sbPeriod')?.textContent || '' };
-      localStorage.setItem('dm2_filedata_v1', JSON.stringify(payload));
-      
-      if (_supabase) {
-        setSyncStatus('syncing', 'Завантаження в хмару...');
-        await _supabase.from('sales_reports').upsert({
-          id: 'latest',
-          sellers_data: S.sellers,
-          cats_data: S.cats,
-          period: payload.period,
-          updated_at: new Date().toISOString()
-        });
-        setSyncStatus('ok', 'Звіт збережено в хмару');
-      }
-    }
-    if (S.accData) {
-      localStorage.setItem('dm2_accdata_v1', JSON.stringify(S.accData));
-      if (_supabase) {
-        await _supabase.from('app_state').upsert({
-          key: 'accData',
-          value: S.accData,
-          updated_at: new Date().toISOString()
-        });
-      }
-    }
-  } catch (e) {
-    console.warn('Помилка збереження:', e);
-  }
+// Зберігає галочки, ритм тижня і записи 1:1
+let _saveTimer=null;
+function currentState(){
+  return{checks:S.checks,rhythmChecks:S.rhythmChecks,rhythmWeek:S.rhythmWeek||getWeekKey(),meetings:M_LOGS,meetingsDone:M_DONE,deleted:M_DELETED,updatedAt:S.stateAt||0};
+}
+function saveState(fromUser=true){
+  if(fromUser){S.stateAt=Date.now();S.dirty=true;}
+  clearTimeout(_saveTimer);
+  _saveTimer=setTimeout(()=>{
+    const ok=lsSet(LS_KEYS.state,{...currentState(),dirty:!!S.dirty});
+    if(ok&&!syncCfg())setSaveStatus('Збережено '+new Date().toLocaleTimeString('uk-UA',{hour:'2-digit',minute:'2-digit'}));
+    if(S.dirty)schedulePush();
+  },300);
 }
 
-async function loadFromCloud() {
-  if (!_supabase) {
-    setSyncStatus('err', 'Укажіть URL в коді');
-    return false;
+// Зберігає завантажені звіти
+function saveFileData(){
+  if(S.sellers&&S.sellers.length){
+    lsSet(LS_KEYS.file,{sellers:S.sellers,cats:S.cats,period:S.period||document.getElementById('sbPeriod')?.textContent||'',at:S.fileAt||null});
   }
-  setSyncStatus('syncing', 'Синхронізація...');
-  try {
-    // 1. Загрузка встреч
-    const { data: meetings } = await _supabase.from('meetings').select('*');
-    if (meetings && meetings.length) {
-      M_LOGS = meetings.map(m => ({
-        id: m.id,
-        seller: m.seller,
-        date: m.date,
-        discuss: m.discuss,
-        agree: m.agree,
-        deadline: m.deadline
-      }));
-    }
+  if(S.accData)lsSet(LS_KEYS.acc,S.accData);
+  lsSet(LS_KEYS.history,S.history||[]);
+}
 
-    // 2. Загрузка состояний (галочки)
-    const { data: states } = await _supabase.from('app_state').select('*');
-    if (states) {
-      states.forEach(s => {
-        if (s.key === 'checks') S.checks = s.value;
-        if (s.key === 'rhythmChecks') S.rhythmChecks = s.value;
-        if (s.key === 'meetingsDone') M_DONE = s.value;
-        if (s.key === 'accData') S.accData = s.value;
-      });
-    }
+// Новий звіт завантажено на сайті: зберегти, додати в історію, відправити в хмару
+function afterReport(type){
+  const at=new Date().toISOString();
+  let data;
+  if(type==='main'){S.fileAt=at;data={sellers:S.sellers,cats:S.cats,period:S.period};S.history=addToHistory(S.history,mainHistoryEntry(data,at));}
+  else{S.accData.at=at;data=S.accData;S.history=addToHistory(S.history,accHistoryEntry(data,at));}
+  saveFileData();
+  setSaveStatus('Звіт збережено на пристрої');
+  if(syncCfg())cloudReq('/api/report',{method:'POST',body:JSON.stringify({type,data:{...data,at}})})
+    .then(r=>{if(r.history)S.history=mergeHistory(S.history,r.history);saveFileData();setSyncOk();})
+    .catch(e=>setSaveStatus('Не відправлено в хмару: '+e.message,false));
+}
 
-    // 3. Загрузка отчета продаж
-    const { data: report } = await _supabase.from('sales_reports').select('*').eq('id', 'latest').single();
-    if (report && report.sellers_data) {
-      S.sellers = assignTiers(report.sellers_data);
-      S.cats = report.cats_data || buildCatIndex(S.sellers);
-      const periodStr = report.period || 'Хмарний звіт';
-      ['sbPeriod', 'mobPeriod'].forEach(id => {
-        const e = document.getElementById(id);
-        if (e) e.textContent = periodStr;
-      });
-      const ps = document.getElementById('pageSub');
-      if (ps) ps.textContent = `${periodStr} · ${S.sellers.length} продавців`;
-      const dot = document.getElementById('dataStatusDot');
-      if (dot) dot.style.background = 'var(--green)';
-    }
+// ═══ ІСТОРІЯ ЗВІТІВ (та сама логіка, що й у боті) ═══
+const _avg=a=>a.length?a.reduce((s,v)=>s+v,0)/a.length:0;
+function mainHistoryEntry(d,at){
+  const s=(d.sellers||[]).filter(x=>x.revenue>0);
+  const rev=s.reduce((a,x)=>a+x.revenue,0),units=s.reduce((a,x)=>a+x.units,0);
+  return{type:'main',period:d.period||'',at,totals:{rev,units,asp:units?rev/units:0,vs:_avg(s.map(x=>x.revVs))},
+    sellers:s.map(x=>({name:x.name,full:x.full,revenue:x.revenue,units:x.units,asp:x.asp,revVs:x.revVs,aspVs:x.aspVs,tier:x.tier}))};
+}
+const ACC_FIELDS=['sm_qty','sm_cover','sm_glass','sm_charge','sm_hear_ttl','sm_hear_tws','lt_qty','lt_bag','lt_mouse','tv_qty','tv_mount','wm_qty','wm_deterg','acc_fact','acc_pct'];
+function accHistoryEntry(d,at){
+  const b=d.bench||{};
+  return{type:'acc',period:d.period||'',at,
+    bench:{sm:b.sm_dm2,ch:b.ch_dm2,lt:b.lt_dm2,tv:b.tv_dm2,acc:b.acc_dm2,sm_avg:b.sm_avg,ch_avg:b.ch_avg},
+    sellers:(d.sellers||[]).map(x=>{const o={name:x.name,full:x.full};ACC_FIELDS.forEach(f=>o[f]=x[f]);return o;})};
+}
+function addToHistory(history,entry,max=30){
+  const h=(history||[]).filter(e=>!(e.type===entry.type&&e.period===entry.period));
+  h.push(entry);h.sort((a,b)=>new Date(a.at)-new Date(b.at));
+  return[...h.filter(e=>e.type==='main').slice(-max),...h.filter(e=>e.type==='acc').slice(-max)].sort((a,b)=>new Date(a.at)-new Date(b.at));
+}
+function mergeHistory(a,b){let h=[...(a||[])];(b||[]).forEach(e=>{const ex=h.find(x=>x.type===e.type&&x.period===e.period);if(!ex||new Date(e.at)>new Date(ex.at))h=addToHistory(h,e);});return h;}
 
+// ═══ СИНХРОНІЗАЦІЯ МІЖ ПРИСТРОЯМИ (через твій Cloudflare-сервер) ═══
+function syncCfg(){const c=lsGet(LS_KEYS.sync);return c&&c.url&&c.pin?c:null;}
+async function cloudReq(path,opt={}){
+  const c=syncCfg();if(!c)throw new Error('синхронізацію не налаштовано');
+  const r=await fetch(c.url.replace(/\/+$/,'')+path,{...opt,headers:{'Content-Type':'application/json','X-Pin':c.pin}});
+  let j={};try{j=await r.json();}catch(e){}
+  if(!r.ok)throw new Error(j.error||('помилка '+r.status));
+  return j;
+}
+function setSyncOk(){setSaveStatus('☁️ Синхронізовано '+new Date().toLocaleTimeString('uk-UA',{hour:'2-digit',minute:'2-digit'}));}
+// Об'єднання стану двох пристроїв (так само, як на сервері)
+function mergeState(a,b){
+  a=a||{};b=b||{};
+  const deleted=[...new Set([...(a.deleted||[]),...(b.deleted||[])].map(String))].slice(-1000);
+  const del=new Set(deleted),map=new Map();
+  [...(a.meetings||[]),...(b.meetings||[])].forEach(m=>{if(!m||del.has(String(m.id)))return;const k=String(m.id),o=map.get(k);if(!o||(m.updatedAt||0)>=(o.updatedAt||0))map.set(k,m);});
+  const n=(a.updatedAt||0)>=(b.updatedAt||0)?a:b;
+  return{checks:n.checks||{},rhythmChecks:n.rhythmChecks||{},rhythmWeek:n.rhythmWeek||null,meetingsDone:n.meetingsDone||{},meetings:[...map.values()],deleted,updatedAt:Math.max(a.updatedAt||0,b.updatedAt||0)};
+}
+function applyState(st){
+  S.checks=st.checks||{};S.rhythmChecks=st.rhythmChecks||{};S.rhythmWeek=st.rhythmWeek||S.rhythmWeek;
+  M_LOGS=st.meetings||[];M_DONE=st.meetingsDone||{};M_DELETED=st.deleted||[];S.stateAt=st.updatedAt||0;
+}
+let _pushTimer=null,_pulling=false;
+function schedulePush(){if(!syncCfg())return;clearTimeout(_pushTimer);_pushTimer=setTimeout(pushState,1500);}
+async function pushState(){
+  if(!syncCfg()||_pulling)return;
+  try{
+    setSaveStatus('☁️ Збереження…');
+    const r=await cloudReq('/api/state',{method:'POST',body:JSON.stringify({state:currentState()})});
+    applyState(r.state);S.dirty=false;lsSet(LS_KEYS.state,{...currentState(),dirty:false});
+    setSyncOk();render();
+  }catch(e){setSaveStatus('⚠️ Не синхронізовано: '+e.message,false);}
+}
+async function pullCloud(silent){
+  if(!syncCfg()||_pulling)return;
+  _pulling=true;
+  try{
+    if(!silent)setSaveStatus('☁️ Синхронізація…');
+    const d=await cloudReq('/api/data');
+    let changed=false;
+    if(d.main&&d.main.sellers&&(!S.fileAt||new Date(d.main.at)>new Date(S.fileAt))){
+      S.sellers=assignTiers(d.main.sellers);S.cats=d.main.cats||buildCatIndex(S.sellers);S.period=d.main.period;S.fileAt=d.main.at;applyPeriod(S.period);changed=true;
+    }
+    if(d.acc&&(!S.accData||!S.accData.at||new Date(d.acc.at)>new Date(S.accData.at))){S.accData=d.acc;changed=true;}
+    S.history=mergeHistory(S.history,d.history);
+    const local=currentState();
+    const merged=mergeState(local,d.state);
+    applyState(merged);
+    saveFileData();lsSet(LS_KEYS.state,{...currentState(),dirty:false});
+    const needPush=S.dirty||!d.state||(local.updatedAt||0)>(d.state.updatedAt||0)||(local.meetings||[]).length!==((d.state&&d.state.meetings)||[]).length;
+    _pulling=false;
+    if(needPush)await pushState();else{S.dirty=false;setSyncOk();}
+    // Звіти, які були тільки на цьому пристрої, відправляємо в хмару
+    if(S.sellers.length&&S.fileAt&&(!d.main||new Date(S.fileAt)>new Date(d.main.at)))cloudReq('/api/report',{method:'POST',body:JSON.stringify({type:'main',data:{sellers:S.sellers,cats:S.cats,period:S.period,at:S.fileAt}})}).catch(()=>{});
+    if(S.accData&&S.accData.at&&(!d.acc||new Date(S.accData.at)>new Date(d.acc.at)))cloudReq('/api/report',{method:'POST',body:JSON.stringify({type:'acc',data:S.accData})}).catch(()=>{});
     render();
-    const now = new Date();
-    setSyncStatus('ok', 'Синхронізовано ' + now.toLocaleTimeString('uk-UA', { hour: '2-digit', minute: '2-digit' }));
     return true;
-  } catch (e) {
-    console.error('Помилка завантаження з Supabase:', e);
-    setSyncStatus('err', 'Помилка зєднання');
+  }catch(e){
+    setSaveStatus('⚠️ Хмара недоступна: '+e.message,false);
     return false;
+  }finally{_pulling=false;}
+}
+async function connectSync(){
+  const url=document.getElementById('sync-url').value.trim(),pin=document.getElementById('sync-pin').value.trim();
+  if(!/^https:\/\//.test(url)||!pin){toast('Встав адресу (https://...) і код','err');return;}
+  lsSet(LS_KEYS.sync,{url,pin});
+  const ok=await pullCloud();
+  if(ok){toast('Синхронізацію підключено ✅','ok');renderSyncBox();}
+  else{localStorage.removeItem(LS_KEYS.sync);toast('Не вдалося підключитись — перевір адресу і код','err');renderSyncBox();}
+}
+function disconnectSync(){if(!confirm('Відключити синхронізацію на цьому пристрої? Дані залишаться тут.'))return;localStorage.removeItem(LS_KEYS.sync);renderSyncBox();setSaveStatus('Дані на цьому пристрої');}
+function renderSyncBox(){
+  const el=document.getElementById('sync-box');if(!el)return;
+  const c=syncCfg();
+  el.innerHTML=c?`<div style="font-size:13px;color:var(--green);font-weight:600;margin-bottom:6px">☁️ Підключено</div>
+    <div style="font-size:12px;color:var(--t3);word-break:break-all;margin-bottom:10px">${esc(c.url)}</div>
+    <div class="m-btn-row" style="margin-top:0"><button class="m-btn m-btn-primary" onclick="pullCloud()">🔄 Синхронізувати зараз</button><button class="m-btn m-btn-cancel" onclick="disconnectSync()">Відключити</button></div>`
+  :`<div style="font-size:12px;color:var(--t2);line-height:1.55;margin-bottom:8px">Щоб бачити ті самі дані на телефоні й комп'ютері та отримувати звіти з Telegram-бота — встав адресу свого сервера і код доступу.</div>
+    <input id="sync-url" class="m-input" placeholder="https://sales-os.....workers.dev" style="margin-bottom:8px" autocomplete="off">
+    <input id="sync-pin" class="m-input" placeholder="Код доступу (SITE_PIN)" type="password" autocomplete="off">
+    <div class="m-btn-row"><button class="m-btn m-btn-primary" onclick="connectSync()">Підключити</button></div>`;
+}
+
+function applyPeriod(periodStr){
+  ['sbPeriod','mobPeriod'].forEach(id=>{const e=document.getElementById(id);if(e)e.textContent=periodStr;});
+  const ps=document.getElementById('pageSub');
+  if(ps)ps.textContent=`${periodStr} · ${S.sellers.length} продавців`;
+  const dot=document.getElementById('dataStatusDot');
+  if(dot)dot.style.background='var(--green)';
+}
+
+function applyData(d){
+  if(!d)return;
+  if(d.file&&d.file.sellers&&d.file.sellers.length){
+    S.sellers=assignTiers(d.file.sellers);
+    S.cats=d.file.cats||buildCatIndex(S.sellers);
+    applyPeriod(d.file.period||'Збережений звіт');
+  }
+  if(d.acc)S.accData=d.acc;
+  const st=d.state||{};
+  S.checks=st.checks||{};
+  S.rhythmChecks=st.rhythmChecks||{};
+  S.rhythmWeek=st.rhythmWeek||getWeekKey();
+  M_LOGS=Array.isArray(st.meetings)?st.meetings:[];
+  M_DONE=st.meetingsDone||{};
+  M_DELETED=st.deleted||[];
+  S.stateAt=st.updatedAt||0;
+  S.dirty=!!st.dirty;
+  if(d.file){S.period=d.file.period;S.fileAt=d.file.at||null;}
+  S.history=d.history||[];
+}
+
+function loadLocal(){
+  applyData({file:lsGet(LS_KEYS.file),acc:lsGet(LS_KEYS.acc),state:lsGet(LS_KEYS.state),history:lsGet(LS_KEYS.history)});
+  // Звіти, завантажені до появи історії, теж потрапляють в історію
+  if(S.sellers.length&&!S.history.some(e=>e.type==='main'))S.history=addToHistory(S.history,mainHistoryEntry({sellers:S.sellers,period:S.period},S.fileAt||new Date().toISOString()));
+  if(S.accData&&!S.history.some(e=>e.type==='acc'))S.history=addToHistory(S.history,accHistoryEntry(S.accData,S.accData.at||new Date().toISOString()));
+  // Ритм тижня скидається автоматично, коли почався новий тиждень
+  const wk=getWeekKey();
+  if(S.rhythmWeek!==wk){S.rhythmChecks={};S.rhythmWeek=wk;saveState();}
+  setSaveStatus(syncCfg()?'☁️ Синхронізація…':(S.sellers.length||M_LOGS.length?'Дані на цьому пристрої':'Даних ще немає'));
+  updateBackupHint();
+  render();
+  if(syncCfg())pullCloud();
+}
+// Повернувся у вкладку / на телефоні відкрив сайт знову — підтягуємо свіжі дані
+document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible')pullCloud(true);});
+window.addEventListener('online',()=>pullCloud(true));
+
+// ── Резервна копія: один .json файл з усім ──
+function exportBackup(){
+  const data={app:'dm2-sales-os',version:2,created:new Date().toISOString(),
+    file:lsGet(LS_KEYS.file),acc:lsGet(LS_KEYS.acc),history:S.history||[],state:currentState()};
+  const blob=new Blob([JSON.stringify(data)],{type:'application/json'});
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(blob);
+  a.download='sales-os-backup-'+new Date().toISOString().slice(0,10)+'.json';
+  document.body.appendChild(a);a.click();a.remove();
+  setTimeout(()=>URL.revokeObjectURL(a.href),2000);
+  lsSet(LS_KEYS.lastBackup,new Date().toISOString());
+  updateBackupHint();
+  toast('Копію збережено у файл','ok');
+}
+
+function importBackup(file){
+  if(!file)return;
+  const r=new FileReader();
+  r.onload=ev=>{
+    try{
+      const d=JSON.parse(ev.target.result);
+      if(d.app!=='dm2-sales-os')throw new Error('це не файл копії Sales OS');
+      if(!confirm('Замінити всі дані на цьому пристрої даними з копії від '+new Date(d.created).toLocaleDateString('uk-UA')+'?'))return;
+      if(d.file)lsSet(LS_KEYS.file,d.file);else localStorage.removeItem(LS_KEYS.file);
+      if(d.acc)lsSet(LS_KEYS.acc,d.acc);else localStorage.removeItem(LS_KEYS.acc);
+      lsSet(LS_KEYS.state,{...(d.state||{}),updatedAt:Date.now(),dirty:true});
+      lsSet(LS_KEYS.history,d.history||[]);
+      toast('Дані відновлено','ok');
+      setTimeout(()=>location.reload(),600);
+    }catch(e){toast('Не вдалося відкрити копію: '+e.message,'err');}
+  };
+  r.readAsText(file);
+}
+
+function openBackupModal(){document.getElementById('backup-modal').classList.remove('hidden');updateBackupHint();renderSyncBox();}
+function closeBackupModal(){document.getElementById('backup-modal').classList.add('hidden');}
+
+// ── Одноразове перенесення зі старої хмари (Supabase) ──
+// Виконується один раз: якщо там лишились записи 1:1 чи звіт — копіює їх сюди.
+// Після першого успішного запуску більше не звертається в мережу.
+async function migrateFromOldCloud(){
+  if(lsGet(LS_KEYS.migrated))return;
+  const URL_='https://xtvxgubscrxzyiploiqw.supabase.co/rest/v1/';
+  const KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inh0dnhndWJzY3J4enlpcGxvaXF3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTIzMjY4MjUsImV4cCI6MjEwNzkwMjgyNX0.gWLWZILyZ7wTxtQvHi8GQe6XpQbKVWS-vxURI5Np3s0';
+  const get=async t=>{const r=await fetch(URL_+t+'?select=*',{headers:{apikey:KEY,Authorization:'Bearer '+KEY}});if(!r.ok)throw new Error(t+' '+r.status);return r.json();};
+  try{
+    const [meetings,states,reports]=await Promise.all([get('meetings'),get('app_state'),get('sales_reports')]);
+    let moved=0;
+    if(meetings.length){
+      const ids=new Set(M_LOGS.map(l=>String(l.id)));
+      meetings.forEach(m=>{if(!ids.has(String(m.id))){M_LOGS.push({id:String(m.id),seller:m.seller,date:m.date,discuss:m.discuss,agree:m.agree,deadline:m.deadline});moved++;}});
+    }
+    states.forEach(s=>{
+      if(s.key==='checks'&&!Object.keys(S.checks).length)S.checks=s.value||{};
+      if(s.key==='meetingsDone'&&!Object.keys(M_DONE).length)M_DONE=s.value||{};
+      if(s.key==='accData'&&!S.accData&&s.value){S.accData=s.value;moved++;}
+    });
+    const rep=reports.find(r=>r.id==='latest');
+    if(rep&&rep.sellers_data&&!S.sellers.length){
+      S.sellers=assignTiers(rep.sellers_data);S.cats=rep.cats_data||buildCatIndex(S.sellers);
+      applyPeriod(rep.period||'Звіт зі старої хмари');moved++;
+    }
+    if(moved)saveState();saveFileData();
+    lsSet(LS_KEYS.migrated,true);
+    if(moved){toast('Перенесено дані зі старої хмари: '+moved,'ok');render();}
+  }catch(e){
+    console.info('Стара хмара недоступна — пропускаємо',e);
+    lsSet(LS_KEYS.migrated,true);
   }
 }
 
-function manualSync(){
-  loadFromCloud();
-}
+function esc(s){return String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
 
 // ═══════════════════════════════════════════════════════════════
 // SELLER PROFILE HTML
@@ -1185,7 +1332,7 @@ function renderEmptyState(){
       Обрати файл
       <input type="file" accept=".xlsx,.xls" style="display:none" onchange="handleFile(this.files[0])">
     </label>
-    <div style="margin-top:16px;font-size:12px;color:var(--t3)">Файл синхронізується через хмару з усіма пристроями</div>
+    <div style="margin-top:16px;font-size:12px;color:var(--t3)">Дані зберігаються на цьому пристрої. Кнопка 💾 — резервна копія</div>
   </div>`;
 }
 
@@ -1273,7 +1420,7 @@ function renderSellers(){
       <div>
         <div class="search-wrap">
           <svg class="search-icon" width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="7" cy="7" r="5"/><path d="M11 11l3 3"/></svg>
-          <input class="search" placeholder="Пошук продавця..." value="${S.search}" oninput="S.search=this.value;render()">
+          <input class="search" placeholder="Пошук продавця..." value="${esc(S.search)}" oninput="S.search=this.value;const p=this.selectionStart;render();const i=document.querySelector('.search');if(i){i.focus();i.setSelectionRange(p,p);}">
         </div>
         <div class="list-panel"><div class="list-head">Продавці</div>${list}</div>
       </div>
@@ -1379,7 +1526,7 @@ function renderPlan(){
           <span style="font-size:11px;color:var(--t3);font-family:'IBM Plex Mono',monospace">${done}/${tot} · ${prog}%</span>
         </div>
         <div class="plan-prog"><div class="plan-prog-f" style="width:${prog}%"></div></div>
-        <div style="font-size:10px;color:var(--t3)">Прогрес синхронізується з усіма пристроями</div>
+        <div style="font-size:10px;color:var(--t3)">Прогрес зберігається на цьому пристрої</div>
       </div>
       ${days}
       <div style="display:flex;flex-wrap:wrap;gap:5px;margin-top:8px">
@@ -1590,6 +1737,87 @@ function renderMatrix(){
     <div style="font-size:11px;color:var(--t3);margin-top:10px">Значення = відхилення від середнього магазину. Показані топ-16 категорій за виторгом.</div>`;
 }
 
+// ═══════════════════════════════════════════════════════════════
+// ДИНАМІКА ПО ТИЖНЯХ
+// ═══════════════════════════════════════════════════════════════
+function shortPeriod(p){
+  const d=String(p||'').match(/\d{2}\.\d{2}/g);
+  if(!d)return String(p||'—').slice(0,12);
+  return d.length>=2?d[0]+'–'+d[1]:d[0];
+}
+function trendCell(v,prev){
+  if(v==null)return'<td class="pc-zero">—</td>';
+  const cls=v>=.1?'pc-hi':v>=-.1?'pc-avg':'pc-lo';
+  const d=prev!=null?v-prev:null;
+  const ar=d==null?'':d>.03?' <span style="opacity:.7">▲</span>':d<-.03?' <span style="opacity:.7">▼</span>':'';
+  return`<td class="${cls}">${v>=0?'+':''}${Math.round(v*100)}%${ar}</td>`;
+}
+function renderTrends(){
+  const H=(S.history||[]);
+  const mains=H.filter(e=>e.type==='main').slice(-8);
+  const accs=H.filter(e=>e.type==='acc').slice(-6);
+  const hint=`<div style="font-size:12px;color:var(--t3);margin-top:12px">Кожен звіт, завантажений на сайт або надісланий Telegram-боту, автоматично додається сюди. Зберігаються останні 30.</div>`;
+  if(mains.length<2&&accs.length<2){
+    return`<div class="empty" style="padding:40px 20px">
+      <div style="font-size:34px;margin-bottom:10px">📈</div>
+      <div style="font-size:15px;font-weight:600;color:var(--t1);margin-bottom:6px">Тут з'явиться динаміка по тижнях</div>
+      <div>Потрібно хоча б 2 звіти. Зараз в історії: ${mains.length} звіт продажів, ${accs.length} АСС.<br>Завантаж наступний звіт — і побачиш, хто росте, а хто просідає.</div>
+    </div>`;
+  }
+  let html='';
+  if(mains.length>=2){
+    // ── Бар-чарт виторгу магазину
+    const W=Math.max(320,mains.length*90),Hh=170,pad=26,bw=Math.min(46,(W-pad*2)/mains.length-14);
+    const max=Math.max(...mains.map(e=>e.totals.rev),1);
+    const step=(W-pad*2)/mains.length;
+    const bars=mains.map((e,i)=>{
+      const h=Math.max(3,(e.totals.rev/max)*(Hh-52));
+      const x=pad+step*i+(step-bw)/2,y=Hh-24-h;
+      const prev=mains[i-1];const d=prev&&prev.totals.rev?e.totals.rev/prev.totals.rev-1:null;
+      const last=i===mains.length-1;
+      const tip=`${esc(e.period)}\nВиторг: ${fmt(e.totals.rev)} ₴\nШтук: ${fmt(e.totals.units)} · Сер. чек ${fmt(e.totals.asp)} ₴\nVs бенчмарк: ${pct(e.totals.vs)}${d!=null?`\nДо попереднього: ${pct(d)}`:''}`;
+      return`<g><title>${tip}</title>
+        <rect x="${x-6}" y="8" width="${bw+12}" height="${Hh-8}" fill="transparent"/>
+        <path d="M${x},${Hh-24} V${y+4} a4,4 0 0 1 4,-4 H${x+bw-4} a4,4 0 0 1 4,4 V${Hh-24} Z" fill="var(--blue)" opacity="${last?1:.55}"/>
+        ${last||i===0?`<text x="${x+bw/2}" y="${y-6}" text-anchor="middle" font-size="11" font-family="'IBM Plex Mono',monospace" fill="var(--t1)" font-weight="600">${fmt(e.totals.rev/1000)}k</text>`:''}
+        <text x="${x+bw/2}" y="${Hh-8}" text-anchor="middle" font-size="10" font-family="Outfit,system-ui,sans-serif" fill="var(--t3)">${shortPeriod(e.period)}</text></g>`;
+    }).join('');
+    const first=mains[0],last=mains[mains.length-1],tot=first.totals.rev?last.totals.rev/first.totals.rev-1:0;
+    html+=`<div class="card"><div class="card-h"><span class="card-t">Виторг магазину по звітах</span><span style="font-size:11px;color:var(--t3)">з ${shortPeriod(first.period)}: <b style="color:${tot>=0?'var(--green)':'var(--red)'}">${pct(tot)}</b></span></div>
+      <div style="overflow-x:auto;padding:10px 8px 4px"><svg viewBox="0 0 ${W} ${Hh}" width="100%" style="min-width:${Math.min(W,320)}px;max-height:200px" role="img" aria-label="Виторг магазину по звітах">
+        <line x1="${pad}" y1="${Hh-24}" x2="${W-pad}" y2="${Hh-24}" stroke="var(--bd2)"/>${bars}</svg></div></div>`;
+
+    // ── Таблиця продавців
+    const cols=mains.slice(-6);
+    const lastS=[...cols[cols.length-1].sellers].sort((a,b)=>b.revenue-a.revenue);
+    const rows=lastS.map(s=>{
+      const vals=cols.map(e=>{const x=e.sellers.find(y=>y.name===s.name);return x?x.revVs:null;});
+      const known=vals.filter(v=>v!=null);
+      const delta=known.length>1?known[known.length-1]-known[0]:null;
+      const dl=delta==null?'<td class="pc-zero">—</td>':`<td style="color:${delta>.05?'var(--green)':delta<-.05?'var(--red)':'var(--t3)'}">${delta>0?'▲ +':delta<0?'▼ ':''}${Math.round(delta*100)} п.п.</td>`;
+      return`<tr onclick="sellerClick('${s.name}')" style="cursor:pointer"><td>${esc(s.full||s.name)}</td>${vals.map((v,i)=>trendCell(v,i?vals[i-1]:null)).join('')}${dl}</tr>`;
+    }).join('');
+    html+=`<div class="pen-section" style="margin-top:18px"><div class="pen-section-title">👥 Продавці — виторг vs бенчмарк</div>
+      <div style="overflow-x:auto"><table class="pen-table trend-table"><thead><tr><th style="text-align:left;min-width:150px">Продавець</th>${cols.map(e=>`<th title="${esc(e.period)}">${shortPeriod(e.period)}</th>`).join('')}<th>Зміна</th></tr></thead>
+      <tbody>${rows}</tbody></table></div>
+      <div style="font-size:11px;color:var(--t3);margin-top:8px">▲▼ — зміна відносно попереднього звіту. «Зміна» — від першого до останнього звіту в таблиці (у відсоткових пунктах).</div></div>`;
+  }
+  if(accs.length>=2){
+    const M=[['Чохли',b=>b.sm?.cover],['Скло',b=>b.sm?.glass],['Зарядки',b=>b.ch?.charge],['TWS',b=>b.ch?.hear_tws],['Сумки (ноут)',b=>b.lt?.bag],['Миша (ноут)',b=>b.lt?.mouse],['Кріплення ТВ',b=>b.tv?.mount]];
+    const rows=M.map(([l,g])=>{
+      const vals=accs.map(e=>g(e.bench||{}));
+      if(vals.every(v=>v==null))return'';
+      return`<tr><td>${l}</td>${vals.map((v,i)=>{
+        if(v==null)return'<td class="pc-zero">—</td>';
+        const p=i?vals[i-1]:null;const ar=p==null?'':v>p+.01?' ▲':v<p-.01?' ▼':'';
+        return`<td class="pc-avg">${Math.round(v*100)}%<span style="opacity:.7">${ar}</span></td>`;}).join('')}</tr>`;
+    }).join('');
+    html+=`<div class="pen-section" style="margin-top:18px"><div class="pen-section-title">📱 Проникнення АСС магазину</div>
+      <div style="overflow-x:auto"><table class="pen-table"><thead><tr><th style="text-align:left">Показник</th>${accs.map(e=>`<th title="${esc(e.period)}">${shortPeriod(e.period)}</th>`).join('')}</tr></thead><tbody>${rows}</tbody></table></div></div>`;
+  }
+  return html+hint;
+}
+
 function renderInsights(){
   if(!S.sellers||!S.sellers.length) return renderEmptyState();
   const sellers=S.sellers.filter(s=>s.revenue>0).sort((a,b)=>b.revenue-a.revenue);
@@ -1695,16 +1923,19 @@ function parseAccFile(ab){
     'Міщук Анастасія Володимирівна':'Міщук А.',
   };
 
+  // Новий продавець, якого ще немає в SELLER_MAP, теж підхоплюється (ПІБ з 3 слів)
+  const FULLNAME_RE=/^[А-ЯІЇЄҐ][а-яіїєґ'’ʼ-]+\s+[А-ЯІЇЄҐ][а-яіїєґ'’ʼ-]+\s+[А-ЯІЇЄҐ][а-яіїєґ'’ʼ-]+$/;
+  function isSeller(name){return !!SELLER_MAP[name]||(FULLNAME_RE.test(name)&&!name.includes('ДМ2'));}
+  const autoShort=n=>{const p=n.split(/\s+/);return p[0]+' '+(p[1]?p[1][0]+'.':'');};
   const sellerRows={};
   if(planHead>=0){
     for(let i=planHead+5;i<planHead+20;i++){
       const name=gs(i,0);
-      if(SELLER_MAP[name]){
+      if(isSeller(name)){
         sellerRows[name]=i;
       }
     }
   }
-  const sellerNames=Object.keys(SELLER_MAP);
 
   function sectionRows(headRow){
     let dm2=headRow+2;
@@ -1715,7 +1946,7 @@ function parseAccFile(ab){
     const map={};
     for(let i=dm2+1;i<dm2+15;i++){
       const name=gs(i,0);
-      if(SELLER_MAP[name])map[name]=i;
+      if(isSeller(name))map[name]=i;
     }
     return{avgRow,dm2Row:dm2,sellers:map};
   }
@@ -1730,6 +1961,9 @@ function parseAccFile(ab){
   const headerStr=gs(0,0);
   const dateMatch=headerStr.match(/(\d{2}\.\d{2}\.\d{4})/);
   const period=dateMatch?'Щоденний звіт АСС · '+dateMatch[1]:headerStr.replace('Щоденний звіт магазинів по АСС і Home на ','').trim()||'';
+
+  const sellerNames=[...new Set([...Object.keys(SELLER_MAP),...Object.keys(sellerRows),
+    ...[sm,ch,lt,gl,tv,wm].flatMap(x=>Object.keys(x.sellers))])];
 
   const bench={
     sm_avg:{qty:g(sm.avgRow,1),cover:g(sm.avgRow,2),glass:g(sm.avgRow,3)},
@@ -1749,7 +1983,7 @@ function parseAccFile(ab){
   };
 
   const sellers=sellerNames.map(name=>{
-    const sn=SELLER_MAP[name];
+    const sn=SELLER_MAP[name]||autoShort(name);
     const r_sm=sm.sellers[name];
     const r_ch=ch.sellers[name];
     const r_lt=lt.sellers[name];
@@ -1874,6 +2108,7 @@ const M_OFF_DAYS=['Ср','Чт'];
 
 let M_LOGS=[];
 let M_DONE={};
+let M_DELETED=[];
 let M_EDIT_ID=null;
 
 function mSellerInitials(name){
@@ -1892,7 +2127,7 @@ function mFreqBadge(seller){
 function mToggleDone(key,btn){
   M_DONE[key]=!M_DONE[key];
   if(btn)btn.classList.toggle('done',!!M_DONE[key]);
-  syncToCloud();
+  saveState();
 }
 
 function mOpenModal(sellerName){
@@ -1924,11 +2159,11 @@ function mSaveLog(){
   if(!seller||!date)return;
   if(M_EDIT_ID){
     const idx=M_LOGS.findIndex(l=>l.id===M_EDIT_ID);
-    if(idx>=0)M_LOGS[idx]={...M_LOGS[idx],seller,date,discuss,agree,deadline};
+    if(idx>=0)M_LOGS[idx]={...M_LOGS[idx],seller,date,discuss,agree,deadline,updatedAt:Date.now()};
   }else{
-    M_LOGS.push({id:Date.now().toString(),seller,date,discuss,agree,deadline});
+    M_LOGS.push({id:Date.now().toString(36)+Math.random().toString(36).slice(2,6),seller,date,discuss,agree,deadline,updatedAt:Date.now()});
   }
-  syncToCloud();
+  saveState();
   mCloseModal();
   render();
 }
@@ -1936,7 +2171,8 @@ function mSaveLog(){
 function mDeleteLog(id){
   if(!confirm('Видалити запис?'))return;
   M_LOGS=M_LOGS.filter(l=>l.id!==id);
-  syncToCloud();
+  M_DELETED.push(String(id));
+  saveState();
   render();
 }
 
@@ -1950,9 +2186,9 @@ function mRenderLogEntry(log){
       <span class="log-date-badge">${d}</span>
       <button class="log-del" onclick="mDeleteLog('${log.id}')" title="Видалити">✕</button>
     </div>
-    ${log.discuss?`<div class="log-section">💬 Обговорили</div><div class="log-text">${log.discuss}</div>`:''}
-    ${log.agree?`<div class="log-section">🤝 Домовились</div><div class="log-text">${log.agree}</div>`:''}
-    ${log.deadline?`<div><span class="log-deadline">📅 Дедлайн: ${log.deadline}</span></div>`:''}
+    ${log.discuss?`<div class="log-section">💬 Обговорили</div><div class="log-text">${esc(log.discuss)}</div>`:''}
+    ${log.agree?`<div class="log-section">🤝 Домовились</div><div class="log-text">${esc(log.agree)}</div>`:''}
+    ${log.deadline?`<div><span class="log-deadline">📅 Дедлайн: ${esc(log.deadline)}</span></div>`:''}
   </div>`;
 }
 
@@ -2033,9 +2269,9 @@ function closeMobOverlay(){
   document.getElementById('mobOverlay').classList.remove('visible');
 }
 
-function toggleCheck(k){S.checks[k]=!S.checks[k];syncToCloud();render();}
-function toggleRhythm(id){S.rhythmChecks[id]=!S.rhythmChecks[id];syncToCloud();render();}
-function resetRhythm(){if(confirm('Скинути прогрес тижня?')){S.rhythmChecks={};syncToCloud();render();}}
+function toggleCheck(k){S.checks[k]=!S.checks[k];saveState();render();}
+function toggleRhythm(id){S.rhythmChecks[id]=!S.rhythmChecks[id];saveState();render();}
+function resetRhythm(){if(confirm('Скинути прогрес тижня?')){S.rhythmChecks={};S.rhythmWeek=getWeekKey();saveState();render();}}
 
 function handleFile(file){
   if(!file)return;
@@ -2045,11 +2281,11 @@ function handleFile(file){
     try{
       const{sellers,cats,period}=parseFile(new Uint8Array(ev.target.result));
       if(!sellers.length){toast('Не знайдено даних.','err');return;}
-      S.sellers=sellers;S.cats=cats;
+      S.sellers=sellers;S.cats=cats;S.period=period||file.name.replace(/\.(xlsx|xls)$/i,'');
       const displayPeriod=period||file.name.replace(/\.(xlsx|xls)$/i,'');
       ['sbPeriod','mobPeriod'].forEach(id=>{const e=document.getElementById(id);if(e)e.textContent=displayPeriod;});
-      saveFileData();
-      toast('Файл завантажено і збережено в хмару!','ok');
+      afterReport('main');
+      toast('Звіт завантажено і збережено!','ok');
       render();
     }catch(e){toast('Помилка: '+e.message,'err');}
   };
@@ -2063,7 +2299,7 @@ function handleAccFile(file){
   reader.onload=ev=>{
     try{
       S.accData=parseAccFile(new Uint8Array(ev.target.result));
-      saveFileData();
+      afterReport('acc');
       toast('АСС файл завантажено!','ok');
       render();
     }catch(e){toast('Помилка АСС файлу: '+e.message,'err');}
@@ -2072,13 +2308,14 @@ function handleAccFile(file){
 }
 
 function clearFileData(){
-  localStorage.clear();
+  if(!confirm('Видалити завантажені звіти з цього пристрою? Записи 1:1 і галочки залишаться.'))return;
+  localStorage.removeItem(LS_KEYS.file);localStorage.removeItem(LS_KEYS.acc);
   location.reload();
 }
 
 function render(){
   renderKPI();
-  const titles={overview:'Огляд магазину',sellers:'Продавці',categories:'Категорії',plan:'План дій',rhythm:'Ритм тижня',focus:'Фокус дня',matrix:'Матриця продавців',insights:'Автоінсайти',quality:'Якість продажів',meetings:'Зустрічі 1:1'};
+  const titles={overview:'Огляд магазину',sellers:'Продавці',categories:'Категорії',plan:'План дій',rhythm:'Ритм тижня',focus:'Фокус дня',matrix:'Матриця продавців',insights:'Автоінсайти',quality:'Якість продажів',meetings:'Зустрічі 1:1',trends:'Динаміка по тижнях'};
   document.getElementById('pageTitle').textContent=titles[S.view]||'';
   const el=document.getElementById('content');
   if(!el)return;
@@ -2092,6 +2329,7 @@ function render(){
   else if(S.view==='insights')el.innerHTML=renderInsights();
   else if(S.view==='quality')el.innerHTML=renderQuality();
   else if(S.view==='meetings')el.innerHTML=renderMeetings();
+  else if(S.view==='trends')el.innerHTML=renderTrends();
 }
 
 // ═══════════════════════════════════════════════════════════════
@@ -2118,7 +2356,8 @@ document.documentElement.setAttribute('data-theme',S.theme==='light'?'light':'')
 
 // Initial render + Cloud Load
 render();
-loadFromCloud();
+loadLocal();
+migrateFromOldCloud();
 </script>
 
 <!-- ═══ MEETINGS 1:1 MODAL ═══ -->
@@ -2145,5 +2384,26 @@ loadFromCloud();
   </div>
 </div>
 
+<!-- ═══ BACKUP MODAL ═══ -->
+<div class="m-modal hidden" id="backup-modal" onclick="if(event.target===this)closeBackupModal()">
+  <div class="m-modal-box">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
+      <div style="font-size:17px;font-weight:700;color:var(--t1)">💾 Дані і синхронізація</div>
+      <button onclick="closeBackupModal()" style="font-size:18px;color:var(--t3);border:none;background:transparent;cursor:pointer;line-height:1">✕</button>
+    </div>
+    <div style="font-size:13px;color:var(--t2);line-height:1.6;margin-bottom:6px">Без синхронізації дані (звіти, записи 1:1, галочки) живуть тільки в цьому браузері. З синхронізацією — однакові на всіх пристроях і доступні Telegram-боту. Копія у файл — запасний варіант на всяк випадок.</div>
+    <div style="background:var(--bg3);border:1px solid var(--bd);border-radius:var(--r2);padding:14px;margin:10px 0 14px">
+      <div style="font-size:12px;font-weight:700;letter-spacing:.4px;text-transform:uppercase;color:var(--t2);margin-bottom:8px">☁️ Синхронізація між пристроями</div>
+      <div id="sync-box"></div>
+    </div>
+    <div id="backupHint" style="font-size:12px;margin-bottom:14px"></div>
+    <div class="m-btn-row" style="flex-direction:column">
+      <button class="m-btn m-btn-primary" onclick="exportBackup()">⬇ Зберегти копію у файл</button>
+      <label class="m-btn m-btn-cancel" style="text-align:center;cursor:pointer">⬆ Відновити з файлу
+        <input type="file" accept=".json,application/json" style="display:none" onchange="importBackup(this.files[0]);this.value=''">
+      </label>
+    </div>
+  </div>
+</div>
 </body>
 </html>
