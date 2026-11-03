@@ -663,6 +663,13 @@ tbody tr:hover td{background:var(--bg3)}
 .sheet-t{font-family:var(--f-display);font-size:17px;font-weight:600}
 .x-btn{font-size:20px;color:var(--t3);border:0;background:transparent;cursor:pointer;line-height:1;padding:4px 8px}
 
+.q-meta{font-size:13px;color:var(--t3);margin:0 2px 16px}
+.q-store tr.grp td{background:var(--bg3);font-weight:600;font-size:13px;padding:8px 14px}
+.q-store tr.grp td span{font-weight:400;color:var(--t3);margin-left:6px}
+.q-store td{padding:8px 14px;font-size:13px}
+.q-store td.r,.q-store th.r{white-space:nowrap}
+.watch{align-items:start}
+.pen-table td.qty{color:var(--t2)}
 .only-mob{display:none}
 
 /* ─── мобільний ─── */
@@ -1025,11 +1032,12 @@ const S={
   theme:'light',mobOverlay:false,
   accData:null,gsheetData:null,rhythmOpen:{},
   gsheetUrl:'https://docs.google.com/spreadsheets/d/1oodpZ_j07v0xBVsenrpyHXoqtXTdTp7v_u37iQEwzZs/edit?gid=897965126',
-  qualityTab:'penetration',meetingsTab:'schedule',meetingSelSeller:null
+  qualityTab:'attach',accPeriod:null,storeCats:[],store:null,meetingsTab:'schedule',meetingSelSeller:null
 };
 
 const ACC_CATS=new Set(['Навушники','Акустична система',"Миша комп'ютерна",'Миша комп.','Гарнітура комп\'ютерна','Гарнітура комп.','Ігровий маніпулятор','Клавіатура комп\'ютерна','Клавіатура','Кріплення для телевізора','Батарея мобільна','З/пристрій для мобільного пристрою','З/пристрій для моб.','Чохол для мобільного пристрою','Чохол для моб.']);
 const getBiz=cat=>ACC_CATS.has(cat)?'Аксесуари':'ДП техніка';
+const MY_BIZ=['Аксесуари','ДП техніка']; // бізнеси, якими ти керуєш; інші (Посуд тощо) не враховуються
 
 const SELLER_MAP_REV={
   'Зуєва О.':'Зуєва Ольга Андріївна',
@@ -1097,54 +1105,61 @@ function vsBar(v,max=2){
 }
 
 function parseFile(ab){
+  // Звіт «Продажі за категоріями у розрізі»: колонки шукаються за назвами, а не за номерами
   const wb=XLSX.read(ab,{type:'array'});
   const ws=wb.Sheets[wb.SheetNames[0]];
   const rows=XLSX.utils.sheet_to_json(ws,{header:1,defval:''});
-  let filePeriod='';
-  for(let i=0;i<25;i++){
-    for(let c=0;c<9;c++){
-      const v=String(rows[i]?rows[i][c]:'').trim();
-      if(/\d{2}\.\d{2}\.\d{2,4}\s*[-–]\s*\d{2}\.\d{2}\.\d{2,4}/.test(v)){
-        filePeriod=v.replace('- ','– ').replace(' -',' –');
-        break;
-      }
+  const T=v=>String(v==null?'':v).replace(/\s+/g,' ').trim();
+  const num=v=>{const n=parseFloat(String(v).replace(/\s/g,'').replace(',','.'));return isFinite(n)?n:0;};
+  const shortName=n=>{const p=n.split(/\s+/);return p[0]+(p[1]?' '+p[1][0]+'.':'');};
+  let h=-1;
+  for(let i=0;i<Math.min(rows.length,80);i++){
+    const r=(rows[i]||[]).map(T);
+    if(r.includes('Співробітник')&&r.some(x=>/^Категорія товару/.test(x))){h=i;break;}
+  }
+  if(h<0)return{sellers:[],cats:[],period:'',storeCats:[],error:'no-header'};
+  const H=rows[h].map(T),G=(rows[h-1]||[]).map(T);
+  const col=(re,def)=>{const i=H.findIndex(x=>re.test(x));return i>=0?i:def;};
+  const grp=(re,def)=>{const i=G.findIndex(x=>re.test(x));return i>=0?i:def;};
+  const C={cat:col(/^Категорія товару/,2),biz:col(/^Бізнес/,3),brand:col(/^Торгові марки/,4),seller:col(/^Співробітник/,5),role:col(/^Посада/,7)};
+  const R=grp(/^Виторг ГРН/i,9),U=grp(/^Виторг ШТ/i,12),A=grp(/^ASP/i,15);
+  let period='';
+  for(let i=0;i<=h&&!period;i++)for(const v of rows[i]||[]){
+    const m=T(v).match(/(\d{2}\.\d{2}\.\d{2,4})\s*[-–]\s*(\d{2}\.\d{2}\.\d{2,4})/);
+    if(m){period=m[1]+' – '+m[2];break;}
+  }
+  const sm={},storeCats=[],skipped=new Set(),staff=new Set();
+  for(let i=h+1;i<rows.length;i++){
+    const r=rows[i];if(!r||!r.length)continue;
+    const cat=T(r[C.cat]),biz=T(r[C.biz]),brand=T(r[C.brand]),seller=T(r[C.seller]),role=T(r[C.role]);
+    if(!cat||brand)continue;                       // рядки по брендах пропускаємо
+    if(biz&&!MY_BIZ.includes(biz)){skipped.add(biz);continue;}
+    const bz=biz||getBiz(cat);
+    const v={rev:num(r[R]),revB:num(r[R+1]),units:num(r[U]),unitsB:num(r[U+1]),asp:num(r[A]),aspB:num(r[A+1])};
+    if(!seller){
+      storeCats.push({cat,biz:bz,rev:v.rev,bench:v.revB,revVs:v.revB?v.rev/v.revB-1:0,units:v.units,unitsB:v.unitsB,
+        unitsVs:v.unitsB?v.units/v.unitsB-1:0,asp:v.asp,aspVs:v.units>0&&v.aspB>0?v.asp/v.aspB-1:null});
+      continue;
     }
-    if(filePeriod)break;
+    if(!/^Прод/i.test(role)){staff.add(seller);continue;}   // заступник, директор — не продавці
+    if(!sm[seller])sm[seller]={full:seller,name:SHORT[seller]||shortName(seller),revenue:0,units:0,revB:0,unitsB:0,cats:[]};
+    const s=sm[seller];
+    s.revenue+=v.rev;s.units+=v.units;s.revB+=v.revB;s.unitsB+=v.unitsB;
+    if(v.rev!==0||v.revB>0)s.cats.push({cat,biz:bz,rev:v.rev,units:v.units,bench:v.revB,
+      revVs:v.revB?v.rev/v.revB-1:0,aspVs:v.units>0&&v.aspB>0?v.asp/v.aspB-1:null});
   }
-  if(!filePeriod){
-    const r0=String(rows[0]?rows[0][0]:'');
-    const m=r0.match(/\d{2}\.\d{2}\.\d{4}/);
-    if(m)filePeriod=m[0];
-  }
-  const sm={};
-  for(let i=18;i<rows.length;i++){
-    const r=rows[i];
-    if(String(r[7]||'').trim()!=='Прод')continue;
-    const brand=String(r[4]||'').trim();
-    if(brand&&brand!=='nan'&&brand.length>2&&!/^\s+$/.test(brand))continue;
-    const seller=String(r[5]||'').trim();
-    if(!seller||seller.length<3||/^\s+$/.test(seller))continue;
-    const cat=String(r[2]||'').trim();if(!cat)continue;
-    const biz=String(r[3]||'').trim()||getBiz(cat);
-    const rev=parseFloat(r[9])||0,revVs=parseFloat(r[11])||0;
-    const units=parseFloat(r[12])||0,unitsVs=parseFloat(r[14])||0,aspVs=parseFloat(r[17])||0;
-    const sn=SHORT[seller]||(p=>p[0]+' '+(p[1]?p[1][0]+'.':''))(seller.split(/\s+/));
-    if(!sm[seller])sm[seller]={name:sn,full:seller,revenue:0,units:0,rv:[],av:[],uv:[],cats:{}};
-    sm[seller].revenue+=rev;sm[seller].units+=units;
-    sm[seller].rv.push(revVs);sm[seller].av.push(aspVs);sm[seller].uv.push(unitsVs);
-    if(rev>0){
-      if(!sm[seller].cats[cat])sm[seller].cats[cat]={rev:0,units:0,rv:[],av:[],biz};
-      sm[seller].cats[cat].rev+=rev;sm[seller].cats[cat].units+=units;
-      sm[seller].cats[cat].rv.push(revVs);sm[seller].cats[cat].av.push(aspVs);
-    }
-  }
-  const sellers=Object.values(sm).map(s=>({
-    name:s.name,full:s.full,revenue:s.revenue,units:s.units,
+  // «vs бенчмарк» продавця = його виторг / виторг середнього продавця в тих самих категоріях
+  const sellers=Object.values(sm).map(s=>({name:s.name,full:s.full,revenue:s.revenue,units:s.units,
     asp:s.units>0?s.revenue/s.units:0,
-    revVs:avg(s.rv),aspVs:avg(s.av),unitsVs:avg(s.uv),
-    cats:Object.entries(s.cats).map(([cat,v])=>({cat,biz:v.biz,rev:v.rev,units:v.units,revVs:avg(v.rv),aspVs:avg(v.av)})).sort((a,b)=>b.rev-a.rev)
-  })).sort((a,b)=>b.revenue-a.revenue);
-  return{sellers:assignTiers(sellers),cats:buildCatIndex(sellers),period:filePeriod};
+    revVs:s.revB?s.revenue/s.revB-1:0,
+    unitsVs:s.unitsB?s.units/s.unitsB-1:0,
+    aspVs:s.units>0&&s.unitsB>0&&s.revB>0?(s.revenue/s.units)/(s.revB/s.unitsB)-1:0,
+    cats:s.cats.sort((a,b)=>b.rev-a.rev)})).sort((a,b)=>b.revenue-a.revenue);
+  const sr=storeCats.reduce((a,c)=>a+c.rev,0),sb=storeCats.reduce((a,c)=>a+c.bench,0);
+  const su=storeCats.reduce((a,c)=>a+c.units,0),sub=storeCats.reduce((a,c)=>a+c.unitsB,0);
+  const store={rev:sr,bench:sb,revVs:sb?sr/sb-1:0,units:su,unitsVs:sub?su/sub-1:0,asp:su?sr/su:0,aspVs:su&&sub&&sb?(sr/su)/(sb/sub)-1:0};
+  return{sellers:assignTiers(sellers),cats:buildCatIndex(sellers),period,
+    storeCats:storeCats.sort((a,b)=>b.rev-a.rev),store,skippedBiz:[...skipped],staff:[...staff]};
 }
 
 // ═══════════════════════════════════════════════════════════════
@@ -1192,7 +1207,7 @@ function saveState(fromUser=true){
 // Зберігає завантажені звіти
 function saveFileData(){
   if(S.sellers&&S.sellers.length){
-    lsSet(LS_KEYS.file,{sellers:S.sellers,cats:S.cats,period:S.period||document.getElementById('sbPeriod')?.textContent||'',at:S.fileAt||null});
+    lsSet(LS_KEYS.file,{sellers:S.sellers,cats:S.cats,period:S.period||'',storeCats:S.storeCats||[],store:S.store||null,at:S.fileAt||null});
   }
   if(S.accData)lsSet(LS_KEYS.acc,S.accData);
   lsSet(LS_KEYS.history,S.history||[]);
@@ -1202,7 +1217,7 @@ function saveFileData(){
 function afterReport(type){
   const at=new Date().toISOString();
   let data;
-  if(type==='main'){S.fileAt=at;data={sellers:S.sellers,cats:S.cats,period:S.period};S.history=addToHistory(S.history,mainHistoryEntry(data,at));}
+  if(type==='main'){S.fileAt=at;data={sellers:S.sellers,cats:S.cats,period:S.period,storeCats:S.storeCats||[],store:S.store||null};S.history=addToHistory(S.history,mainHistoryEntry(data,at));}
   else{S.accData.at=at;data=S.accData;S.history=addToHistory(S.history,accHistoryEntry(data,at));}
   saveFileData();
   setSaveStatus('Звіт збережено на пристрої');
@@ -1216,7 +1231,7 @@ const _avg=a=>a.length?a.reduce((s,v)=>s+v,0)/a.length:0;
 function mainHistoryEntry(d,at){
   const s=(d.sellers||[]).filter(x=>x.revenue>0);
   const rev=s.reduce((a,x)=>a+x.revenue,0),units=s.reduce((a,x)=>a+x.units,0);
-  return{type:'main',period:d.period||'',at,totals:{rev,units,asp:units?rev/units:0,vs:_avg(s.map(x=>x.revVs))},
+  return{type:'main',period:d.period||'',at,totals:{rev,units,asp:units?rev/units:0,vs:d.store&&d.store.bench?d.store.revVs:_avg(s.map(x=>x.revVs))},
     sellers:s.map(x=>({name:x.name,full:x.full,revenue:x.revenue,units:x.units,asp:x.asp,revVs:x.revVs,aspVs:x.aspVs,tier:x.tier}))};
 }
 const ACC_FIELDS=['sm_qty','sm_cover','sm_glass','sm_charge','sm_hear_ttl','sm_hear_tws','lt_qty','lt_bag','lt_mouse','tv_qty','tv_mount','wm_qty','wm_deterg','acc_fact','acc_pct'];
@@ -1275,9 +1290,9 @@ async function pullCloud(silent){
     const d=await cloudReq('/api/data');
     let changed=false;
     if(d.main&&d.main.sellers&&(!S.fileAt||new Date(d.main.at)>new Date(S.fileAt))){
-      S.sellers=assignTiers(d.main.sellers);S.cats=d.main.cats||buildCatIndex(S.sellers);S.period=d.main.period;S.fileAt=d.main.at;applyPeriod(S.period);changed=true;
+      S.sellers=assignTiers(d.main.sellers);S.cats=d.main.cats||buildCatIndex(S.sellers);S.period=d.main.period;S.storeCats=d.main.storeCats||[];S.store=d.main.store||null;S.fileAt=d.main.at;applyPeriod(S.period);changed=true;
     }
-    if(d.acc&&(!S.accData||!S.accData.at||new Date(d.acc.at)>new Date(S.accData.at))){S.accData=d.acc;changed=true;}
+    if(d.acc&&d.acc.kind==='acc2'&&(!S.accData||!S.accData.at||new Date(d.acc.at)>new Date(S.accData.at))){S.accData=d.acc;changed=true;}
     S.history=mergeHistory(S.history,d.history);
     const local=currentState();
     const merged=mergeState(local,d.state);
@@ -1287,7 +1302,7 @@ async function pullCloud(silent){
     _pulling=false;
     if(needPush)await pushState();else{S.dirty=false;setSyncOk();}
     // Звіти, які були тільки на цьому пристрої, відправляємо в хмару
-    if(S.sellers.length&&S.fileAt&&(!d.main||new Date(S.fileAt)>new Date(d.main.at)))cloudReq('/api/report',{method:'POST',body:JSON.stringify({type:'main',data:{sellers:S.sellers,cats:S.cats,period:S.period,at:S.fileAt}})}).catch(()=>{});
+    if(S.sellers.length&&S.fileAt&&(!d.main||new Date(S.fileAt)>new Date(d.main.at)))cloudReq('/api/report',{method:'POST',body:JSON.stringify({type:'main',data:{sellers:S.sellers,cats:S.cats,period:S.period,storeCats:S.storeCats||[],store:S.store||null,at:S.fileAt}})}).catch(()=>{});
     if(S.accData&&S.accData.at&&(!d.acc||new Date(S.accData.at)>new Date(d.acc.at)))cloudReq('/api/report',{method:'POST',body:JSON.stringify({type:'acc',data:S.accData})}).catch(()=>{});
     render();
     return true;
@@ -1330,9 +1345,11 @@ function applyData(d){
   if(d.file&&d.file.sellers&&d.file.sellers.length){
     S.sellers=assignTiers(d.file.sellers);
     S.cats=d.file.cats||buildCatIndex(S.sellers);
+    S.storeCats=d.file.storeCats||[];S.store=d.file.store||null;
     applyPeriod(d.file.period||'Збережений звіт');
   }
-  if(d.acc)S.accData=d.acc;
+  // старий формат АСС (до оновлення парсера) не використовуємо — він читав не ті колонки
+  if(d.acc&&d.acc.kind==='acc2')S.accData=d.acc;
   const st=d.state||{};
   S.checks=st.checks||{};
   S.rhythmChecks=st.rhythmChecks||{};
@@ -1519,12 +1536,12 @@ function renderKPI(){
   const s=S.sellers.filter(x=>x.revenue>0);
   if(!s.length||!['sellers','categories','matrix','insights'].includes(S.view)){el.innerHTML='';return;}
   const totR=s.reduce((a,x)=>a+x.revenue,0),totU=s.reduce((a,x)=>a+x.units,0);
-  const vsA=avg(s.map(x=>x.revVs));
+  const vsA=S.store&&S.store.bench?S.store.revVs:avg(s.map(x=>x.revVs));
   el.innerHTML=`<dl class="kpi-strip">
     <div><dt>Виторг</dt><dd>${fmt(totR)} ₴</dd></div>
     <div><dt>Штук</dt><dd>${fmt(totU)}</dd></div>
     <div><dt>Середній чек</dt><dd>${fmt(totU?totR/totU:0)} ₴</dd></div>
-    <div><dt>До бенчмарку</dt><dd class="${vsA>=.005?'up':vsA<=-.005?'down':''}">${pct(vsA)}</dd></div>
+    <div><dt>${S.store&&S.store.bench?'До середнього магазину':'До бенчмарку'}</dt><dd class="${vsA>=.005?'up':vsA<=-.005?'down':''}">${pct(vsA)}</dd></div>
   </dl>`;
 }
 
@@ -1547,11 +1564,10 @@ function watchItems(sellers){
       .filter(x=>x.d<-.1).sort((a,b)=>a.d-b.d)
       .forEach(x=>add(x.s,`Просів за тиждень: було ${pct(x.from)}, стало ${pct(x.s.revVs)} до бенчмарку`,'drop'));
   }
-  sellers.filter(s=>s.aspVs<-.1).sort((a,b)=>a.aspVs-b.aspVs).forEach(s=>add(s,`Середній чек ${pct(s.aspVs)} до бенчмарку: продає дешевші моделі`,'asp'));
-  if(S.accData&&S.accData.bench&&S.accData.bench.sm_dm2){
-    const g=S.accData.bench.sm_dm2.glass;
-    if(g)S.accData.sellers.filter(a=>a.sm_glass!=null&&a.sm_glass<g*.85&&(a.sm_qty||0)>=3).sort((a,b)=>a.sm_glass-b.sm_glass)
-      .forEach(a=>{const s=sellers.find(x=>x.name===a.name);if(s)add(s,`Скло до смартфонів ${Math.round(a.sm_glass*100)}%, у магазині ${Math.round(g*100)}%`,'acc');});
+  sellers.filter(s=>s.aspVs<-.1).sort((a,b)=>a.aspVs-b.aspVs).slice(0,2).forEach(s=>add(s,`Середній чек ${pct(s.aspVs)} до бенчмарку: продає дешевші моделі`,'asp'));
+  if(S.accData&&S.accData.kind==='acc2'){
+    accReserve(S.accData).filter(r=>r.missed>=3).forEach(r=>{const s=sellers.find(x=>x.name===r.s.name);
+      if(s)add(s,`${r.label} ${r.g.to} ${Math.round(r.sp*100)}% при ${Math.round(r.tp*100)}% у магазині: недодано ${Math.round(r.missed)} шт`,'acc');});
   }
   return items;
 }
@@ -1569,7 +1585,7 @@ function renderOverview(){
   if(!S.sellers||!S.sellers.length) return renderEmptyState();
   const all=S.sellers.filter(s=>s.revenue>0);
   const totR=all.reduce((a,x)=>a+x.revenue,0),totU=all.reduce((a,x)=>a+x.units,0);
-  const vsA=avg(all.map(x=>x.revVs));
+  const vsA=S.store&&S.store.bench?S.store.revVs:avg(all.map(x=>x.revVs));
   const dCount=all.filter(s=>s.tier==='D').length;
   const prev=prevMainEntry();
   const dRev=prev&&prev.totals&&prev.totals.rev?totR/prev.totals.rev-1:null;
@@ -1585,7 +1601,7 @@ function renderOverview(){
     <dl class="tag-facts">
       <div><dt>Продано штук</dt><dd>${fmt(totU)}</dd></div>
       <div><dt>Середній чек</dt><dd>${fmt(totU?totR/totU:0)} ₴</dd></div>
-      <div><dt>До бенчмарку мережі</dt><dd class="${vsA>=.005?'up':vsA<=-.005?'down':''}">${pct(vsA)}</dd></div>
+      <div><dt>${S.store&&S.store.bench?'До середнього магазину':'До бенчмарку мережі'}</dt><dd class="${vsA>=.005?'up':vsA<=-.005?'down':''}">${pct(vsA)}</dd></div>
       <div><dt>Продавців у звіті</dt><dd>${all.length}<small>${dCount?`тир D: ${dCount}`:'без тиру D'}</small></dd></div>
     </dl>
   </section>`;
@@ -1701,7 +1717,11 @@ function renderCategories(){
       </div>
       <div class="li-sub">${c.sellers.length} продавців · ${c.sellers.reduce((a,s)=>a+(s.units||0),0)} шт</div>
     </div>`).join('');
-  let detail=`<div class="empty">← Оберіть категорію</div>`;
+  const sc=(S.storeCats||[]).filter(c=>S.bizFilter==='all'||c.biz===S.bizFilter);
+  let detail=sc.length?`<section class="card"><div class="card-h"><span class="card-t">Магазин по категоріях проти середнього магазину</span><span class="panel-note">натисни категорію зліва, щоб побачити продавців</span></div>
+    <div style="overflow-x:auto"><table class="rank-table"><thead><tr><th>Категорія</th><th class="r">Виторг</th><th class="r">До сер. маг.</th><th class="r">Штук</th><th class="r">Шт до сер. маг.</th><th class="r">Сер. чек до сер. маг.</th></tr></thead><tbody>
+    ${[...sc].sort((a,b)=>a.revVs-b.revVs).map(c=>`<tr onclick="S.selCat='${c.cat.replace(/'/g,"\\'")}';render()"><td class="nm">${esc(c.cat)}</td><td class="r num">${fmt(c.rev)} ₴</td><td class="r">${dvTxt(c.revVs)}</td><td class="r num">${fmt(c.units)}</td><td class="r">${dvTxt(c.unitsVs)}</td><td class="r">${dvTxt(c.aspVs)}</td></tr>`).join('')}
+    </tbody></table></div></section>`:`<div class="empty">← Оберіть категорію</div>`;
   if(S.selCat){
     const c=allCats.find(x=>x.cat===S.selCat);
     if(c){
@@ -2135,210 +2155,257 @@ function renderInsights(){
     </div>`;
 }
 
+// ═══ ЩОДЕННИЙ ЗВІТ АСС: показники шукаються за назвою колонки ═══
+// kind: pct — частка/проникнення (0.45 = 45%), qty — штуки, uah — гривні, delta — виконання плану (−0.14 = −14%)
+const ACC_DEFS=[
+  {k:'acc_plan',re:/^План АСС \+ Home, грн/i,kind:'uah'},
+  {k:'acc_fact',re:/^Факт АСС \+ Home, грн/i,kind:'uah'},
+  {k:'acc_exec',re:/^Вик\.?\s*плану АСС \+ Home, грн/i,kind:'delta'},
+  {k:'acc_pct_plan',re:/^План АСС \+ Home, % частка/i,kind:'pct'},
+  {k:'acc_pct',re:/^Факт АСС \+ Home, % частка/i,kind:'pct'},
+  {k:'acc_pct_exec',re:/^Вик\.?\s*плана? АСС \+ Home, %/i,kind:'delta'},
+  {k:'credit',re:/АСС \+ Home, % частка кредиту/i,kind:'pct'},
+  {k:'chem_qty',re:/^Побутова хімія, шт/i,kind:'qty'},
+  {k:'chem_wm',re:/^Побутова х[іi]мія до Пральних/i,kind:'pct'},
+  {k:'chem_dw',re:/^Побутова х[іi]м[іi]я до Посудомийних/i,kind:'pct'},
+  {k:'chem_fr',re:/^Побутова х[іi]мія до Холодильник/i,kind:'pct'},
+  {k:'sm_qty',re:/^Смартфон, шт/i,kind:'qty'},
+  {k:'sm_cover',re:/^Чохли до Смартфон/i,kind:'pct'},
+  {k:'sm_glass',re:/^Скло.*до Смартфон/i,kind:'pct'},
+  {k:'sm_charge',re:/^Зарядки до Смартфон/i,kind:'pct'},
+  {k:'sm_hear_ttl',re:/^Навушники ТТЛ до Смартфон/i,kind:'pct'},
+  {k:'sm_hear_tws',re:/^Навушники TWS до Смартфон/i,kind:'pct'},
+  {k:'lt_qty',re:/^Ноутбук, шт/i,kind:'qty'},
+  {k:'lt_bag',re:/^Сумки до Ноутбук/i,kind:'pct'},
+  {k:'lt_mouse',re:/^Миша.*до Ноутбук/i,kind:'pct'},
+  {k:'gl_qty',re:/^Ноутбук ігровий, шт/i,kind:'qty'},
+  {k:'gl_acc',re:/^Ігрові Акси до Ігрових/i,kind:'pct'},
+  {k:'tv_qty',re:/^Телевізор, шт/i,kind:'qty'},
+  {k:'tv_mount',re:/^Кріплення до ТВ/i,kind:'pct'},
+  {k:'tv_net',re:/^Мережеве обладнання до ТВ/i,kind:'pct'},
+  {k:'wm_qty',re:/^Пральні машини, шт/i,kind:'qty'},
+  {k:'wm_deterg',re:/^Засоби для прання до Пральних/i,kind:'pct'},
+  {k:'wm_clean',re:/^Засіб для чищення.*до Пральних/i,kind:'pct'},
+  {k:'dw_qty',re:/^Посудомийна машина, шт/i,kind:'qty'},
+  {k:'dw_tabs',re:/^Таблетки.*Посудомийних/i,kind:'pct'},
+  {k:'dw_clean',re:/^Засіб для чищення до Посудомийних/i,kind:'pct'},
+  {k:'cm_qty',re:/^Кавомашина, шт/i,kind:'qty'},
+  {k:'cm_coffee',re:/^Кава до Кавомашин/i,kind:'pct'},
+  {k:'cm_clean',re:/^Засіб для чищення до Кавомашин/i,kind:'pct'},
+];
+// Пари «товар → що до нього допродаємо»
+const ACC_GROUPS=[
+  {id:'sm',to:'до смартфонів',title:'Смартфони',base:'sm_qty',items:[['sm_cover','Чохол'],['sm_glass','Скло'],['sm_charge','Зарядка'],['sm_hear_tws','Навушники TWS'],['sm_hear_ttl','Навушники дротові']]},
+  {id:'lt',to:'до ноутбуків',title:'Ноутбуки',base:'lt_qty',items:[['lt_bag','Сумка'],['lt_mouse','Миша, клавіатура']]},
+  {id:'gl',to:'до ігрових ноутбуків',title:'Ігрові ноутбуки',base:'gl_qty',items:[['gl_acc','Ігрові аксесуари']]},
+  {id:'wm',to:'до пральних машин',title:'Пральні машини',base:'wm_qty',items:[['wm_deterg','Засоби для прання'],['chem_wm','Побутова хімія'],['wm_clean','Чищення, фільтр']]},
+  {id:'tv',to:'до телевізорів',title:'Телевізори',base:'tv_qty',items:[['tv_mount','Кріплення'],['tv_net','Мережеве обладнання']]},
+  {id:'cm',to:'до кавомашин',title:'Кавомашини',base:'cm_qty',items:[['cm_coffee','Кава'],['cm_clean','Засіб для чищення']]},
+  {id:'dw',to:'до посудомийних машин',title:'Посудомийні машини',base:'dw_qty',items:[['dw_tabs','Таблетки, сіль'],['dw_clean','Засіб для чищення']]},
+];
+const UK_MONTHS=['січень','лютий','березень','квітень','травень','червень','липень','серпень','вересень','жовтень','листопад','грудень'];
+function accPeriodInfo(p){
+  const m=String(p).match(/(\d{2})\.(\d{2})\.(\d{2,4})\s*[-–]\s*(\d{2})\.(\d{2})\.(\d{2,4})/);
+  if(!m)return{key:p,label:p,end:0};
+  const yr=x=>x.length===2?2000+(+x):+x;
+  const to=new Date(yr(m[6]),+m[5]-1,+m[4]);
+  const lastDay=new Date(to.getFullYear(),to.getMonth()+1,0).getDate();
+  const sameMonth=m[2]===m[5]&&m[3]===m[6];
+  const label=sameMonth&&+m[1]===1&&+m[4]===lastDay?`${UK_MONTHS[to.getMonth()]} ${to.getFullYear()}`
+    :sameMonth?`${UK_MONTHS[to.getMonth()]}, ${+m[1]}–${+m[4]} число`:`${m[1]}.${m[2]}–${m[4]}.${m[5]}.${m[6].slice(-2)}`;
+  return{key:p,label,end:to.getTime()};
+}
 function parseAccFile(ab){
   const wb=XLSX.read(ab,{type:'array'});
   const ws=wb.Sheets[wb.SheetNames[0]];
-  const rows=XLSX.utils.sheet_to_json(ws,{header:1,defval:null});
-  const g=(r,c)=>{const v=rows[r]?rows[r][c]:null;return(v===null||v===undefined||String(v).trim()===''||String(v).trim()==='nan')?null:parseFloat(v)||null;};
-  const gs=(r,c)=>{const v=rows[r]?rows[r][c]:null;return(v===null||v===undefined)?'':String(v).trim();};
-
-  function findRow(keyword,maxRow=400){
-    for(let i=0;i<maxRow;i++){
-      for(let c=0;c<4;c++){
-        const v=gs(i,c);
-        if(v.includes(keyword))return i;
+  const rows=XLSX.utils.sheet_to_json(ws,{header:1,defval:''});
+  const T=v=>String(v==null?'':v).replace(/\s+/g,' ').trim();
+  const title=T(rows[0]&&rows[0][0]);
+  const dm=title.match(/(\d{2}\.\d{2}\.\d{4})/);
+  const raw={store:{},avg:{},region:{},sellers:{}},periods=new Map(),warnings=[];
+  let storeName='';
+  for(let i=0;i<rows.length;i++){
+    if(T(rows[i]&&rows[i][0])!=='Регіон / Магазини')continue;
+    const hdr=rows[i]||[],per=rows[i+1]||[],cols=[];
+    let cur='';
+    for(let c=1;c<Math.max(hdr.length,per.length);c++){
+      const hv=T(hdr[c]);if(hv)cur=hv;               // об'єднані комірки: назва лише в першій
+      const pv=T(per[c]);if(!cur||!pv)continue;
+      const d=ACC_DEFS.find(x=>x.re.test(cur));if(!d)continue;
+      const pi=accPeriodInfo(pv);periods.set(pi.key,pi);
+      cols.push({c,d,p:pi.key});
+    }
+    let j=i+2;
+    for(;j<rows.length;j++){
+      const r=rows[j]||[],name=T(r[0]);
+      if(!name||name==='Регіон / Магазини')break;
+      let target;
+      if(/^Середній магазин/i.test(name))target=raw.avg;
+      else if(/\(.+\)/.test(name)){target=raw.store;storeName=storeName||name;}
+      else if(name.split(' ').length<3)target=raw.region;
+      else target=raw.sellers[name]=raw.sellers[name]||{};
+      for(const x of cols){
+        const v=r[x.c];if(v===''||v==null)continue;
+        const n=typeof v==='number'?v:parseFloat(String(v).replace(',','.'));
+        if(!isFinite(n))continue;
+        if(x.d.kind==='pct'&&Math.abs(n)>20){warnings.push(`${name}: «${x.d.k}» = ${n}`);continue;}  // захист від зсуву колонок
+        (target[x.p]=target[x.p]||{})[x.d.k]=n;
       }
     }
-    return -1;
+    i=j-1;
   }
-
-  const smHead=findRow('Смартфон, шт');
-  const chHead=findRow('Зарядки до Смартфонів');
-  const ltHead=findRow('Ноутбук, шт');
-  const glHead=findRow('Ноутбук ігровий, шт');
-  const tvHead=findRow('Телевізор, шт');
-  const wmHead=findRow('Пральні машини, шт');
-  const planHead=findRow('План АСС + Home, грн');
-  const pctHead=findRow('План АСС + Home, % частка');
-
-  const SELLER_MAP={
-    'Кисельов Дмитро Сергійович':'Кисельов Д.',
-    'Зуєва Ольга Андріївна':'Зуєва О.',
-    'Пачковський Ілля Владиславович':'Пачковський І.',
-    'Гаврихів Роман Вадимович':'Гаврихів Р.',
-    'Дудник Анастасія Євгеніївна':'Дудник А.',
-    'Куценко Майя Сергіївна':'Куценко М.',
-    'Бугас Данило Олександрович':'Бугас Д.',
-    'Устинова Людмила Олександрівна':'Устинова Л.',
-    'Фесенко Ярослав Юрійович':'Фесенко Я.',
-    'Переяслов Микита Олегович':'Переяслов М.',
-    'Міщук Анастасія Володимирівна':'Міщук А.',
-  };
-
-  // Новий продавець, якого ще немає в SELLER_MAP, теж підхоплюється (ПІБ з 3 слів)
-  const FULLNAME_RE=/^[А-ЯІЇЄҐ][а-яіїєґ'’ʼ-]+\s+[А-ЯІЇЄҐ][а-яіїєґ'’ʼ-]+\s+[А-ЯІЇЄҐ][а-яіїєґ'’ʼ-]+$/;
-  function isSeller(name){return !!SELLER_MAP[name]||(FULLNAME_RE.test(name)&&!name.includes('ДМ2'));}
-  const autoShort=n=>{const p=n.split(/\s+/);return p[0]+' '+(p[1]?p[1][0]+'.':'');};
-  const sellerRows={};
-  if(planHead>=0){
-    for(let i=planHead+5;i<planHead+20;i++){
-      const name=gs(i,0);
-      if(isSeller(name)){
-        sellerRows[name]=i;
-      }
-    }
-  }
-
-  function sectionRows(headRow){
-    let dm2=headRow+2;
-    for(let i=headRow+1;i<headRow+6;i++){
-      if(gs(i,0).includes('ДМ2')){dm2=i;break;}
-    }
-    const avgRow=dm2-2;
-    const map={};
-    for(let i=dm2+1;i<dm2+15;i++){
-      const name=gs(i,0);
-      if(isSeller(name))map[name]=i;
-    }
-    return{avgRow,dm2Row:dm2,sellers:map};
-  }
-
-  const sm=smHead>=0?sectionRows(smHead):{avgRow:-1,dm2Row:-1,sellers:{}};
-  const ch=chHead>=0?sectionRows(chHead):{avgRow:-1,dm2Row:-1,sellers:{}};
-  const lt=ltHead>=0?sectionRows(ltHead):{avgRow:-1,dm2Row:-1,sellers:{}};
-  const gl=glHead>=0?sectionRows(glHead):{avgRow:-1,dm2Row:-1,sellers:{}};
-  const tv=tvHead>=0?sectionRows(tvHead):{avgRow:-1,dm2Row:-1,sellers:{}};
-  const wm=wmHead>=0?sectionRows(wmHead):{avgRow:-1,dm2Row:-1,sellers:{}};
-
-  const headerStr=gs(0,0);
-  const dateMatch=headerStr.match(/(\d{2}\.\d{2}\.\d{4})/);
-  const period=dateMatch?'Щоденний звіт АСС · '+dateMatch[1]:headerStr.replace('Щоденний звіт магазинів по АСС і Home на ','').trim()||'';
-
-  const sellerNames=[...new Set([...Object.keys(SELLER_MAP),...Object.keys(sellerRows),
-    ...[sm,ch,lt,gl,tv,wm].flatMap(x=>Object.keys(x.sellers))])];
-
-  const bench={
-    sm_avg:{qty:g(sm.avgRow,1),cover:g(sm.avgRow,2),glass:g(sm.avgRow,3)},
-    sm_dm2:{qty:g(sm.dm2Row,1),cover:g(sm.dm2Row,2),glass:g(sm.dm2Row,3)},
-    ch_avg:{charge:g(ch.avgRow,1),hear_ttl:g(ch.avgRow,2),hear_tws:g(ch.avgRow,3)},
-    ch_dm2:{charge:g(ch.dm2Row,1),hear_ttl:g(ch.dm2Row,2),hear_tws:g(ch.dm2Row,3)},
-    lt_avg:{qty:g(lt.avgRow,1),bag:g(lt.avgRow,2),mouse:g(lt.avgRow,3)},
-    lt_dm2:{qty:g(lt.dm2Row,1),bag:g(lt.dm2Row,2),mouse:g(lt.dm2Row,3)},
-    gl_avg:{qty:g(gl.avgRow,1),gami:g(gl.avgRow,2),gami_units:g(gl.avgRow,3)},
-    gl_dm2:{qty:g(gl.dm2Row,1),gami:g(gl.dm2Row,2),gami_units:g(gl.dm2Row,3)},
-    tv_avg:{qty:g(tv.avgRow,1),mount:g(tv.avgRow,2),net:g(tv.avgRow,3)},
-    tv_dm2:{qty:g(tv.dm2Row,1),mount:g(tv.dm2Row,2),net:g(tv.dm2Row,3)},
-    wm_avg:{qty:g(wm.avgRow,1),deterg:g(wm.avgRow,2),clean:g(wm.avgRow,3)},
-    wm_dm2:{qty:g(wm.dm2Row,1),deterg:g(wm.dm2Row,2),clean:g(wm.dm2Row,3)},
-    acc_avg:{plan:null,fact:g(planHead>=0?planHead+2:-1,2),pct_plan:null,pct_fact:g(pctHead>=0?pctHead+2:-1,2)},
-    acc_dm2:{plan:g(planHead>=0?planHead+4:-1,1),fact:g(planHead>=0?planHead+4:-1,2),pct_plan:g(pctHead>=0?pctHead+4:-1,1),pct_fact:g(pctHead>=0?pctHead+4:-1,2)},
-  };
-
-  const sellers=sellerNames.map(name=>{
-    const sn=SELLER_MAP[name]||autoShort(name);
-    const r_sm=sm.sellers[name];
-    const r_ch=ch.sellers[name];
-    const r_lt=lt.sellers[name];
-    const r_gl=gl.sellers[name];
-    const r_tv=tv.sellers[name];
-    const r_wm=wm.sellers[name];
-    const r_pl=sellerRows[name];
-    const r_pct=r_pl?r_pl+(pctHead-planHead):null;
-
-    return{
-      name:sn,full:name,
-      sm_qty:r_sm?g(r_sm,1):null,sm_cover:r_sm?g(r_sm,2):null,sm_glass:r_sm?g(r_sm,3):null,
-      sm_charge:r_ch?g(r_ch,1):null,sm_hear_ttl:r_ch?g(r_ch,2):null,sm_hear_tws:r_ch?g(r_ch,3):null,
-      lt_qty:r_lt?g(r_lt,1):null,lt_bag:r_lt?g(r_lt,2):null,lt_mouse:r_lt?g(r_lt,3):null,
-      gl_qty:r_gl?g(r_gl,1):null,gl_gami:r_gl?g(r_gl,2):null,gl_gami_units:r_gl?g(r_gl,3):null,
-      tv_qty:r_tv?g(r_tv,1):null,tv_mount:r_tv?g(r_tv,2):null,tv_net:r_tv?g(r_tv,3):null,
-      wm_qty:r_wm?g(r_wm,1):null,wm_deterg:r_wm?g(r_wm,2):null,wm_clean:r_wm?g(r_wm,3):null,
-      acc_fact:r_pl?g(r_pl,2):null,
-      acc_pct:r_pct?g(r_pct,2):null,
-    };
-  }).filter(s=>s.sm_qty!==null||s.lt_qty!==null||s.tv_qty!==null||s.wm_qty!==null||s.acc_fact!==null);
-
-  return{period,bench,sellers};
+  const acc={kind:'acc2',title,reportDate:dm?dm[1]:'',storeName,
+    periods:[...periods.values()].sort((a,b)=>a.end-b.end),raw,warnings};
+  return accSelect(acc,null);
+}
+// Зріз звіту за обраний місяць (за замовчуванням — останній) + сумісні поля для старого коду
+function accSelect(acc,key){
+  if(!acc||!acc.raw)return acc;
+  const P=acc.periods||[];
+  const idx=key?P.findIndex(p=>p.key===key):P.length-1;
+  const cur=P[idx]||P[P.length-1]||{key:'',label:''},prev=P[(idx<0?P.length-1:idx)-1]||null;
+  const g=(o,k)=>(o&&k&&o[k])||{};
+  const shortName=n=>{const p=n.split(/\s+/);return p[0]+(p[1]?' '+p[1][0]+'.':'');};
+  const store=g(acc.raw.store,cur.key),avgS=g(acc.raw.avg,cur.key);
+  const sellers=Object.entries(acc.raw.sellers).map(([full,by])=>{
+    const v=g(by,cur.key);
+    return{name:(typeof SHORT!=='undefined'&&SHORT[full])||shortName(full),full,...v,prev:prev?g(by,prev.key):{}};
+  }).filter(s=>Object.keys(s).length>4&&!(s.acc_fact!=null&&s.acc_fact<1000))   // заступник/адмін з нульовим АСС
+    .sort((a,b)=>(b.acc_fact||0)-(a.acc_fact||0));
+  const pick=(o,map)=>{const r={};for(const[a,b]of Object.entries(map))r[a]=o[b]??null;return r;};
+  const bench={};
+  [['dm2',store],['avg',avgS]].forEach(([sfx,o])=>{
+    bench['sm_'+sfx]=pick(o,{qty:'sm_qty',cover:'sm_cover',glass:'sm_glass'});
+    bench['ch_'+sfx]=pick(o,{charge:'sm_charge',hear_ttl:'sm_hear_ttl',hear_tws:'sm_hear_tws'});
+    bench['lt_'+sfx]=pick(o,{qty:'lt_qty',bag:'lt_bag',mouse:'lt_mouse'});
+    bench['gl_'+sfx]=pick(o,{qty:'gl_qty',gami:'gl_acc'});
+    bench['tv_'+sfx]=pick(o,{qty:'tv_qty',mount:'tv_mount',net:'tv_net'});
+    bench['wm_'+sfx]=pick(o,{qty:'wm_qty',deterg:'wm_deterg',clean:'wm_clean'});
+    bench['acc_'+sfx]=pick(o,{plan:'acc_plan',fact:'acc_fact',pct_plan:'acc_pct_plan',pct_fact:'acc_pct'});
+  });
+  return{...acc,key:cur.key,period:cur.label,prevKey:prev?prev.key:null,prevLabel:prev?prev.label:'',
+    store,avg:avgS,region:g(acc.raw.region,cur.key),prevStore:prev?g(acc.raw.store,prev.key):{},prevAvg:prev?g(acc.raw.avg,prev.key):{},
+    bench,sellers};
+}
+// Резерв: скільки штук аксесуарів недопродано, якби продавець тримав рівень магазину
+function accReserve(v){
+  const out=[];
+  (v.sellers||[]).forEach(s=>ACC_GROUPS.forEach(g=>{
+    const base=s[g.base]||0;if(base<3)return;
+    g.items.forEach(([k,label])=>{
+      const sp=s[k],tp=v.store[k];
+      if(sp==null||tp==null||tp<=0)return;
+      const missed=(tp-sp)*base;
+      if(missed>=1)out.push({s,g,k,label,sp,tp,base,missed});
+    });
+  }));
+  return out.sort((a,b)=>b.missed-a.missed);
+}
+function accStoreGap(v){
+  const out=[];
+  ACC_GROUPS.forEach(g=>{
+    const base=v.store[g.base]||0;
+    g.items.forEach(([k,label])=>{
+      const sp=v.store[k],ap=v.avg[k];
+      if(sp==null||ap==null)return;
+      out.push({g,k,label,sp,ap,base,missed:Math.max(0,(ap-sp)*base),prev:v.prevStore?v.prevStore[k]:null});
+    });
+  });
+  return out;
 }
 
 function renderQuality(){
-  const ad=S.accData;
-  const tabs=`<div class="qtabs">
-    <button class="qtab${S.qualityTab==='penetration'?' on':''}" onclick="S.qualityTab='penetration';render()">Проникнення АСС</button>
-    <button class="qtab${S.qualityTab==='revenue'?' on':''}" onclick="S.qualityTab='revenue';render()">Виторг АСС / План</button>
+  const raw=S.accData;
+  if(!raw||raw.kind!=='acc2')return`<div class="empty" style="padding:40px 20px">
+      <div style="font-family:var(--f-display);font-size:18px;font-weight:600;color:var(--t1);margin-bottom:8px">Завантаж щоденний звіт АСС</div>
+      <div style="max-width:420px;margin:0 auto 18px">Тут буде видно, хто з продавців допродає чохол і скло до смартфона, сумку до ноутбука, хімію до пральної машини й кріплення до телевізора.</div>
+      <label class="btn-tag"><input type="file" accept=".xlsx,.xls" multiple hidden onchange="handleAnyFiles(this.files)">Обрати файл</label>
+    </div>`;
+  const v=S.accPeriod&&raw.periods.some(p=>p.key===S.accPeriod)?accSelect(raw,S.accPeriod):raw;
+  const P=n=>n==null?'—':Math.round(n*100)+'%';
+  const pp=d=>{if(d==null)return'';const r=Math.round(d*100);return r===0?'0 п.п.':`${r>0?'+':'−'}${Math.abs(r)} п.п.`;};
+  const arrow=(a,b)=>a==null||b==null?'':a-b>.005?'<span class="up">▲</span>':a-b<-.005?'<span class="down">▼</span>':'';
+  const months=raw.periods.length>1?`<div class="pills">${raw.periods.map(p=>`<button class="pill${p.key===v.key?' on':''}" onclick="S.accPeriod='${p.key}';render()">${esc(p.label)}</button>`).join('')}</div>`:'';
+  const tabs=`<div class="pills">
+    <button class="pill${S.qualityTab!=='plan'?' on':''}" onclick="S.qualityTab='attach';render()">Допродажі</button>
+    <button class="pill${S.qualityTab==='plan'?' on':''}" onclick="S.qualityTab='plan';render()">План АСС + Home</button>
   </div>`;
+  const meta=`<p class="q-meta">Звіт АСС від ${esc(raw.reportDate||'—')}, період: <b>${esc(v.period)}</b>${v.prevLabel?`. Стрілки — зміна до періоду «${esc(v.prevLabel)}»`:''}.${raw.warnings&&raw.warnings.length?` Пропущено ${raw.warnings.length} підозрілих значень.`:''}</p>`;
 
-  if(S.qualityTab==='penetration'){
-    if(!ad)return`${tabs}<div style="background:var(--bg2);border:2px dashed var(--bd2);border-radius:var(--r2);padding:32px;text-align:center">
-      <div style="font-size:32px;margin-bottom:12px">📊</div>
-      <div style="font-size:14px;font-weight:600;margin-bottom:6px">Завантажте АСС/Home звіт</div>
-      <div style="font-size:12px;color:var(--t3)">Використовуйте кнопку "АСС/Home звіт" у бічній панелі</div>
-      <div style="margin-top:14px"><label style="display:inline-block;padding:8px 20px;border-radius:var(--r);border:1px solid var(--blue-bd);background:var(--blue-bg);color:var(--blue);cursor:pointer;font-size:13px;font-weight:500"><input type="file" accept=".xlsx,.xls" style="display:none" onchange="handleAccFile(this.files[0])">Обрати файл</label></div>
-    </div>`;
-
-    function pCell(v,bench,type='pen'){
-      if(v===null||v===undefined)return`<td class="pc-zero">—</td>`;
-      if(type==='qty')return`<td class="qty">${Math.round(v)}</td>`;
-      const pct=Math.round(v*100);
-      let cls;
-      if(bench==null)cls='pc-avg';
-      else if(v>=bench*1.05)cls='pc-hi';
-      else if(v>=bench*0.90)cls='pc-ok';
-      else if(v>=bench*0.75)cls='pc-avg';
-      else cls='pc-lo';
-      return`<td class="${cls}">${pct}%</td>`;
-    }
-
-    const b=ad.bench;
-    const sels=ad.sellers;
-
-    const smRows=sels.map(s=>`<tr>
-      <td>${s.name}</td>
-      ${pCell(s.sm_qty,null,'qty')}
-      ${pCell(s.sm_cover,b.sm_dm2.cover)}
-      ${pCell(s.sm_glass,b.sm_dm2.glass)}
-      ${pCell(s.sm_charge,b.ch_dm2.charge)}
-      ${pCell(s.sm_hear_ttl,b.ch_dm2.hear_ttl)}
-      ${pCell(s.sm_hear_tws,b.ch_dm2.hear_tws)}
-    </tr>`).join('');
-
-    const ltRows=sels.map(s=>`<tr>
-      <td>${s.name}</td>
-      ${pCell(s.lt_qty,null,'qty')}
-      ${pCell(s.lt_bag,b.lt_dm2.bag)}
-      ${pCell(s.lt_mouse,b.lt_dm2.mouse)}
-    </tr>`).join('');
-
-    const benchRow=(label,cells)=>`<tr class="bench"><td>${label}</td>${cells}</tr>`;
-
-    return`${tabs}
-    <div style="font-size:11px;color:var(--t3);margin-bottom:12px">Дані: ${ad.period}</div>
-    <div class="pen-section">
-      <div class="pen-section-title">📱 Смартфони</div>
-      <div style="overflow-x:auto"><table class="pen-table">
-        <thead><tr>
-          <th style="text-align:left;min-width:110px">Продавець</th>
-          <th>Шт</th><th>Чохли</th><th>Скло</th><th>Зарядки</th><th>Нав. ТТЛ</th><th>Нав. TWS</th>
-        </tr></thead>
-        <tbody>
-          ${benchRow('ДМ2 (план)',`<td class="qty">${Math.round(b.sm_dm2.qty||0)}</td><td>${Math.round((b.sm_dm2.cover||0)*100)}%</td><td>${Math.round((b.sm_dm2.glass||0)*100)}%</td><td>${Math.round((b.ch_dm2.charge||0)*100)}%</td><td>${Math.round((b.ch_dm2.hear_ttl||0)*100)}%</td><td>${Math.round((b.ch_dm2.hear_tws||0)*100)}%</td>`)}
-          ${smRows}
-        </tbody>
-      </table></div>
-    </div>
-    <div class="pen-section">
-      <div class="pen-section-title">💻 Ноутбуки</div>
-      <div style="overflow-x:auto"><table class="pen-table">
-        <thead><tr><th style="text-align:left;min-width:110px">Продавець</th><th>Шт</th><th>Сумки</th><th>Миша+Клав.</th></tr></thead>
-        <tbody>
-          ${benchRow('ДМ2',`<td class="qty">${Math.round(b.lt_dm2.qty||0)}</td><td>${Math.round((b.lt_dm2.bag||0)*100)}%</td><td>${Math.round((b.lt_dm2.mouse||0)*100)}%</td>`)}
-          ${ltRows}
-        </tbody>
-      </table></div>
-    </div>`;
+  if(S.qualityTab==='plan'){
+    const st=v.store,av=v.avg;
+    const exec=st.acc_plan?st.acc_fact/st.acc_plan:null;
+    const sl=[...v.sellers].filter(s=>s.acc_fact).sort((a,b)=>b.acc_fact-a.acc_fact);
+    const maxF=Math.max(...sl.map(s=>s.acc_fact),1);
+    const rows=sl.map((s,i)=>{
+      const sh=s.acc_pct,ref=st.acc_pct;
+      const cls=sh==null||ref==null?'':sh>=ref*1.05?'up':sh<ref*.9?'down':'';
+      return`<tr><td class="rk">${i+1}</td><td class="nm">${esc(s.full)}</td>
+        <td class="r"><div class="bar-cell"><span class="num" style="font-weight:600">${fmt(s.acc_fact)} ₴</span><span class="bt"><i style="width:${Math.round(s.acc_fact/maxF*100)}%"></i></span></div></td>
+        <td class="r"><span class="dv ${cls}">${P(sh)}</span> ${arrow(sh,s.prev&&s.prev.acc_pct)}</td>
+        <td class="r num">${P(s.credit)}</td></tr>`;}).join('');
+    return`${months}${tabs}${meta}
+      <section class="tag-hero" style="grid-template-columns:minmax(0,1fr) minmax(0,1.2fr)">
+        <div class="tag-main"><div class="tag-label">АСС + Home, факт</div>
+          <div class="tag-price">${fmt(st.acc_fact||0)}<span class="cur">₴</span></div>
+          <div class="tag-delta">${exec!=null?`<span class="chip">${Math.round(exec*100)}% плану</span><span>план ${fmt(st.acc_plan)} ₴</span>`:'<span>План не вказано</span>'}</div></div>
+        <dl class="tag-facts">
+          <div><dt>Частка АСС у виторгу</dt><dd>${P(st.acc_pct)}<small>план ${P(st.acc_pct_plan)}</small></dd></div>
+          <div><dt>Середній магазин А</dt><dd>${P(av.acc_pct)}<small>виконання ${av.acc_plan?Math.round(av.acc_fact/av.acc_plan*100)+'%':'—'}</small></dd></div>
+          <div><dt>Частка в кредит</dt><dd>${P(st.credit)}<small>сер. маг. ${P(av.credit)}</small></dd></div>
+          <div><dt>Продавців у звіті</dt><dd>${sl.length}</dd></div>
+        </dl>
+      </section>
+      <section class="card"><div class="card-h"><span class="card-t">АСС + Home по продавцях</span><span class="panel-note">частка: зелена — вище магазину, червона — нижче на 10% і більше</span></div>
+        <div style="overflow-x:auto"><table class="rank-table"><thead><tr><th class="rk">#</th><th>Продавець</th><th class="r">Факт, грн</th><th class="r">Частка АСС</th><th class="r">У кредит</th></tr></thead><tbody>${rows}</tbody></table></div>
+      </section>`;
   }
 
-  return `${tabs}<div class="empty">Оберіть вкладку "Проникнення АСС"</div>`;
+  // ── Допродажі ──
+  const gap=accStoreGap(v);
+  const res=accReserve(v);
+  const totalMissed=res.reduce((a,r)=>a+r.missed,0);
+  const storeRows=ACC_GROUPS.map(g=>{
+    const items=gap.filter(x=>x.g.id===g.id);
+    if(!items.length||!(v.store[g.base]>0))return'';
+    return`<tr class="grp"><td colspan="5">${g.title} <span>${fmt(v.store[g.base])} шт</span></td></tr>`+items.map(x=>{
+      const d=x.sp-x.ap,cls=d>=.005?'up':d<=-.02?'down':'flat';
+      return`<tr><td>${x.label}</td><td class="r num" style="font-weight:600">${P(x.sp)} ${arrow(x.sp,x.prev)}</td><td class="r num" style="color:var(--t3)">${P(x.ap)}</td>
+        <td class="r"><span class="dv ${cls}">${pp(d)}</span></td><td class="r num">${x.missed>=1?'−'+Math.round(x.missed)+' шт':''}</td></tr>`;}).join('');
+  }).join('');
+  const top=res.slice(0,6).map(r=>`<button class="w-row" onclick="S.accFocus='${r.g.id}';document.getElementById('grp-${r.g.id}')?.scrollIntoView({behavior:'smooth',block:'start'})">
+      <span class="w-name">${esc(r.s.full)}</span>
+      <span class="w-why">${r.label} ${r.g.to}: ${P(r.sp)} при ${P(r.tp)} у магазині, продав ${r.base} шт</span>
+      <span class="w-side"><span class="dv down">−${Math.round(r.missed)} шт</span></span></button>`).join('');
+  const lead=`<div class="watch">
+    <section class="panel"><div class="panel-h"><div class="panel-t"><span class="flag"></span>Де продавці недодають найбільше</div></div>
+      ${top||'<div class="w-empty">Усі тримають рівень магазину.</div>'}
+      <div class="w-empty">Резерв = скільки аксесуарів було б продано, якби продавець тримав рівень магазину. Разом: ${Math.round(totalMissed)} шт за період.</div>
+    </section>
+    <section class="panel"><div class="panel-h"><div class="panel-t">Магазин проти середнього магазину А</div></div>
+      <div style="overflow-x:auto"><table class="rank-table q-store"><thead><tr><th>Допродаж</th><th class="r">Магазин</th><th class="r">Сер. маг.</th><th class="r">Різниця</th><th class="r">Резерв</th></tr></thead><tbody>${storeRows}</tbody></table></div>
+    </section>
+  </div>`;
+
+  const cell=(val,ref)=>{
+    if(val==null)return'<td class="pc-zero">—</td>';
+    let cls='pc-avg';
+    if(ref!=null&&ref>0)cls=val>=ref*1.05?'pc-hi':val>=ref*.9?'pc-ok':val>=ref*.75?'pc-avg':'pc-lo';
+    return`<td class="${cls}">${Math.round(val*100)}%</td>`;
+  };
+  const sections=ACC_GROUPS.map(g=>{
+    const sel=v.sellers.filter(s=>(s[g.base]||0)>0).sort((a,b)=>(b[g.base]||0)-(a[g.base]||0));
+    if(!sel.length&&!(v.store[g.base]>0))return'';
+    const head=`<tr><th style="text-align:left;min-width:150px">Продавець</th><th>${g.title.split(' ')[0]}, шт</th>${g.items.map(([,l])=>`<th>${l}</th>`).join('')}<th>Резерв</th></tr>`;
+    const bench=(lbl,o)=>`<tr class="bench"><td>${lbl}</td><td class="qty">${o[g.base]!=null?fmt(o[g.base]):'—'}</td>${g.items.map(([k])=>`<td>${P(o[k])}</td>`).join('')}<td></td></tr>`;
+    const body=sel.map(s=>{
+      const miss=res.filter(r=>r.s===s&&r.g.id===g.id).reduce((a,r)=>a+r.missed,0);
+      return`<tr><td>${esc(s.name)}</td><td class="qty">${fmt(s[g.base])}</td>${g.items.map(([k])=>cell(s[k],v.store[k])).join('')}<td class="${miss>=1?'pc-lo':'pc-zero'}">${miss>=1?'−'+Math.round(miss):'—'}</td></tr>`;}).join('');
+    return`<div class="pen-section" id="grp-${g.id}"><div class="pen-section-title">${g.title}</div>
+      <div style="overflow-x:auto"><table class="pen-table"><thead>${head}</thead><tbody>${bench('Магазин',v.store)}${bench('Середній маг. А',v.avg)}${body}</tbody></table></div></div>`;
+  }).join('');
+  return`${months}${tabs}${meta}${lead}${sections}
+    <p class="q-meta">Колір клітинки — порівняння з рівнем магазину: зелений вище на 5%+, червоний нижче на 25%+. Підставок до ноутбуків у звіті АСС немає, тому їх тут не видно.</p>`;
 }
 
 // ═══════════════════════════════════════════════════════════════
@@ -2547,9 +2614,9 @@ function handleFile(file){
   const reader=new FileReader();
   reader.onload=ev=>{
     try{
-      const{sellers,cats,period}=parseFile(new Uint8Array(ev.target.result));
+      const{sellers,cats,period,storeCats,store}=parseFile(new Uint8Array(ev.target.result));
       if(!sellers.length){toast('Не знайдено даних.','err');return;}
-      S.sellers=sellers;S.cats=cats;S.period=period||file.name.replace(/\.(xlsx|xls)$/i,'');
+      S.sellers=sellers;S.cats=cats;S.storeCats=storeCats||[];S.store=store||null;S.period=period||file.name.replace(/\.(xlsx|xls)$/i,'');
       const displayPeriod=period||file.name.replace(/\.(xlsx|xls)$/i,'');
       ['sbPeriod','mobPeriod'].forEach(id=>{const e=document.getElementById(id);if(e)e.textContent=displayPeriod;});
       afterReport('main');
@@ -2582,11 +2649,12 @@ async function handleAnyFiles(files){
   for(const f of list){
     try{
       const buf=new Uint8Array(await f.arrayBuffer());
-      let acc=null;try{acc=parseAccFile(buf);if(!acc.sellers.length)acc=null;}catch(e){acc=null;}
-      if(acc){S.accData=acc;afterReport('acc');toast('Звіт АСС завантажено','ok');render();continue;}
+      let acc=null;try{acc=parseAccFile(buf);if(!acc.periods.length||!Object.keys(acc.store).length)acc=null;}catch(e){acc=null;}
+      if(acc){S.accData=acc;S.accPeriod=null;afterReport('acc');toast(`Звіт АСС завантажено: ${acc.period}`+(acc.warnings.length?`, пропущено ${acc.warnings.length} підозрілих значень`:''),'ok');render();continue;}
       const m=parseFile(buf);
-      if(!m.sellers.length){toast(`«${f.name}»: не впізнав звіт`,'err');continue;}
-      S.sellers=m.sellers;S.cats=m.cats;S.period=m.period||f.name.replace(/\.(xlsx|xls)$/i,'');
+      if(m.error==='no-header'){toast(`«${f.name}»: не впізнав звіт. Потрібен «Продажі за категоріями» або «Щоденний звіт АСС»`,'err');continue;}
+      if(!m.sellers.length){toast(`«${f.name}»: у звіті немає продавців. Сформуй його з опцією «Показати продавців»`,'err');continue;}
+      S.sellers=m.sellers;S.cats=m.cats;S.storeCats=m.storeCats||[];S.store=m.store||null;S.period=m.period||f.name.replace(/\.(xlsx|xls)$/i,'');
       applyPeriod(S.period);
       afterReport('main');
       toast('Звіт продажів завантажено','ok');
