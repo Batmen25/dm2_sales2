@@ -670,6 +670,25 @@ tbody tr:hover td{background:var(--bg3)}
 .q-store td.r,.q-store th.r{white-space:nowrap}
 .watch{align-items:start}
 .pen-table td.qty{color:var(--t2)}
+.goal-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:10px}
+.goal{border:1px solid var(--bd);border-radius:var(--r2);padding:12px 14px;background:var(--bg2)}
+.goal.hit{border-color:var(--green-bd);background:var(--green-bg)}
+.goal.off{opacity:.6}
+.goal-h{display:flex;gap:8px;align-items:baseline;flex-wrap:wrap;font-size:13px;color:var(--t2)}
+.goal-h b{color:var(--t1);font-size:14px}
+.goal-st{margin-left:auto;font-size:12px;color:var(--t3)}
+.goal-st.late{color:var(--red);font-weight:600}
+.goal-nums{display:flex;align-items:baseline;justify-content:space-between;gap:8px;margin:8px 0 6px;font-size:12px;color:var(--t3);font-variant-numeric:tabular-nums}
+.goal-nums b{font-size:20px;color:var(--t1);font-weight:600}
+.goal-nums span{white-space:nowrap}
+.goal-nums{flex-wrap:wrap}
+.goal-bar{height:6px;border-radius:3px;background:var(--bg4);overflow:hidden}
+.goal-bar i{display:block;height:100%;background:var(--tag-deep);border-radius:3px}
+.goal.hit .goal-bar i{background:var(--green)}
+.goal-note{font-size:13px;color:var(--t2);margin-top:8px}
+.goal-act{display:flex;gap:6px;margin-top:10px;flex-wrap:wrap}
+.goal-act button{border:1px solid var(--bd2);background:transparent;color:var(--t2);border-radius:999px;font-size:12px;padding:4px 10px;cursor:pointer}
+.goal-act button:hover{color:var(--t1);border-color:var(--bd3)}
 .only-mob{display:none}
 
 /* ─── мобільний ─── */
@@ -1192,7 +1211,7 @@ function updateBackupHint(){
 // Зберігає галочки, ритм тижня і записи 1:1
 let _saveTimer=null;
 function currentState(){
-  return{checks:S.checks,rhythmChecks:S.rhythmChecks,rhythmWeek:S.rhythmWeek||getWeekKey(),meetings:M_LOGS,meetingsDone:M_DONE,deleted:M_DELETED,updatedAt:S.stateAt||0};
+  return{checks:S.checks,rhythmChecks:S.rhythmChecks,rhythmWeek:S.rhythmWeek||getWeekKey(),meetings:M_LOGS,meetingsDone:M_DONE,goals:G_GOALS,deleted:M_DELETED,updatedAt:S.stateAt||0};
 }
 function saveState(fromUser=true){
   if(fromUser){S.stateAt=Date.now();S.dirty=true;}
@@ -1218,7 +1237,7 @@ function afterReport(type){
   const at=new Date().toISOString();
   let data;
   if(type==='main'){S.fileAt=at;data={sellers:S.sellers,cats:S.cats,period:S.period,storeCats:S.storeCats||[],store:S.store||null};S.history=addToHistory(S.history,mainHistoryEntry(data,at));}
-  else{S.accData.at=at;data=S.accData;S.history=addToHistory(S.history,accHistoryEntry(data,at));}
+  else{S.accData.at=at;data=S.accData;(S.accData.periods||[]).forEach(pp=>{S.history=addToHistory(S.history,accHistoryEntry(accSelect(S.accData,pp.key),at));});}
   saveFileData();
   setSaveStatus('Звіт збережено на пристрої');
   if(syncCfg())cloudReq('/api/report',{method:'POST',body:JSON.stringify({type,data:{...data,at}})})
@@ -1237,7 +1256,7 @@ function mainHistoryEntry(d,at){
 const ACC_FIELDS=['sm_qty','sm_cover','sm_glass','sm_charge','sm_hear_ttl','sm_hear_tws','lt_qty','lt_bag','lt_mouse','tv_qty','tv_mount','wm_qty','wm_deterg','acc_fact','acc_pct'];
 function accHistoryEntry(d,at){
   const b=d.bench||{};
-  return{type:'acc',period:d.period||'',at,
+  return{type:'acc',period:d.month||d.period||'',label:d.period||'',at,
     bench:{sm:b.sm_dm2,ch:b.ch_dm2,lt:b.lt_dm2,tv:b.tv_dm2,acc:b.acc_dm2,sm_avg:b.sm_avg,ch_avg:b.ch_avg},
     sellers:(d.sellers||[]).map(x=>{const o={name:x.name,full:x.full};ACC_FIELDS.forEach(f=>o[f]=x[f]);return o;})};
 }
@@ -1263,13 +1282,13 @@ function mergeState(a,b){
   a=a||{};b=b||{};
   const deleted=[...new Set([...(a.deleted||[]),...(b.deleted||[])].map(String))].slice(-1000);
   const del=new Set(deleted),map=new Map();
-  [...(a.meetings||[]),...(b.meetings||[])].forEach(m=>{if(!m||del.has(String(m.id)))return;const k=String(m.id),o=map.get(k);if(!o||(m.updatedAt||0)>=(o.updatedAt||0))map.set(k,m);});
+  const mergeList=(x,y)=>{const map=new Map();[...(x||[]),...(y||[])].forEach(m=>{if(!m||del.has(String(m.id)))return;const k=String(m.id),o=map.get(k);if(!o||(m.updatedAt||0)>=(o.updatedAt||0))map.set(k,m);});return[...map.values()];};
   const n=(a.updatedAt||0)>=(b.updatedAt||0)?a:b;
-  return{checks:n.checks||{},rhythmChecks:n.rhythmChecks||{},rhythmWeek:n.rhythmWeek||null,meetingsDone:n.meetingsDone||{},meetings:[...map.values()],deleted,updatedAt:Math.max(a.updatedAt||0,b.updatedAt||0)};
+  return{checks:n.checks||{},rhythmChecks:n.rhythmChecks||{},rhythmWeek:n.rhythmWeek||null,meetingsDone:n.meetingsDone||{},meetings:mergeList(a.meetings,b.meetings),goals:mergeList(a.goals,b.goals),deleted,updatedAt:Math.max(a.updatedAt||0,b.updatedAt||0)};
 }
 function applyState(st){
   S.checks=st.checks||{};S.rhythmChecks=st.rhythmChecks||{};S.rhythmWeek=st.rhythmWeek||S.rhythmWeek;
-  M_LOGS=st.meetings||[];M_DONE=st.meetingsDone||{};M_DELETED=st.deleted||[];S.stateAt=st.updatedAt||0;
+  M_LOGS=st.meetings||[];M_DONE=st.meetingsDone||{};M_DELETED=st.deleted||[];G_GOALS=st.goals||[];S.stateAt=st.updatedAt||0;
 }
 let _pushTimer=null,_pulling=false;
 function schedulePush(){if(!syncCfg())return;clearTimeout(_pushTimer);_pushTimer=setTimeout(pushState,1500);}
@@ -1357,6 +1376,7 @@ function applyData(d){
   M_LOGS=Array.isArray(st.meetings)?st.meetings:[];
   M_DONE=st.meetingsDone||{};
   M_DELETED=st.deleted||[];
+  G_GOALS=Array.isArray(st.goals)?st.goals:[];
   S.stateAt=st.updatedAt||0;
   S.dirty=!!st.dirty;
   if(d.file){S.period=d.file.period;S.fileAt=d.file.at||null;}
@@ -1456,7 +1476,7 @@ function esc(s){return String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;',
 // ═══════════════════════════════════════════════════════════════
 // SELLER PROFILE HTML
 // ═══════════════════════════════════════════════════════════════
-function sellerDetailHTML(s,sellers){
+function sellerDetailCore(s,sellers){
   const filtered=(s.cats||[]).filter(c=>S.bizFilter==='all'||c.biz===S.bizFilter);
   const bizPills=['all','ДП техніка','Аксесуари'].map(b=>{
     const lbl=b==='all'?'Усі':b;
@@ -1546,10 +1566,8 @@ function renderKPI(){
 }
 
 // Зміна відносно попереднього звіту продажів з історії
-function prevMainEntry(){
-  const h=(S.history||[]).filter(e=>e.type==='main'&&e.period!==S.period);
-  return h.length?h[h.length-1]:null;
-}
+function prevMainEntry(){return comparablePrev(S.history,'main',S.period);}
+function prevMainAny(){return anyPrev(S.history,'main',S.period);}
 const dvTxt=(v,inv)=>v==null?'<span class="dv flat">—</span>':`<span class="dv ${v>=.005?'up':v<=-.005?'down':'flat'}">${v>=.005?'+':v<=-.005?'−':''}${Math.abs(Math.round(v*100))}%</span>`;
 const shortP=p=>{const d=String(p||'').match(/\d{2}\.\d{2}/g);return d?(d.length>1?d[0]+'–'+d[1]:d[0]):String(p||'');};
 
@@ -1557,12 +1575,12 @@ function watchItems(sellers){
   const items=[],seen=new Set();
   const add=(s,why,kind)=>{if(seen.has(s.name)||items.length>=5)return;seen.add(s.name);items.push({s,why,kind});};
   sellers.filter(s=>s.tier==='D').forEach(s=>add(s,`Найнижчий виторг у магазині: ${fmt(s.revenue)} ₴, ${pct(s.revVs)} до бенчмарку`,'D'));
-  const prev=prevMainEntry();
+  const prev=prevMainAny();
   if(prev){
     const pm=Object.fromEntries(prev.sellers.map(x=>[x.name,x]));
     sellers.filter(s=>pm[s.name]).map(s=>({s,d:s.revVs-pm[s.name].revVs,from:pm[s.name].revVs}))
       .filter(x=>x.d<-.1).sort((a,b)=>a.d-b.d)
-      .forEach(x=>add(x.s,`Просів за тиждень: було ${pct(x.from)}, стало ${pct(x.s.revVs)} до бенчмарку`,'drop'));
+      .forEach(x=>add(x.s,`Просів до минулого звіту: було ${pct(x.from)}, стало ${pct(x.s.revVs)} до бенчмарку`,'drop'));
   }
   sellers.filter(s=>s.aspVs<-.1).sort((a,b)=>a.aspVs-b.aspVs).slice(0,2).forEach(s=>add(s,`Середній чек ${pct(s.aspVs)} до бенчмарку: продає дешевші моделі`,'asp'));
   if(S.accData&&S.accData.kind==='acc2'){
@@ -1572,7 +1590,7 @@ function watchItems(sellers){
   return items;
 }
 function growItems(sellers){
-  const prev=prevMainEntry();
+  const prev=prevMainAny();
   if(prev){
     const pm=Object.fromEntries(prev.sellers.map(x=>[x.name,x]));
     const ups=sellers.filter(s=>pm[s.name]).map(s=>({s,d:s.revVs-pm[s.name].revVs,from:pm[s.name].revVs})).filter(x=>x.d>.05).sort((a,b)=>b.d-a.d).slice(0,3);
@@ -1589,8 +1607,9 @@ function renderOverview(){
   const dCount=all.filter(s=>s.tier==='D').length;
   const prev=prevMainEntry();
   const dRev=prev&&prev.totals&&prev.totals.rev?totR/prev.totals.rev-1:null;
+  const pr=periodRange(S.period);
   const delta=dRev==null
-    ?`<span>Порівняння з'явиться після наступного звіту</span>`
+    ?`<span>${prevMainAny()?`Немає звіту за порівнянний період (${pr?PERIOD_KIND[pr.kind]:'той самий тип'}), тому виторг не порівнюю`:'Порівняння з\'явиться після наступного звіту'}</span>`
     :`<span class="chip">${dRev>=0?'▲':'▼'} ${dRev>=0?'+':'−'}${Math.abs(Math.round(dRev*100))}%</span><span>до звіту ${esc(shortP(prev.period))}</span>`;
   const hero=`<section class="tag-hero" aria-label="Підсумок магазину">
     <div class="tag-main">
@@ -1612,7 +1631,7 @@ function renderOverview(){
     <section class="panel"><div class="panel-h"><div class="panel-t"><span class="flag"></span>Потребує уваги</div><span class="panel-note">натисни, щоб відкрити картку</span></div>
       ${w.length?w.map(it=>wRow(it,`<span class="tier ${tc(it.s.tier)}">${it.s.tier}</span>`)).join(''):'<div class="w-empty">Ніхто не просів. Гарний тиждень.</div>'}
     </section>
-    <section class="panel"><div class="panel-h"><div class="panel-t"><span class="flag g"></span>${prev?'Росте за тиждень':'Тягнуть магазин'}</div></div>
+    <section class="panel"><div class="panel-h"><div class="panel-t"><span class="flag g"></span>${prevMainAny()?'Росте до минулого звіту':'Тягнуть магазин'}</div></div>
       ${g.length?g.map(it=>wRow(it,it.d!=null?`<span class="dv up">+${Math.round(it.d*100)} п.п.</span>`:dvTxt(it.s.revVs))).join(''):'<div class="w-empty">Поки без помітного росту.</div>'}
     </section>
   </div>`;
@@ -1652,7 +1671,11 @@ function renderOverview(){
     <div class="rank-list">${list||'<div class="w-empty">Немає продавців у цьому тирі</div>'}</div>
   </section>
   <p style="font-size:13px;color:var(--t3);margin:-4px 2px 0">Тир A — лідери, B — вище середнього, C — середні, D — потребують уваги. Відсотки — відхилення від середнього по мережі.</p>`;
-  return hero+watch+table;
+  fillGoalStarts();
+  const ag=G_GOALS.filter(g=>g.status==='active');
+  const goalsPanel=ag.length?`<section class="panel" style="margin-bottom:20px"><div class="panel-h"><div class="panel-t">Цілі команди</div><button class="pill" onclick="go('meetings');S.meetingsTab='goals';render()">Усі цілі</button></div>
+    <div style="padding:0 14px 14px"><div class="goal-grid">${ag.slice(0,6).map(g=>goalCardHTML(g,true)).join('')}</div></div></section>`:'';
+  return hero+watch+goalsPanel+table;
 }
 
 function renderEmptyState(){
@@ -2026,7 +2049,12 @@ function trendCell(v,prev){
 }
 function renderTrends(){
   const H=(S.history||[]);
-  const mains=H.filter(e=>e.type==='main').slice(-8);
+  const allMains=H.filter(e=>e.type==='main');
+  const kinds=[...new Set(allMains.map(e=>(periodRange(e.period)||{kind:'custom'}).kind))];
+  const lastKind=allMains.length?(periodRange(allMains[allMains.length-1].period)||{kind:'custom'}).kind:'week';
+  const tk=kinds.includes(S.trendKind)?S.trendKind:lastKind;
+  const mains=allMains.filter(e=>(periodRange(e.period)||{kind:'custom'}).kind===tk).slice(-8);
+  const kindPills=kinds.length>1?`<div class="pills">${kinds.map(k=>`<button class="pill${k===tk?' on':''}" onclick="S.trendKind='${k}';render()">${PERIOD_KIND[k]}</button>`).join('')}</div><p class="q-meta">Порівнюються лише звіти одного типу, щоб виторг за тиждень не зіставлявся з виторгом за місяць.</p>`:'';
   const accs=H.filter(e=>e.type==='acc').slice(-6);
   const hint=`<div style="font-size:12px;color:var(--t3);margin-top:12px">Кожен звіт, завантажений на сайт або надісланий Telegram-боту, автоматично додається сюди. Зберігаються останні 30.</div>`;
   if(mains.length<2&&accs.length<2){
@@ -2036,7 +2064,7 @@ function renderTrends(){
       <div>Потрібно хоча б 2 звіти. Зараз в історії: ${mains.length} звіт продажів, ${accs.length} АСС.<br>Завантаж наступний звіт — і побачиш, хто росте, а хто просідає.</div>
     </div>`;
   }
-  let html='';
+  let html=kindPills;
   if(mains.length>=2){
     // ── Бар-чарт виторгу магазину
     const W=Math.max(320,mains.length*90),Hh=170,pad=26,bw=Math.min(46,(W-pad*2)/mains.length-14);
@@ -2213,7 +2241,7 @@ function accPeriodInfo(p){
   const sameMonth=m[2]===m[5]&&m[3]===m[6];
   const label=sameMonth&&+m[1]===1&&+m[4]===lastDay?`${UK_MONTHS[to.getMonth()]} ${to.getFullYear()}`
     :sameMonth?`${UK_MONTHS[to.getMonth()]}, ${+m[1]}–${+m[4]} число`:`${m[1]}.${m[2]}–${m[4]}.${m[5]}.${m[6].slice(-2)}`;
-  return{key:p,label,end:to.getTime()};
+  return{key:p,label,end:to.getTime(),month:`${UK_MONTHS[to.getMonth()]} ${to.getFullYear()}`};
 }
 function parseAccFile(ab){
   const wb=XLSX.read(ab,{type:'array'});
@@ -2283,7 +2311,7 @@ function accSelect(acc,key){
     bench['wm_'+sfx]=pick(o,{qty:'wm_qty',deterg:'wm_deterg',clean:'wm_clean'});
     bench['acc_'+sfx]=pick(o,{plan:'acc_plan',fact:'acc_fact',pct_plan:'acc_pct_plan',pct_fact:'acc_pct'});
   });
-  return{...acc,key:cur.key,period:cur.label,prevKey:prev?prev.key:null,prevLabel:prev?prev.label:'',
+  return{...acc,key:cur.key,period:cur.label,month:cur.month||cur.label,prevKey:prev?prev.key:null,prevLabel:prev?prev.label:'',
     store,avg:avgS,region:g(acc.raw.region,cur.key),prevStore:prev?g(acc.raw.store,prev.key):{},prevAvg:prev?g(acc.raw.avg,prev.key):{},
     bench,sellers};
 }
@@ -2312,6 +2340,213 @@ function accStoreGap(v){
     });
   });
   return out;
+}
+
+
+// ═══ ЦІЛІ ПРОДАВЦІВ (UI) ═══
+const curMain=()=>({sellers:S.sellers,period:S.period});
+function allSellerNames(){
+  const m=new Map();
+  (S.sellers||[]).filter(x=>x.revenue>0).forEach(x=>m.set(x.name,x.full));
+  ((S.accData&&S.accData.sellers)||[]).forEach(x=>{if(!m.has(x.name))m.set(x.name,x.full);});
+  return[...m.entries()].sort((a,b)=>a[0].localeCompare(b[0],'uk'));
+}
+function openGoalModal(pre={}){
+  const sel=document.getElementById('g-seller');
+  sel.innerHTML=allSellerNames().map(([n,f])=>`<option value="${esc(n)}">${esc(f)}</option>`).join('');
+  if(pre.seller)sel.value=pre.seller;
+  document.getElementById('g-metric').innerHTML=GOAL_METRICS.map(m=>`<option value="${m.k}">${esc(m.label)}</option>`).join('');
+  if(pre.metric)document.getElementById('g-metric').value=pre.metric;
+  document.getElementById('g-target').value=pre.target!=null?Math.round(pre.target*100):'';
+  const d=new Date();d.setDate(d.getDate()+14);
+  document.getElementById('g-deadline').value=pre.deadline||d.toISOString().slice(0,10);
+  document.getElementById('g-note').value=pre.note||'';
+  goalModalRefresh();
+  document.getElementById('goal-modal').classList.remove('hidden');
+}
+function closeGoalModal(){document.getElementById('goal-modal').classList.add('hidden');}
+function goalModalRefresh(){
+  const g={seller:document.getElementById('g-seller').value,metric:document.getElementById('g-metric').value};
+  const cur=goalCurrent(g,curMain(),S.accData);
+  const m=goalMetric(g.metric);
+  document.getElementById('g-now').textContent=cur==null?`Зараз немає даних (${m.src==='acc'?'потрібен звіт АСС':'потрібен звіт продажів'}). Стартом стане перше значення з наступного звіту.`:`Зараз: ${goalFmt(g.metric,cur)}`;
+  document.getElementById('g-unit').textContent=m.kind==='delta'?'% до бенчмарку (напр. 0 — рівень середнього продавця)':'% (напр. 40)';
+}
+function saveGoal(){
+  const seller=document.getElementById('g-seller').value,metric=document.getElementById('g-metric').value;
+  const t=parseFloat(String(document.getElementById('g-target').value).replace(',','.'));
+  if(!seller||!isFinite(t)){toast('Вкажи продавця і цільове значення','err');return;}
+  const cur=goalCurrent({seller,metric},curMain(),S.accData);
+  G_GOALS.push({id:'g'+Date.now().toString(36)+Math.random().toString(36).slice(2,5),seller,metric,target:t/100,start:cur??null,
+    deadline:document.getElementById('g-deadline').value||'',note:document.getElementById('g-note').value.trim(),
+    status:'active',createdAt:new Date().toISOString(),updatedAt:Date.now()});
+  saveState();closeGoalModal();toast('Ціль збережено','ok');render();
+  if(isMobile()&&S.selSeller&&document.getElementById('mobOverlay').classList.contains('visible'))sellerClick(S.selSeller);
+}
+function setGoalStatus(id,status){const g=G_GOALS.find(x=>x.id===id);if(!g)return;g.status=status;g.updatedAt=Date.now();saveState();render();}
+function deleteGoal(id){if(!confirm('Видалити ціль?'))return;G_GOALS=G_GOALS.filter(x=>x.id!==id);M_DELETED.push(String(id));saveState();render();}
+// старт цілі заповнюється першим доступним значенням, якщо при створенні даних не було
+function fillGoalStarts(){let ch=false;G_GOALS.forEach(g=>{if(g.start==null){const c=goalCurrent(g,curMain(),S.accData);if(c!=null){g.start=c;g.updatedAt=Date.now();ch=true;}}});if(ch)saveState();}
+function goalCardHTML(g,withName){
+  const x=goalLine(g,curMain(),S.accData);
+  const p=x.progress==null?0:Math.min(1,x.progress);
+  const st=g.status==='done'?'Виконано':g.status==='dropped'?'Знято':x.reached?'Досягнуто — підтверди':'В процесі';
+  const late=g.status==='active'&&g.deadline&&new Date(g.deadline+'T23:59')<new Date()&&!x.reached;
+  return`<div class="goal${g.status!=='active'?' off':''}${x.reached&&g.status==='active'?' hit':''}">
+    <div class="goal-h">${withName?`<b>${esc(g.seller)}</b>`:''}<span>${esc(x.metric.label)}</span><span class="goal-st${late?' late':''}">${late?'Прострочено':st}</span></div>
+    <div class="goal-nums"><span>старт ${g.start==null?'—':goalFmt(g.metric,g.start)}</span><b>${x.cur==null?'—':goalFmt(g.metric,x.cur)}</b><span>ціль ${goalFmt(g.metric,g.target)}${g.deadline?` до ${g.deadline.split('-').reverse().slice(0,2).join('.')}`:''}</span></div>
+    <div class="goal-bar"><i style="width:${Math.round(p*100)}%"></i></div>
+    ${g.note?`<div class="goal-note">${esc(g.note)}</div>`:''}
+    <div class="goal-act">${g.status==='active'?`<button onclick="setGoalStatus('${g.id}','done')">Виконано</button><button onclick="setGoalStatus('${g.id}','dropped')">Зняти</button>`:`<button onclick="setGoalStatus('${g.id}','active')">Повернути</button>`}<button onclick="deleteGoal('${g.id}')">Видалити</button></div>
+  </div>`;
+}
+function renderGoalsList(){
+  fillGoalStarts();
+  const act=G_GOALS.filter(g=>g.status==='active'),old=G_GOALS.filter(g=>g.status!=='active');
+  return`<button class="btn-tag" style="margin-bottom:16px" onclick="openGoalModal()">+ Нова ціль</button>
+    ${act.length?`<div class="goal-grid">${act.sort((a,b)=>(a.deadline||'9').localeCompare(b.deadline||'9')).map(g=>goalCardHTML(g,true)).join('')}</div>`:'<div class="empty" style="padding:24px">Активних цілей немає. Постав ціль із картки продавця, з розділу «Якість продажів» або тут.</div>'}
+    ${old.length?`<div class="pen-section-title" style="margin:22px 0 10px">Завершені</div><div class="goal-grid">${old.map(g=>goalCardHTML(g,true)).join('')}</div>`:''}`;
+}
+async function shareSellerMessage(name){
+  const text=sellerMessage(name,curMain(),S.accData,G_GOALS);
+  if(!text){toast('Немає даних по продавцю','err');return;}
+  try{
+    if(navigator.share&&isMobile()){await navigator.share({text});return;}
+    await navigator.clipboard.writeText(text);toast('Повідомлення скопійовано — встав його в Telegram продавцю','ok');
+  }catch(e){
+    const w=document.getElementById('msg-modal');document.getElementById('msg-text').value=text;w.classList.remove('hidden');
+  }
+}
+function sellerDetailHTML(s,sellers){
+  fillGoalStarts();
+  const my=G_GOALS.filter(g=>g.seller===s.name&&g.status==='active');
+  return sellerDetailCore(s,sellers)+`<section class="card"><div class="card-h"><span class="card-t">Цілі</span>
+      <div class="pills" style="margin:0"><button class="pill" onclick="openGoalModal({seller:'${s.name}'})">+ Ціль</button><button class="pill" onclick="shareSellerMessage('${s.name}')">Повідомлення продавцю</button></div></div>
+      <div style="padding:14px">${my.length?`<div class="goal-grid">${my.map(g=>goalCardHTML(g,false)).join('')}</div>`:'<div class="w-empty" style="border:0;padding:4px 2px">Цілей ще немає. Домовились на 1:1 — зафіксуй тут, і прогрес оновлюватиметься з кожним звітом.</div>'}</div></section>`;
+}
+
+// ═══ СПІЛЬНА АНАЛІТИКА (сайт і бот використовують один і той самий код) ═══
+const _n0=n=>new Intl.NumberFormat('uk-UA').format(Math.round(n||0)).replace(/ /g,' ');
+const _p0=v=>v==null||isNaN(v)?'—':Math.round(v*100)+'%';
+const _pS=v=>v==null||isNaN(v)?'—':(v>=0?'+':'−')+Math.abs(Math.round(v*100))+'%';
+
+// Тип періоду: тиждень (пн–нд), місяць, місяць-до-дати (1–N число), довільний
+function periodRange(p){
+  const m=String(p||'').match(/(\d{2})\.(\d{2})\.(\d{2,4})\s*[-–]\s*(\d{2})\.(\d{2})\.(\d{2,4})/);
+  if(!m)return null;
+  const yr=x=>x.length===2?2000+(+x):+x;
+  const from=new Date(yr(m[3]),+m[2]-1,+m[1]),to=new Date(yr(m[6]),+m[5]-1,+m[4]);
+  const days=Math.round((to-from)/864e5)+1;
+  const sameMonth=from.getMonth()===to.getMonth()&&from.getFullYear()===to.getFullYear();
+  const lastDay=new Date(to.getFullYear(),to.getMonth()+1,0).getDate();
+  const kind=sameMonth&&from.getDate()===1&&to.getDate()===lastDay?'month'
+    :sameMonth&&from.getDate()===1?'mtd'
+    :days===7&&from.getDay()===1?'week':'custom';
+  return{from:from.getTime(),to:to.getTime(),days,kind,lastDay};
+}
+const PERIOD_KIND={week:'тижні',month:'місяці',mtd:'початок місяця',custom:'інші періоди'};
+// Попередній звіт, з яким чесно порівнювати виторг: тиждень з тижнем, місяць з місяцем, 1–10 з 1–10
+function comparablePrev(history,type,period){
+  const cur=periodRange(period);if(!cur)return null;
+  let best=null,bestTo=-Infinity;
+  (history||[]).forEach(e=>{
+    if(e.type!==type||e.period===period)return;
+    const r=periodRange(e.period);if(!r||r.to>=cur.from)return;
+    const ok=r.kind===cur.kind&&(cur.kind==='month'||cur.kind==='week'||Math.abs(r.days-cur.days)<=1);
+    if(ok&&r.to>bestTo){best=e;bestTo=r.to;}
+  });
+  return best;
+}
+// Будь-який попередній звіт (для порівнянь «до бенчмарку» — вони не залежать від довжини періоду)
+function anyPrev(history,type,period){
+  const cur=periodRange(period);
+  const list=(history||[]).filter(e=>e.type===type&&e.period!==period&&(!cur||!periodRange(e.period)||periodRange(e.period).to<=cur.to));
+  return list.length?list[list.length-1]:null;
+}
+
+// Прогноз плану АСС+Home до кінця місяця (лінійно за календарними днями)
+function accForecast(v){
+  if(!v||!v.store||!v.store.acc_fact||!v.store.acc_plan)return null;
+  const r=periodRange(v.key);if(!r||r.kind!=='mtd')return null;
+  const d=new Date(r.to).getDate(),N=r.lastDay;
+  if(d>=N)return null;
+  const fact=v.store.acc_fact,plan=v.store.acc_plan;
+  // план у звіті може бути на весь місяць або пропорційний до дати — визначаємо за минулим місяцем
+  let full;
+  const prevPlan=v.prevStore&&v.prevStore.acc_plan,prevR=v.prevKey&&periodRange(v.prevKey);
+  if(prevPlan&&prevR&&prevR.kind==='month'){
+    full=Math.abs(plan/prevPlan-1)<Math.abs(plan/(prevPlan*d/N)-1);
+  }else full=fact/plan<(d/N)*1.6&&d/N<0.7;
+  const monthPlan=full?plan:plan*N/d;
+  const forecast=fact/d*N;
+  return{day:d,days:N,left:N-d,fact,monthPlan,forecast,exec:forecast/monthPlan,
+    perDayNow:fact/d,perDayNeed:Math.max(0,(monthPlan-fact)/(N-d)),planIsFull:full};
+}
+
+// ── Цілі продавців ──
+const GOAL_METRICS=[
+  ...ACC_GROUPS.flatMap(g=>g.items.map(([k,l])=>({k,label:`${l} ${g.to}`,src:'acc',kind:'pct'}))),
+  {k:'acc_pct',label:'Частка АСС у виторгу',src:'acc',kind:'pct'},
+  {k:'revVs',label:'Виторг до бенчмарку',src:'main',kind:'delta'},
+  {k:'aspVs',label:'Середній чек до бенчмарку',src:'main',kind:'delta'},
+];
+const goalMetric=k=>GOAL_METRICS.find(m=>m.k===k)||{k,label:k,src:'acc',kind:'pct'};
+const goalFmt=(k,v)=>goalMetric(k).kind==='delta'?_pS(v):_p0(v);
+function goalCurrent(goal,main,acc){
+  const m=goalMetric(goal.metric);
+  const list=m.src==='main'?(main&&main.sellers):(acc&&acc.sellers);
+  const s=(list||[]).find(x=>x.name===goal.seller);
+  return s&&s[m.k]!=null?s[m.k]:null;
+}
+function goalProgress(goal,cur){
+  if(cur==null)return null;
+  const span=goal.target-goal.start;
+  if(Math.abs(span)<1e-9)return cur>=goal.target?1:0;
+  return Math.max(0,(cur-goal.start)/span);
+}
+function goalLine(goal,main,acc){
+  const cur=goalCurrent(goal,main,acc),p=goalProgress(goal,cur);
+  const m=goalMetric(goal.metric);
+  const reached=p!=null&&p>=1;
+  return{goal,metric:m,cur,progress:p,reached,
+    text:`${m.label}: ${goalFmt(goal.metric,goal.start)} → ${cur==null?'—':goalFmt(goal.metric,cur)} з ${goalFmt(goal.metric,goal.target)}${goal.deadline?`, до ${goal.deadline.split('-').reverse().slice(0,2).join('.')}`:''}`};
+}
+
+// ── Повідомлення продавцю (без тирів і внутрішньої кухні) ──
+// головні пари, які ти контролюєш: смартфон, ноутбук, пральна машина, телевізор
+const CORE_ATTACH=['sm_cover','sm_glass','sm_charge','sm_hear_tws','lt_bag','lt_mouse','wm_deterg','chem_wm','tv_mount'];
+function sellerMessage(name,main,acc,goals){
+  const s=main&&main.sellers&&main.sellers.find(x=>x.name===name);
+  const a=acc&&acc.sellers&&acc.sellers.find(x=>x.name===name);
+  if(!s&&!a)return'';
+  const full=(s||a).full||name,first=full.split(/\s+/)[1]||full;
+  const L=[`${first}, привіт! Коротко про твої результати.`];
+  if(s){
+    L.push('');
+    L.push(`Продажі за ${main.period||'період'}:`);
+    L.push(`• виторг ${_n0(s.revenue)} ₴, це ${_pS(s.revVs)} до середнього продавця`);
+    L.push(`• ${_n0(s.units)} шт, середній чек ${_n0(s.asp)} ₴ (${_pS(s.aspVs)})`);
+    const strong=(s.cats||[]).filter(c=>c.rev>0&&c.revVs>.2).sort((x,y)=>y.revVs-x.revVs)[0];
+    if(strong)L.push(`• найкраще виходить: ${strong.cat.toLowerCase()} (${_pS(strong.revVs)})`);
+  }
+  if(a&&acc.store){
+    const rows=[];
+    ACC_GROUPS.forEach(g=>{
+      if((a[g.base]||0)<3)return;
+      g.items.filter(([k])=>CORE_ATTACH.includes(k)).forEach(([k,l])=>{if(a[k]!=null&&acc.store[k]!=null)rows.push({t:`${l.toLowerCase()} ${g.to}: ${_p0(a[k])} (по магазину ${_p0(acc.store[k])})`,gap:acc.store[k]-a[k]});});
+    });
+    if(rows.length){
+      L.push('');L.push(`Допродажі за ${acc.period}:`);
+      rows.sort((x,y)=>y.gap-x.gap).slice(0,4).forEach(r=>L.push('• '+r.t));
+    }
+  }
+  const my=(goals||[]).filter(g=>g.seller===name&&g.status!=='done'&&g.status!=='dropped');
+  if(my.length){
+    L.push('');L.push(my.length>1?'Наші цілі:':'Наша ціль:');
+    my.forEach(g=>{const x=goalLine(g,main,acc);L.push(`• ${x.metric.label.toLowerCase()}: ${goalFmt(g.metric,g.target)}${g.deadline?` до ${g.deadline.split('-').reverse().slice(0,2).join('.')}`:''}, зараз ${x.cur==null?'—':goalFmt(g.metric,x.cur)}`);});
+  }
+  L.push('');L.push('Якщо є питання або потрібна допомога — підходь.');
+  return L.join('\n');
 }
 
 function renderQuality(){
@@ -2356,6 +2591,11 @@ function renderQuality(){
           <div><dt>Продавців у звіті</dt><dd>${sl.length}</dd></div>
         </dl>
       </section>
+      ${(()=>{const f=accForecast(v);if(!f)return'';const ok=f.exec>=1;
+        return`<section class="panel" style="margin-bottom:16px"><div class="panel-h"><div class="panel-t"><span class="flag${ok?' g':''}"></span>Прогноз на кінець місяця: ${Math.round(f.exec*100)}% плану</div></div>
+        <div class="w-empty" style="font-size:14px;color:var(--t2)">Минуло ${f.day} з ${f.days} днів. Зараз у середньому <b>${fmt(f.perDayNow)} ₴</b> на день, при такому темпі буде <b>${fmt(f.forecast)} ₴</b> з ${fmt(f.monthPlan)} ₴.
+        ${ok?'План виконується.':`Щоб вийти на 100%, потрібно <b>${fmt(f.perDayNeed)} ₴</b> на день протягом ${f.left} днів, що залишились (+${Math.round((f.perDayNeed/f.perDayNow-1)*100)}% до поточного темпу).`}
+        <br><span style="color:var(--t3)">Лінійний прогноз за календарними днями; ${f.planIsFull?'план у звіті — на весь місяць':'план у звіті пропорційний до дати, перераховано на місяць'}.</span></div></section>`;})()}
       <section class="card"><div class="card-h"><span class="card-t">АСС + Home по продавцях</span><span class="panel-note">частка: зелена — вище магазину, червона — нижче на 10% і більше</span></div>
         <div style="overflow-x:auto"><table class="rank-table"><thead><tr><th class="rk">#</th><th>Продавець</th><th class="r">Факт, грн</th><th class="r">Частка АСС</th><th class="r">У кредит</th></tr></thead><tbody>${rows}</tbody></table></div>
       </section>`;
@@ -2373,12 +2613,12 @@ function renderQuality(){
       return`<tr><td>${x.label}</td><td class="r num" style="font-weight:600">${P(x.sp)} ${arrow(x.sp,x.prev)}</td><td class="r num" style="color:var(--t3)">${P(x.ap)}</td>
         <td class="r"><span class="dv ${cls}">${pp(d)}</span></td><td class="r num">${x.missed>=1?'−'+Math.round(x.missed)+' шт':''}</td></tr>`;}).join('');
   }).join('');
-  const top=res.slice(0,6).map(r=>`<button class="w-row" onclick="S.accFocus='${r.g.id}';document.getElementById('grp-${r.g.id}')?.scrollIntoView({behavior:'smooth',block:'start'})">
+  const top=res.slice(0,6).map(r=>`<button class="w-row" onclick="openGoalModal({seller:'${r.s.name}',metric:'${r.k}',target:${r.tp.toFixed(3)}})">
       <span class="w-name">${esc(r.s.full)}</span>
       <span class="w-why">${r.label} ${r.g.to}: ${P(r.sp)} при ${P(r.tp)} у магазині, продав ${r.base} шт</span>
       <span class="w-side"><span class="dv down">−${Math.round(r.missed)} шт</span></span></button>`).join('');
   const lead=`<div class="watch">
-    <section class="panel"><div class="panel-h"><div class="panel-t"><span class="flag"></span>Де продавці недодають найбільше</div></div>
+    <section class="panel"><div class="panel-h"><div class="panel-t"><span class="flag"></span>Де продавці недодають найбільше</div><span class="panel-note">натисни, щоб поставити ціль</span></div>
       ${top||'<div class="w-empty">Усі тримають рівень магазину.</div>'}
       <div class="w-empty">Резерв = скільки аксесуарів було б продано, якби продавець тримав рівень магазину. Разом: ${Math.round(totalMissed)} шт за період.</div>
     </section>
@@ -2428,6 +2668,7 @@ const M_OFF_DAYS=['Ср','Чт'];
 let M_LOGS=[];
 let M_DONE={};
 let M_DELETED=[];
+let G_GOALS=[];
 let M_EDIT_ID=null;
 
 function mSellerInitials(name){
@@ -2508,6 +2749,7 @@ function mRenderLogEntry(log){
     ${log.discuss?`<div class="log-section">💬 Обговорили</div><div class="log-text">${esc(log.discuss)}</div>`:''}
     ${log.agree?`<div class="log-section">🤝 Домовились</div><div class="log-text">${esc(log.agree)}</div>`:''}
     ${log.deadline?`<div><span class="log-deadline">📅 Дедлайн: ${esc(log.deadline)}</span></div>`:''}
+    <div style="margin-top:10px"><button class="pill" onclick="openGoalModal({seller:'${log.seller}',note:${JSON.stringify(log.agree||'').replace(/"/g,'&quot;')}})">+ Ціль із цієї зустрічі</button></div>
   </div>`;
 }
 
@@ -2515,7 +2757,10 @@ function renderMeetings(){
   const tabs=`<div class="m-tabs">
     <button class="m-tab${S.meetingsTab==='schedule'?' on':''}" onclick="S.meetingsTab='schedule';render()">📅 Графік</button>
     <button class="m-tab${S.meetingsTab==='history'?' on':''}" onclick="S.meetingsTab='history';render()">📋 Журнал</button>
-  </div>`;
+    <button class="m-tab${S.meetingsTab==='goals'?' on':''}" onclick="S.meetingsTab='goals';render()">🎯 Цілі${G_GOALS.filter(g=>g.status==='active').length?` (${G_GOALS.filter(g=>g.status==='active').length})`:''}</button>
+  </div>
+  ${S.meetingsTab==='goals'?renderGoalsList():''}`;
+  if(S.meetingsTab==='goals')return tabs;
 
   let content='';
   if(S.meetingsTab==='schedule'){
@@ -2707,7 +2952,7 @@ window.addEventListener('dragleave',()=>{_dragN=Math.max(0,_dragN-1);if(!_dragN)
 window.addEventListener('dragover',e=>e.preventDefault());
 window.addEventListener('drop',e=>{e.preventDefault();_dragN=0;document.body.classList.remove('dragging');if(e.dataTransfer?.files?.length)handleAnyFiles(e.dataTransfer.files);});
 window.addEventListener('scroll',()=>{const t=document.getElementById('topbar');if(t)t.classList.toggle('scrolled',window.scrollY>4);},{passive:true});
-document.addEventListener('keydown',e=>{if(e.key==='Escape'){closeMore();closeBackupModal();mCloseModal();closeMobOverlay();}});
+document.addEventListener('keydown',e=>{if(e.key==='Escape'){closeMore();closeBackupModal();mCloseModal();closeMobOverlay();closeGoalModal();}});
 ['fileInputAcc','fileInputMobAcc'].forEach(id=>{
   const el=document.getElementById(id);
   if(el)el.addEventListener('change',e=>{handleAccFile(e.target.files[0]);e.target.value='';});
@@ -2750,6 +2995,32 @@ migrateFromOldCloud();
       <button class="m-btn m-btn-cancel" onclick="mCloseModal()">Скасувати</button>
       <button class="m-btn m-btn-primary" onclick="mSaveLog()">Зберегти</button>
     </div>
+  </div>
+</div>
+
+<!-- ═══ GOAL MODAL ═══ -->
+<div class="m-modal hidden" id="goal-modal" onclick="if(event.target===this)closeGoalModal()">
+  <div class="m-modal-box">
+    <div class="sheet-h" style="margin-bottom:14px"><div class="sheet-t">Нова ціль</div><button class="x-btn" onclick="closeGoalModal()" aria-label="Закрити">✕</button></div>
+    <label class="m-form-label" for="g-seller">Продавець</label>
+    <select id="g-seller" class="m-select" onchange="goalModalRefresh()"></select>
+    <label class="m-form-label" for="g-metric">Показник</label>
+    <select id="g-metric" class="m-select" onchange="goalModalRefresh()"></select>
+    <div id="g-now" style="font-size:13px;color:var(--t2);margin-top:8px"></div>
+    <label class="m-form-label" for="g-target">Ціль, <span id="g-unit">%</span></label>
+    <input id="g-target" class="m-input" inputmode="decimal" placeholder="40">
+    <label class="m-form-label" for="g-deadline">До якої дати</label>
+    <input id="g-deadline" type="date" class="m-input">
+    <label class="m-form-label" for="g-note">Про що домовились (необов'язково)</label>
+    <textarea id="g-note" class="m-textarea" placeholder="Напр.: до кожного смартфона пропонує скло, показує на своєму телефоні"></textarea>
+    <div class="m-btn-row"><button class="m-btn m-btn-cancel" onclick="closeGoalModal()">Скасувати</button><button class="m-btn m-btn-primary" onclick="saveGoal()">Зберегти ціль</button></div>
+  </div>
+</div>
+<div class="m-modal hidden" id="msg-modal" onclick="if(event.target===this)this.classList.add('hidden')">
+  <div class="m-modal-box">
+    <div class="sheet-h" style="margin-bottom:10px"><div class="sheet-t">Повідомлення продавцю</div><button class="x-btn" onclick="document.getElementById('msg-modal').classList.add('hidden')" aria-label="Закрити">✕</button></div>
+    <textarea id="msg-text" class="m-textarea" style="min-height:260px" readonly></textarea>
+    <p class="q-meta" style="margin-top:8px">Виділи текст і скопіюй його в Telegram.</p>
   </div>
 </div>
 
