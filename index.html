@@ -664,6 +664,11 @@ tbody tr:hover td{background:var(--bg3)}
 .x-btn{font-size:20px;color:var(--t3);border:0;background:transparent;cursor:pointer;line-height:1;padding:4px 8px}
 
 .q-meta{font-size:13px;color:var(--t3);margin:0 2px 16px}
+.q-meta a{color:var(--t1);text-decoration-color:var(--tag-deep)}
+.q-matrix th.grp-h{text-align:center;color:var(--t1);font-size:12px;border-left:2px solid var(--bd2)}
+.q-matrix .grp-first{border-left:2px solid var(--bd2)}
+.q-matrix td,.q-matrix th{padding:8px 9px}
+.split>*{min-width:0}.detail-panel-wrap{min-width:0}
 .tag-hero.wide-r{grid-template-columns:minmax(0,1fr) minmax(0,1.2fr)}
 .q-res{display:grid;grid-template-columns:repeat(2,minmax(0,1fr))}
 .q-res .w-row:nth-child(odd){border-right:1px solid var(--bd)}
@@ -2475,7 +2480,11 @@ async function shareSellerMessage(name){
 function sellerDetailHTML(s,sellers){
   fillGoalStarts();
   const my=G_GOALS.filter(g=>g.seller===s.name&&g.status==='active');
-  return sellerDetailCore(s,sellers)+`<section class="card"><div class="card-h"><span class="card-t">Цілі</span>
+  const Q=S.accData&&S.accData.kind==='acc2'&&S.accData.groups?S.accData:null;
+  const qa=Q&&Q.sellers.find(x=>x.name===s.name);
+  const qBlock=qa?`<section class="card"><div class="card-h"><span class="card-t">Якість допродажів · ${esc(Q.period)}</span><button class="pill" onclick="go('quality');S.qualityTab='attach';render()">Усі продавці</button></div>
+      <div style="padding:12px 14px">${accSummaryMatrix(Q,{only:s.name})}</div></section>`:'';
+  return sellerDetailCore(s,sellers)+qBlock+`<section class="card"><div class="card-h"><span class="card-t">Цілі</span>
       <div class="pills" style="margin:0"><button class="pill" onclick="openGoalModal({seller:'${s.name}'})">+ Ціль</button><button class="pill" onclick="shareSellerMessage('${s.name}')">Повідомлення продавцю</button></div></div>
       <div style="padding:14px">${my.length?`<div class="goal-grid">${my.map(g=>goalCardHTML(g,false)).join('')}</div>`:'<div class="w-empty" style="border:0;padding:4px 2px">Цілей ще немає. Домовились на 1:1 — зафіксуй тут, і прогрес оновлюватиметься з кожним звітом.</div>'}</div></section>`;
 }
@@ -2625,6 +2634,31 @@ function sellerMessage(name,main,acc,goals){
   return L.join('\n');
 }
 
+
+// Зведена якість по продавцях: рядок — продавець, колонки — головні пари (як у звіті)
+function accSummaryMatrix(v,opts={}){
+  const P=n=>n==null?'—':Math.round(n*100)+'%';
+  const groups=accGroups(v);
+  const cols=[];
+  groups.forEach(g=>g.items.forEach(([k,l])=>{if(CORE_ATTACH.includes(k)||/_basket$/.test(k)&&['sm','lt','tv'].includes(g.id))cols.push({k,l,g});}));
+  const byG=[];cols.forEach(c=>{let x=byG.find(b=>b.g.id===c.g.id);if(!x)byG.push(x={g:c.g,cols:[]});x.cols.push(c);});
+  const cell=(val,ref,base)=>{
+    if(!base)return'<td class="pc-zero">·</td>';
+    if(val==null)return'<td class="pc-zero">—</td>';
+    let cls='pc-avg';
+    if(ref!=null&&ref>0)cls=val>=ref*1.05?'pc-hi':val>=ref*.9?'pc-ok':val>=ref*.75?'pc-avg':'pc-lo';
+    else if(val>0)cls='pc-hi';
+    return`<td class="${cls}">${Math.round(val*100)}%</td>`;
+  };
+  const head1=`<tr><th rowspan="2" style="text-align:left;min-width:150px;vertical-align:bottom">Продавець</th>${byG.map(b=>`<th colspan="${b.cols.length+1}" class="grp-h">${b.g.title}</th>`).join('')}</tr>`;
+  const head2=`<tr>${byG.map(b=>`<th class="grp-first">шт</th>`+b.cols.map(c=>`<th>${c.l.replace('Кошик АСС','Кошик').replace('Скло, плівка','Скло')}</th>`).join('')).join('')}</tr>`;
+  const row=(lbl,o,cls,isBench)=>`<tr${cls?` class="${cls}"`:''}><td>${lbl}</td>${byG.map(b=>`<td class="qty grp-first">${o[b.g.base]!=null?fmt(o[b.g.base]):'—'}</td>`+b.cols.map(c=>isBench?`<td>${P(o[c.k])}</td>`:cell(o[c.k],v.store[c.k],o[b.g.base])).join('')).join('')}</tr>`;
+  const list=(opts.only?v.sellers.filter(x=>x.name===opts.only):v.sellers).filter(x=>byG.some(b=>(x[b.g.base]||0)>0));
+  return`<div style="overflow-x:auto"><table class="pen-table q-matrix"><thead>${head1}${head2}</thead><tbody>
+    ${opts.only?'':row('Магазин',v.store,'bench',true)+row('Середній маг. А',v.avg,'bench',true)}
+    ${list.map(x=>row(esc(x.name),x,'',false)).join('')}
+    ${opts.only?row('Магазин',v.store,'bench',true):''}</tbody></table></div>`;
+}
 function renderQuality(){
   const Q=S.accData&&S.accData.kind==='acc2'&&S.accData.groups?S.accData:null;
   const TOP=S.accTop&&S.accTop.kind==='acc2'?S.accTop:null;
@@ -2676,10 +2710,11 @@ function renderQuality(){
       return`<tr><td>${esc(label(k))}${/_core$/.test(k)?', шт/шт':''}</td><td class="r num" style="font-weight:600">${P(st[k])}</td><td class="r num" style="color:var(--t3)">${P(av[k])}</td><td class="r"><span class="dv ${cls}">${pp(av[k]!=null?d:null)}</span></td></tr>`;}).join('');
     const structure=`<section class="card"><div class="card-h"><span class="card-t">Структура АСС+Home: частка у виторгу аксесуарів</span></div>
       <div style="overflow-x:auto"><table class="rank-table q-store"><thead><tr><th>Що</th><th class="r">Магазин</th><th class="r">Сер. маг. А</th><th class="r">Різниця</th></tr></thead><tbody>${shareRows}</tbody></table></div></section>`;
-    const cols=[['acc_pct','Частка АСС'],['sm_share','До смартф.'],['lt_share','До ноутів'],['tv_share','До ТВ'],['hp_share','Навушники'],['chem_share','Хімія'],['dish_share','Посуд'],['credit','Кредит']].filter(([k])=>st[k]!=null);
+    const cols=[['acc_pct','Частка АСС у виторгу'],['sm_share','АСС до смартф., % ₴'],['lt_share','АСС до ноутів, % ₴'],['tv_share','АСС до ТВ, % ₴'],['hp_share','Навушники, % ₴'],['chem_share','Хімія, % ₴'],['dish_share','Посуд, % ₴'],['credit','У кредит']].filter(([k])=>st[k]!=null);
     const sl=[...v.sellers].filter(s=>s.acc_fact).sort((a,b)=>b.acc_fact-a.acc_fact);
     const body=sl.map(s=>`<tr><td>${esc(s.name)}</td><td class="qty">${fmt(s.acc_fact)}</td>${cols.map(([k])=>k==='credit'?`<td class="pc-avg">${P(s[k])}</td>`:cell(s[k],st[k])).join('')}</tr>`).join('');
-    const sellersT=`<div class="pen-section"><div class="pen-section-title">По продавцях</div>
+    const sellersT=`<div class="pen-section"><div class="pen-section-title">По продавцях: частки у виторгу АСС+Home</div>
+      <p class="q-meta" style="margin-top:-4px">Це не проникнення, а яку частку виторгу АСС+Home продавця дали аксесуари до смартфонів, ноутбуків тощо (з першого звіту). Проникнення (чохол, скло, миша…) — у вкладці <a href="#" onclick="S.qualityTab='attach';render();return false">«Якість допродажів»</a>.</p>
       <div style="overflow-x:auto"><table class="pen-table"><thead><tr><th style="text-align:left;min-width:150px">Продавець</th><th>Факт, грн</th>${cols.map(([,l])=>`<th>${l}</th>`).join('')}</tr></thead>
       <tbody><tr class="bench"><td>Магазин</td><td class="qty">${fmt(st.acc_fact||0)}</td>${cols.map(([k])=>`<td>${P(st[k])}</td>`).join('')}</tr>
       <tr class="bench"><td>Середній маг. А</td><td class="qty">${av.acc_fact?fmt(av.acc_fact):'—'}</td>${cols.map(([k])=>`<td>${P(av[k])}</td>`).join('')}</tr>${body}</tbody></table></div>
@@ -2727,7 +2762,9 @@ function renderQuality(){
     return`<div class="pen-section" id="grp-${g.id}"><div class="pen-section-title">${g.title}<span style="font-weight:400;color:var(--t3);font-size:13px">${asp}</span></div>
       <div style="overflow-x:auto"><table class="pen-table"><thead>${head}</thead><tbody>${bench('Магазин',v.store)}${bench('Середній маг. А',v.avg)}${body}</tbody></table></div></div>`;
   }).join('');
-  return`${months}${tabs}${meta}${lead}${sections}
+  const matrix=`<div class="pen-section"><div class="pen-section-title">Якість по продавцях: головні пари</div>
+    <p class="q-meta" style="margin-top:-4px">Проникнення: скільки аксесуарів продано на 1 шт техніки. «·» — продавець не продавав цю техніку. Детально по кожному блоку — нижче.</p>${accSummaryMatrix(v)}</div>`;
+  return`${months}${tabs}${meta}${matrix}${lead}${sections}
     <p class="q-meta">«Кошик АСС» — скільки аксесуарів у середньому на одну одиницю техніки (може бути більше 100%). Колір клітинки — порівняння з рівнем магазину: зелений вище на 5%+, червоний нижче на 25%+.</p>`;
 }
 
