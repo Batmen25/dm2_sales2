@@ -715,6 +715,57 @@ tbody tr:hover td{background:var(--bg3)}
 .goal-act button:hover{color:var(--t1);border-color:var(--bd3)}
 .only-mob{display:none}
 
+/* ─── плани v2 ─── */
+.pl-setup{padding:4px 0}
+.pl-step{display:flex;gap:14px;padding:18px 20px;border-bottom:1px solid var(--bd)}.pl-step:last-child{border-bottom:0}
+.pl-step-n{flex:0 0 28px;height:28px;border-radius:50%;background:var(--bg3);color:var(--t2);display:grid;place-items:center;font-weight:700;font-size:13px}
+.pl-step-n.done{background:var(--tag);color:var(--tag-ink)}
+.pl-step-b{flex:1;min-width:0}
+.pl-step-t{font-weight:700;font-size:15px;margin:3px 0 4px}
+.pl-step-d{font-size:13px;color:var(--t2);line-height:1.45}
+.pl-step-d a,.pl-coef-l a,.pl-setup a{color:var(--tag-deep);font-weight:600}
+.pl-biz-in{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px;margin-top:12px}
+.pl-biz-in label{display:flex;flex-direction:column;gap:2px;padding:12px 14px;border:1px solid var(--bd);border-radius:var(--r2);background:var(--bg)}
+.pl-biz-in span{font-weight:700;font-size:14px}.pl-biz-in small{font-size:11px;color:var(--t3);margin-bottom:8px}
+.pl-big{font-size:22px;font-weight:700;text-align:left;padding:8px 10px;width:100%;box-sizing:border-box}
+.pl-cats{display:flex;flex-direction:column;gap:6px;margin-top:12px}
+.pl-cat-g{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;color:var(--t3);margin:6px 0 0}
+.pl-cat{display:grid;grid-template-columns:24px 1fr auto 90px;align-items:center;gap:10px;padding:8px 10px;border:1px solid var(--bd);border-radius:var(--r2);background:var(--bg)}
+.pl-cat-n{font-weight:600;font-size:14px;min-width:0}.pl-cat-n small{display:block;font-weight:400;font-size:12px;color:var(--t3)}
+.pl-cat-k{display:flex;align-items:center;gap:4px;color:var(--t3);font-size:13px}.pl-cat-k input{width:56px}
+.pl-cat-p{text-align:right;line-height:1.2}.pl-cat-p b{display:block;font-size:15px}.pl-cat-p small{font-size:12px;color:var(--t3)}
+.pl-x{border:0;background:none;color:var(--t3);font-size:18px;cursor:pointer;padding:0;line-height:1}.pl-x:hover{color:var(--red)}
+.pl-add{margin-top:8px;font:inherit;font-size:13px;padding:7px 10px;border:1px dashed var(--bd2);border-radius:var(--r2);background:var(--bg);color:var(--t2);max-width:100%}
+.pl-coef-l{font-size:12px;color:var(--t3);margin-top:12px}
+.pl-det summary{cursor:pointer;font-weight:600;font-size:13px;margin-top:10px;color:var(--t1)}
+.pl-det[open] summary{margin-bottom:8px}
+.pl-store2{padding:18px 20px}
+.pl-sbs{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:22px}
+.pl-b-h{display:flex;justify-content:space-between;align-items:baseline;gap:8px;font-size:13px;margin-bottom:6px;color:var(--t2)}
+.pl-b-h b{color:var(--t1)}.pl-b-h small{color:var(--t3);font-size:11px}
+.pl-sb .pl-b-h{font-size:14px}.pl-sb .pl-bar{height:10px}
+.pl-b-s{display:flex;justify-content:space-between;gap:8px;font-size:12px;color:var(--t3);margin-top:6px;flex-wrap:wrap}.pl-b-s b{color:var(--t1)}
+.pl-scs{display:flex;flex-wrap:wrap;gap:6px;margin-top:16px;padding-top:14px;border-top:1px solid var(--bd)}
+.pl-sc{display:inline-flex;align-items:center;gap:5px;font-size:12px;padding:5px 10px;border-radius:999px;background:var(--bg3);color:var(--t2)}.pl-sc b{color:var(--t1)}
+.pl-src{font-size:11px;color:var(--t3);margin-top:12px}
+.pl-sorts{display:flex;justify-content:space-between;align-items:center;margin:20px 0 10px;font-weight:700;font-size:15px}
+.pl-cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:12px}
+.pl-card{background:var(--bg2);border:1px solid var(--bd);border-radius:var(--r3);padding:16px;display:flex;flex-direction:column;gap:12px}
+.pl-card-in{background:none;border:0;padding:0}
+.pl-card-h{display:flex;justify-content:space-between;align-items:flex-start;gap:8px}
+.pl-card-h b{font-size:15px}.pl-card-h small{display:block;font-size:12px;color:var(--t3);margin-top:2px}
+.pl-card-p{font-size:22px;font-weight:700;font-variant-numeric:tabular-nums}
+.pl-cl{display:flex;flex-direction:column;border-top:1px solid var(--bd);padding-top:8px}
+.pl-cr{display:grid;grid-template-columns:1fr auto 78px 12px;gap:8px;align-items:center;font-size:13px;padding:4px 0}
+.pl-cr-n{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--t2)}
+.pl-cr-q{text-align:right;white-space:nowrap}.pl-cr-q b{font-size:14px}
+.pl-cr-u{text-align:right;color:var(--t3);font-size:12px;white-space:nowrap}
+.pl-ico{display:inline-block;width:9px;height:9px;border-radius:50%;flex:0 0 9px}
+.pl-ico.ok{background:var(--green)}.pl-ico.mid{background:var(--amber,#e0a100)}.pl-ico.bad{background:var(--red)}
+.pl-copy{align-self:flex-start;font:inherit;font-size:12px;font-weight:600;border:1px solid var(--bd2);background:var(--bg);color:var(--t1);border-radius:999px;padding:6px 12px;cursor:pointer}
+.pl-copy:hover{border-color:var(--tag-deep)}
+@media(max-width:768px){.pl-step{padding:16px 14px;gap:10px}.pl-cat{grid-template-columns:20px 1fr auto;}.pl-cat-p{grid-column:2/4;text-align:left;display:flex;gap:8px;align-items:baseline}.pl-cat-p b{display:inline}.pl-cards{grid-template-columns:1fr}.pl-store2{padding:16px 14px}}
+
 /* ─── плани продажу ─── */
 .pl-top{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:16px}
 .pl-month{display:flex;align-items:center;gap:8px}.pl-month b{font-size:17px;min-width:130px;text-align:center}
@@ -2566,7 +2617,6 @@ function ensurePlan(){
   if(!P_PLANS[k])P_PLANS[k]={month:k,dpt:0,acc:0,cats:{},active:{},overDpt:{},overAcc:{},base:null,updatedAt:Date.now()};
   return P_PLANS[k];
 }
-function planTouch(rerender=true){const p=curPlan();if(p)p.updatedAt=Date.now();saveState();if(rerender)render();}
 // Звіт АСС (верхній рівень) за місяць плану
 function planTopFor(month,acc){
   acc=acc||S.accTop;if(!acc||!acc.periods)return null;
@@ -2622,41 +2672,6 @@ async function planBaseUpload(files){
 }
 function planSetStore(field,v){const p=ensurePlan();p[field]=planNum(v);planTouch();}
 function planCatAvg(cat){const c=((curPlan()||{}).base||{}).cats?.[cat];return c&&c.units?c.rev/c.units:0;}
-function planSetCat(cat,field,v){
-  const p=ensurePlan(),c=p.cats[cat]=p.cats[cat]||{uah:0,qty:0},n=planNum(v),avgP=planCatAvg(cat);
-  c[field]=n;
-  // друге поле підставляється за середньою ціною минулого місяця, якщо ще порожнє
-  if(field==='uah'&&!c.qty&&avgP)c.qty=Math.round(n/avgP);
-  if(field==='qty'&&!c.uah&&avgP)c.uah=Math.round(n*avgP);
-  if(!c.uah&&!c.qty)delete p.cats[cat];
-  planTouch();
-}
-function planSetK(cat,v){
-  const p=ensurePlan(),x=((p.base||{}).cats||{})[cat];p.catK=p.catK||{};
-  const t=String(v).trim();
-  let k=t===''?null:planNum(t);
-  if(k==null){delete p.catK[cat];const tk=coefFor(P_COEFS,cat,x&&x.biz,p.month);k=tk?tk.k:null;}else p.catK[cat]=k;
-  if(k!=null&&x&&(x.rev||x.units))p.cats[cat]={uah:Math.round(x.rev*k),qty:Math.round(x.units*k)};
-  planTouch();
-}
-function planFillK(){
-  const p=ensurePlan(),b=p.base;
-  if(!b||!Object.keys(b.cats||{}).length){toast('Спочатку база минулого місяця','warn');return;}
-  if(!P_COEFS||!P_COEFS.n){S.coefOpen=true;toast('Спершу додай таблицю коефіцієнтів','warn');render();return;}
-  let n=0,miss=[];p.catK=p.catK||{};
-  Object.entries(b.cats).forEach(([cat,x])=>{
-    if(!x.rev&&!x.units)return;
-    const k=p.catK[cat]!=null?p.catK[cat]:(coefFor(P_COEFS,cat,x.biz,p.month)||{}).k;
-    if(k==null){miss.push(cat);return;}
-    p.cats[cat]={uah:Math.round(x.rev*k),qty:Math.round(x.units*k)};n++;});
-  toast(`Пораховано ${n} категорій`+(miss.length?`; без коефіцієнта: ${miss.slice(0,4).join(', ')}${miss.length>4?'…':''}`:''),miss.length?'warn':'ok');
-  planTouch();
-}
-function coefSave(c){
-  if(!c.n&&!Object.keys(c.biz).length){toast('Не знайшов коефіцієнтів. Потрібні колонки: Бізнес, Категорія, 12 місяців.','err');return;}
-  P_COEFS={...c,at:new Date().toISOString(),updatedAt:Date.now()};S.coefOpen=false;
-  toast(`Коефіцієнти збережено: ${c.n} категорій`,'ok');saveState();render();
-}
 function coefFromPaste(){
   const t=(document.getElementById('coefPaste')||{}).value||'';
   coefSave(parseCoefRows(t.split(/\r?\n/).map(l=>l.split('\t'))));
@@ -2666,17 +2681,6 @@ async function coefFromFile(f){
   const wb=XLSX.read(new Uint8Array(await f.arrayBuffer()),{type:'array'});
   coefSave(parseCoefRows(XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]],{header:1,defval:''})));
 }
-function planSpreadCats(){
-  const p=ensurePlan(),b=p.base;
-  if(!b||!b.dptTotal){toast('Спочатку база минулого місяця','warn');return;}
-  if(!p.dpt){toast('Спочатку введи план ДПТ магазину','warn');return;}
-  if(Object.keys(p.cats).length&&!confirm('Перезаписати план по категоріях пропорційно минулому місяцю?'))return;
-  p.cats={};
-  Object.entries(b.cats).forEach(([cat,c])=>{if(!c.rev)return;const uah=Math.round(p.dpt*c.rev/b.dptTotal/100)*100;
-    p.cats[cat]={uah,qty:c.units?Math.max(c.units>0?1:0,Math.round(uah/(c.rev/c.units))):0};});
-  planTouch();
-}
-function planClearCats(){if(!confirm('Очистити план по категоріях?'))return;ensurePlan().cats={};planTouch();}
 function planSetW(kind,n,v){
   const p=ensurePlan(),o=kind==='acc'?(p.overAcc=p.overAcc||{}):(p.overDpt=p.overDpt||{});
   const t=String(v).trim();if(t===''){delete o[n];}else o[n]=planNum(t);
@@ -2706,144 +2710,171 @@ const planCls=(fact,plan,k)=>{if(fact==null||!plan)return'pc-zero';if(plan*k<1&&
 const planBar=(pc,exp)=>`<div class="pl-bar"><i style="width:${Math.min(100,Math.round((pc||0)*100))}%"></i>${exp!=null?`<b style="left:${Math.min(100,Math.round(exp*100))}%" title="де треба бути за темпом"></b>`:''}</div>`;
 const planIn=(val,on,ph,w)=>`<input class="pl-in" inputmode="decimal" value="${val?(val>=1000?fmt(val):String(Math.round(val*100)/100).replace('.',',')):''}" placeholder="${ph||''}" onchange="${on}"${w?` style="width:${w}px"`:''}>`;
 
+// ── Категорії плану: топ за виторгом минулого місяця (або мій вибір) × коефіцієнт ──
+const PLAN_TOP={dpt:6,acc:4};
+function planAutoFocus(p){
+  const cats=Object.entries(((p.base||{}).cats)||{});
+  const top=g=>cats.filter(([,c])=>(c.g||'dpt')===g&&c.rev>0).sort((a,b)=>b[1].rev-a[1].rev).slice(0,PLAN_TOP[g]).map(([k])=>k);
+  return[...top('dpt'),...top('acc')];
+}
+const planFocus=p=>Array.isArray(p.focus)?p.focus:planAutoFocus(p);
+function planCatK(p,cat){
+  const x=((p.base||{}).cats||{})[cat]||{};
+  if((p.catK||{})[cat]!=null)return{k:p.catK[cat],src:'own'};
+  return coefFor(P_COEFS,cat,x.biz||(x.g==='acc'?'Посуд':'ДП техніка'),p.month)||{k:1,src:'none'};
+}
+// План магазину по категоріях = минулий місяць × коефіцієнт; зберігається в плані, щоб бот бачив те саме
+function planMaterialize(p){
+  const cats={};
+  planFocus(p).forEach(cat=>{const x=((p.base||{}).cats||{})[cat];if(!x)return;
+    const {k}=planCatK(p,cat);cats[cat]={uah:Math.round((x.rev||0)*k),qty:Math.round((x.units||0)*k),k,g:x.g||'dpt'};});
+  p.cats=cats;
+}
+function planTouch(rerender=true){const p=curPlan();if(p){planMaterialize(p);p.updatedAt=Date.now();}saveState();if(rerender)render();}
+function planFocusToggle(cat){
+  const p=ensurePlan(),f=[...planFocus(p)],i=f.indexOf(cat);
+  if(i>=0)f.splice(i,1);else f.push(cat);
+  p.focus=f;planTouch();
+}
+function planFocusAuto(){const p=ensurePlan();delete p.focus;planTouch();}
+function planSetK(cat,v){
+  const p=ensurePlan();p.catK=p.catK||{};
+  const t=String(v).trim();if(t==='')delete p.catK[cat];else p.catK[cat]=planNum(t);
+  planTouch();
+}
+function coefSave(c){
+  if(!c.n&&!Object.keys(c.biz).length){toast('Не знайшов коефіцієнтів. Потрібні колонки: Бізнес, Категорія, 12 місяців.','err');return;}
+  P_COEFS={...c,at:new Date().toISOString(),updatedAt:Date.now()};S.coefOpen=false;
+  Object.values(P_PLANS).forEach(p=>{planMaterialize(p);p.updatedAt=Date.now();});
+  toast(`Коефіцієнти збережено: ${c.n} категорій`,'ok');saveState();render();
+}
+
+const _sh=n=>{const p=String(n||'').split(/\s+/);return p.length>1?`${p[0]} ${p[1]}`:n;};
+const planIco=(pc)=>pc?`<span class="pl-ico ${pc.pace>=1?'ok':pc.pace>=.9?'mid':'bad'}" title="${pc.pace>=1?'випереджає темп':pc.pace>=.9?'трохи відстає':'відстає від темпу'}"></span>`:'';
+const catPace=(c,pr)=>pr.dD&&c.qty?{pace:(c.factQty||0)/Math.max(c.qty*pr.dD/pr.N,.5)}:null;
+
 function renderTargets(){
-  const k=planMonth(),p=curPlan();
-  const tab=S.planTab||(p&&(+p.dpt||+p.acc)?'progress':'setup');
+  const k=planMonth(),p=curPlan(),ready=p&&(+p.dpt||+p.acc)&&p.base;
+  if(!ready)S.planTab='setup';
+  const setup=S.planTab==='setup';
   const head=`<div class="pl-top">
     <div class="pl-month"><button class="pill" onclick="S.planMonth=monthShift(planMonth(),-1);render()" aria-label="Попередній місяць">‹</button>
       <b>${monthLabel(k)}</b><button class="pill" onclick="S.planMonth=monthShift(planMonth(),1);render()" aria-label="Наступний місяць">›</button></div>
-    <div class="pills" style="margin:0"><button class="pill${tab==='progress'?' on':''}" onclick="S.planTab='progress';render()">Виконання</button><button class="pill${tab==='setup'?' on':''}" onclick="S.planTab='setup';render()">Налаштування плану</button></div>
+    <div class="pills" style="margin:0">${ready?(setup?`<button class="btn-tag" style="font-size:13px;padding:8px 16px" onclick="S.planTab='progress';render()">Готово</button>`
+      :`<button class="pill" onclick="planCopyAll()">Скопіювати плани всім</button><button class="pill" onclick="S.planTab='setup';render()">⚙ Налаштувати</button>`):''}</div>
   </div>`;
-  return head+(tab==='setup'?renderPlanSetup():renderPlanProgress());
+  return head+(setup?renderPlanSetup():renderPlanProgress());
 }
 
 function renderPlanSetup(){
-  const p=ensurePlanView(),b=p.base,bm=monthShift(p.month,-1),bmL=monthLabel(bm);
+  const p=ensurePlanView(),b=p.base,bm=monthShift(p.month,-1),bL=PLAN_MONTHS[+bm.split('-')[1]-1],mL=PLAN_MONTHS[+p.month.split('-')[1]-1];
   const hist=planBaseFromHistory(p.month);
-  const baseInfo=b?`<p class="pl-ok">✓ База: ${b.period?`продажі ${esc(b.period)} (ДПТ ${fmt(b.dptTotal)} ₴)`:'<span class="pl-warn">немає звіту продажів</span>'} · ${b.accPeriod?`АСС+Home ${b.accSrc==='main'?'зі звіту продажів':'зі звіту АСС'} ${esc(b.accPeriod)} (${fmt(b.accTotal)} ₴)`:'<span class="pl-warn">немає даних АСС+Home</span>'}</p>`:
-    `<p class="q-meta" style="margin:0 0 10px">Потрібен звіт «Продажі за категоріями» за <b>${bmL}</b> (повний місяць) з бізнесами ДП техніка, Краса та догляд, Аксесуари, Посуд, Побутова хімія. Якщо в ньому немає «Аксесуарів» — додай АСС «верхній рівень» за той самий місяць. Вони не замінять поточні звіти — підуть тільки в базу плану та в історію.</p>`;
-  const step1=`<section class="card"><div class="card-h"><span class="card-t">1. База — ${bmL}</span><span class="panel-note">вага продавця = його частка у виторгу магазину</span></div>
-    <div class="pl-body">${baseInfo}
-      <div class="pills" style="margin:0">${hist?`<button class="pill" onclick="planUseHistory()">Взяти з історії${hist.main?` (${esc(hist.main.period)})`:''}</button>`:''}
-      <label class="btn-tag" style="font-size:13px;padding:7px 14px">Завантажити звіти за ${bmL.split(' ')[0]}<input type="file" accept=".xlsx,.xls" multiple hidden onchange="planBaseUpload(this.files);this.value=''"></label></div>
-    </div></section>`;
-  const gr=(plan,base)=>plan&&base?`<span class="${plan>=base?'pl-up':'pl-dn'}">${plan>=base?'+':''}${Math.round((plan/base-1)*100)}% до ${bmL.split(' ')[0]}</span>`:'';
-  const accRep=planTopFor(p.month);
-  const step2=`<section class="card"><div class="card-h"><span class="card-t">2. План магазину на ${monthLabel(p.month)}</span></div>
-    <div class="pl-body pl-store">
-      <label>ДПТ (ДП техніка + Краса та догляд), ₴${planIn(+p.dpt,"planSetStore('dpt',this.value)",b?fmt(b.dptTotal):'',150)}${gr(+p.dpt,b&&b.dptTotal)}</label>
-      <label>АСС+Home (Аксесуари + Посуд + Побутова хімія), ₴${planIn(+p.acc,"planSetStore('acc',this.value)",b?fmt(b.accTotal):'',150)}${gr(+p.acc,b&&b.accTotal)}
-        ${accRep&&accRep.store&&accRep.store.acc_plan?`<span class="panel-note">у звіті АСС план ${fmt(accRep.store.acc_plan)} ₴ за ${esc(accRep.period)}</span>`:''}</label>
-    </div></section>`;
-  // категорії: ДПТ і (якщо є у звіті) АСС+Home; план = минулий місяць × коефіцієнт
-  const cats=new Map();
-  Object.entries((b&&b.cats)||{}).forEach(([c,x])=>cats.set(c,x));
-  (S.storeCats||[]).forEach(c=>{if(BIZ_GROUP[c.biz]&&!cats.has(c.cat)&&(BIZ_GROUP[c.biz]==='dpt'||(b&&b.accSrc==='main')))cats.set(c.cat,{rev:0,units:0,s:{},g:BIZ_GROUP[c.biz],biz:c.biz});});
-  Object.keys(p.cats).forEach(c=>{if(!cats.has(c))cats.set(c,{rev:0,units:0,s:{},g:'dpt'});});
-  const mL=monthLabel(p.month).split(' ')[0],bL=bmL.split(' ')[0];
-  const grpRows=g=>[...cats.entries()].filter(([,x])=>(x.g||'dpt')===g).sort((a,c)=>(c[1].rev||0)-(a[1].rev||0)).map(([cat,x])=>{
-    const cp=p.cats[cat]||{},ce=cat.replace(/'/g,"\\'"),own=(p.catK||{})[cat],tk=coefFor(P_COEFS,cat,x.biz,p.month);
-    const kTitle=tk?`з таблиці: ${String(tk.k).replace('.',',')}${tk.src==='biz'?' (бізнес загалом)':''}`:'у таблиці немає';
-    return`<tr><td>${esc(cat)}${x.biz&&x.biz!=='ДП техніка'?` <small>${esc(x.biz)}</small>`:''}</td><td class="r num">${x.rev?fmt(x.rev):'—'}</td><td class="r num">${x.units||'—'}</td>
-      <td class="r" title="${kTitle}">${planIn(own,`planSetK('${ce}',this.value)`,tk?String(tk.k).replace('.',','):'—',58)}</td>
-      <td class="r">${planIn(+cp.uah,`planSetCat('${ce}','uah',this.value)`,'',110)}</td><td class="r">${planIn(+cp.qty,`planSetCat('${ce}','qty',this.value)`,'',64)}</td></tr>`;}).join('');
-  const sumG=g=>[...cats.entries()].filter(([,x])=>(x.g||'dpt')===g).reduce((a,[c])=>a+(+((p.cats[c]||{}).uah)||0),0);
-  const baseG=g=>[...cats.values()].filter(x=>(x.g||'dpt')===g).reduce((a,x)=>a+(x.rev||0),0);
-  const foot=(g,lbl,field)=>{const su=sumG(g),pl=+p[field]||0;if(!su&&!baseG(g))return'';
-    return`<tr class="pl-sub"><td>${lbl}</td><td class="r num">${fmt(baseG(g))}</td><td></td><td class="r num">${baseG(g)&&su?String(Math.round(su/baseG(g)*100)/100).replace('.',','):''}</td><td class="r num">${fmt(su)} ₴</td><td></td></tr>
-      ${su&&(g==='dpt'||(b&&b.accSrc==='main'))?`<tr><td colspan="6" style="text-align:right">${pl?`<span class="${Math.abs(su-pl)<=pl*.01?'pl-up':'pl-warn'}">План магазину ${fmt(pl)} ₴ — ${Math.abs(su-pl)<=pl*.01?'збігається з сумою категорій':`різниця ${su>pl?'+':'−'}${fmt(Math.abs(su-pl))} ₴`}</span> `:''}${Math.abs(su-pl)>pl*.01?`<button class="pill" onclick="planSetStore('${field}',${Math.round(su)})">Зробити ${fmt(su)} ₴ планом ${lbl.split(' ')[0]}</button>`:''}</td></tr>`:''}`;};
-  const dRows=grpRows('dpt'),aRows=grpRows('acc');
-  const coefInfo=P_COEFS&&P_COEFS.n?`Таблиця коефіцієнтів: ${P_COEFS.n} категорій${P_COEFS.at?`, оновлено ${new Date(P_COEFS.at).toLocaleDateString('uk-UA')}`:''}`:'Таблицю коефіцієнтів ще не додано';
-  const step3=`<section class="card"><div class="card-h"><span class="card-t">3. План по категоріях = ${bL} × коефіцієнт ${mL}</span>
-      <div class="pills" style="margin:0"><button class="pill" onclick="S.coefOpen=!S.coefOpen;render()">${P_COEFS&&P_COEFS.n?'Оновити':'Додати'} коефіцієнти</button><button class="pill on" onclick="planFillK()">Порахувати всі категорії</button>${Object.keys(p.cats).length?'<button class="pill" onclick="planClearCats()">Очистити</button>':''}</div></div>
-    <div class="pl-body" style="padding-top:6px">
-      <p class="q-meta" style="margin:0 0 8px">${coefInfo}. Коефіцієнт береться з колонки «${mL}»; якщо категорії немає в таблиці — з рядка «всього» її бізнесу. Можна вписати свій коефіцієнт або змінити гривні/штуки вручну.</p>
-      ${S.coefOpen?`<div class="pl-coef"><p class="q-meta" style="margin:0 0 6px">Виділи в Excel таблицю разом із заголовком (Бізнес, Категорія, січ…груд), скопіюй і встав сюди. Або завантаж файл .xlsx.</p>
-        <textarea id="coefPaste" rows="6" placeholder="Бізнес	Категорія	янв	фев	…"></textarea>
-        <div class="pills" style="margin:8px 0 0"><button class="btn-tag" style="font-size:13px;padding:7px 14px" onclick="coefFromPaste()">Зберегти коефіцієнти</button>
-        <label class="pill">Завантажити .xlsx<input type="file" accept=".xlsx,.xls" hidden onchange="coefFromFile(this.files[0]);this.value=''"></label></div></div>`:''}
-      <div style="overflow-x:auto"><table class="rank-table pl-table"><thead><tr><th>Категорія</th><th class="r">${bL}, ₴</th><th class="r">шт</th><th class="r">Коеф.</th><th class="r">План ${mL}, ₴</th><th class="r">План, шт</th></tr></thead>
-      <tbody>${dRows?`<tr class="pl-grp"><td colspan="6">ДПТ — ДП техніка, Краса та догляд</td></tr>`+dRows:''}${foot('dpt','ДПТ разом','dpt')}
-      ${aRows?`<tr class="pl-grp"><td colspan="6">АСС+Home — Аксесуари, Посуд, Побутова хімія</td></tr>`+aRows+foot('acc','АСС+Home разом','acc'):''}
-      ${!dRows&&!aRows?`<tr><td colspan="6" class="pl-dim">Категорії з'являться після бази або звіту продажів</td></tr>`:''}</tbody></table></div></div></section>`;
-  // продавці
-  const pc=planCompute(p),names=new Set(pc.names);
-  const all=new Map();Object.entries((b&&b.full)||{}).forEach(([n,f])=>all.set(n,f));
-  (S.sellers||[]).forEach(s=>{if(!all.has(s.name))all.set(s.name,s.full);});
-  const sumD=_sum(b&&b.dpt),sumA=_sum(b&&b.acc);
-  const sRows=[...all.entries()].sort((a,c)=>((b&&b.dpt[c[0]])||0)-((b&&b.dpt[a[0]])||0)).map(([n,f])=>{
-    const on=names.has(n),x=pc.sellers.find(s=>s.name===n),od=(p.overDpt||{})[n],oa=(p.overAcc||{})[n];
-    const bd=(b&&b.dpt[n])||0,ba=(b&&b.acc[n])||0;
-    return`<tr class="${on?'':'pl-off'}"><td><label class="pl-chk"><input type="checkbox" ${on?'checked':''} onchange="planToggle('${n}',this.checked)"> ${esc(f||n)}</label></td>
-      <td class="r num pl-dim">${bd?fmt(bd):'—'}<small>${sumD&&bd?` · ${(bd/sumD*100).toFixed(1)}%`:''}</small></td>
-      <td class="r">${on?planIn(od,`planSetW('dpt','${n}',this.value)`,x?(x.wDpt*100).toFixed(1):'',58):''}</td>
-      <td class="r">${on?planIn(od!=null?x.dpt:null,`planSetPlanUah('dpt','${n}',this.value)`,x?fmt(x.dpt):'',96):''}</td>
-      <td class="r num pl-dim">${ba?fmt(ba):'—'}<small>${sumA&&ba?` · ${(ba/sumA*100).toFixed(1)}%`:''}</small></td>
-      <td class="r">${on?planIn(oa,`planSetW('acc','${n}',this.value)`,x?(x.wAcc*100).toFixed(1):'',58):''}</td>
-      <td class="r">${on?planIn(oa!=null?x.acc:null,`planSetPlanUah('acc','${n}',this.value)`,x?fmt(x.acc):'',96):''}</td></tr>`;}).join('');
-  const hasOver=Object.keys(p.overDpt||{}).length||Object.keys(p.overAcc||{}).length;
-  const step4=`<section class="card"><div class="card-h"><span class="card-t">4. Продавці і ваги</span>${hasOver?'<button class="pill" onclick="planResetW()">Скинути ручні правки</button>':''}</div>
-    <div class="pl-body" style="padding-top:6px"><p class="q-meta" style="margin:0 0 8px">Сірим — автоматично з бази. Впиши свою вагу у % або план у ₴ — він зафіксується, а решта продавців перерахуються так, щоб сума дорівнювала плану магазину. Новенького без історії познач галочкою і впиши йому вагу.</p>
-    <div style="overflow-x:auto"><table class="rank-table pl-table"><thead><tr><th>Продавець</th><th class="r">ДПТ ${bmL.split(' ')[0]}</th><th class="r">Вага, %</th><th class="r">План ДПТ, ₴</th><th class="r">АСС ${bmL.split(' ')[0]}</th><th class="r">Вага, %</th><th class="r">План АСС, ₴</th></tr></thead>
-    <tbody>${sRows||'<tr><td colspan="7" class="pl-dim">Спочатку база</td></tr>'}</tbody>
-    <tfoot><tr><td>Разом (${pc.sellers.length})</td><td></td><td class="r num">${Math.round(_sum(pc.wD)*100)}%</td><td class="r num">${fmt(pc.sellers.reduce((a,s)=>a+s.dpt,0))}</td><td></td><td class="r num">${Math.round(_sum(pc.wA)*100)}%</td><td class="r num">${fmt(pc.sellers.reduce((a,s)=>a+s.acc,0))}</td></tr></tfoot></table></div>
-    ${_sum(pc.wD)>1.001||_sum(pc.wA)>1.001?'<p class="pl-warn" style="margin:8px 0 0">Ручні ваги в сумі більші за 100% — зменш їх.</p>':''}</div></section>`;
-  const done=b&&(+p.dpt||+p.acc)?`<div class="pl-next"><span>Готово? План уже рахується для кожного продавця.</span><button class="btn-tag" onclick="S.planTab='progress';render()">Дивитись виконання →</button></div>`:'';
-  return step1+step2+step3+step4+done;
+  const num=(n,on)=>`<input class="pl-in pl-big" inputmode="numeric" value="${n?fmt(n):''}" placeholder="0" onchange="${on}">`;
+  // 1. план компанії
+  const s1=`<div class="pl-step"><div class="pl-step-n">1</div><div class="pl-step-b">
+    <div class="pl-step-t">План магазину на ${mL}</div><div class="pl-step-d">Цифри від компанії. Вони діляться між продавцями за їхньою часткою у виторгу за ${bL}.</div>
+    <div class="pl-biz-in">
+      <label><span>ДПТ</span><small>ДП техніка + Краса та догляд</small>${num(+p.dpt,"planSetStore('dpt',this.value)")}</label>
+      <label><span>АСС+Home</span><small>Аксесуари + Посуд + Побутова хімія</small>${num(+p.acc,"planSetStore('acc',this.value)")}</label>
+    </div></div></div>`;
+  // 2. база
+  const s2=`<div class="pl-step"><div class="pl-step-n${b?' done':''}">${b?'✓':'2'}</div><div class="pl-step-b">
+    <div class="pl-step-t">Результати за ${bL}</div>
+    <div class="pl-step-d">${b?`Продажі ${esc(b.period||'—')} · ДПТ ${fmt(b.dptTotal)} ₴ · АСС+Home ${fmt(b.accTotal)} ₴ ${b.accSrc==='main'?'(зі звіту продажів)':b.accSrc==='acc'?'(зі звіту АСС)':''}`
+      :`Звіт «Продажі за категоріями» за повний ${bL}. Якщо в ньому немає «Аксесуарів» — додай ще АСС «верхній рівень» за ${bL}.`}</div>
+    <div class="pills" style="margin:10px 0 0">${hist&&!b?`<button class="pill on" onclick="planUseHistory()">Взяти з історії (${esc((hist.main&&hist.main.period)||bL)})</button>`:''}
+      <label class="pill${b||hist?'':' on'}">${b?'Замінити звіти':'Завантажити звіти'}<input type="file" accept=".xlsx,.xls" multiple hidden onchange="planBaseUpload(this.files);this.value=''"></label></div>
+  </div></div>`;
+  // 3. категорії
+  let s3='';
+  if(b){
+    const focus=planFocus(p),all=Object.entries(b.cats||{}).filter(([,c])=>c.rev>0).sort((a,c)=>c[1].rev-a[1].rev);
+    const row=([cat,x])=>{const c=(p.cats||{})[cat]||{},kk=planCatK(p,cat),ce=cat.replace(/'/g,"\\'");
+      return`<div class="pl-cat"><button class="pl-x" onclick="planFocusToggle('${ce}')" aria-label="Прибрати">×</button>
+        <div class="pl-cat-n">${esc(cat)}<small>${bL}: ${x.units} шт · ${fmtK(x.rev)} ₴</small></div>
+        <label class="pl-cat-k" title="${kk.src==='cat'?'з таблиці коефіцієнтів':kk.src==='biz'?'з таблиці: бізнес «всього»':kk.src==='own'?'вписано вручну':'коефіцієнта немає'}">×<input class="pl-in" inputmode="decimal" value="${String(kk.k).replace('.',',')}" onchange="planSetK('${ce}',this.value)"${kk.src==='own'?' style="border-color:var(--tag-deep)"':''}></label>
+        <div class="pl-cat-p"><b>${c.qty||0} шт</b><small>${fmtK(c.uah||0)} ₴</small></div></div>`;};
+    const grp=(g,lbl)=>{const rows=focus.map(c=>[c,(b.cats||{})[c]]).filter(([,x])=>x&&(x.g||'dpt')===g);
+      return rows.length?`<div class="pl-cat-g">${lbl}</div>`+rows.map(row).join(''):'';};
+    const rest=all.filter(([c])=>!focus.includes(c));
+    s3=`<div class="pl-step"><div class="pl-step-n">3</div><div class="pl-step-b">
+      <div class="pl-step-t">Категорії в плані продавців</div>
+      <div class="pl-step-d">План категорії = ${bL} × коефіцієнт ${mL}. Ділиться між продавцями так само, як план бізнесу. ${Array.isArray(p.focus)?`<a href="#" onclick="planFocusAuto();return false">Повернути автоматичний топ</a>`:`Зараз — топ-${PLAN_TOP.dpt} ДПТ і топ-${PLAN_TOP.acc} АСС+Home за виторгом.`}</div>
+      <div class="pl-cats">${grp('dpt','ДПТ')}${grp('acc','АСС+Home')}</div>
+      ${rest.length?`<select class="pl-add" onchange="if(this.value)planFocusToggle(this.value)"><option value="">+ Додати категорію</option>${rest.map(([c,x])=>`<option value="${esc(c)}">${esc(c)} — ${fmtK(x.rev)} ₴</option>`).join('')}</select>`:''}
+      <div class="pl-coef-l">${P_COEFS&&P_COEFS.n?`Коефіцієнти: ${P_COEFS.n} категорій з таблиці.`:'<span class="pl-warn">Таблиці коефіцієнтів ще немає — зараз скрізь ×1.</span>'} <a href="#" onclick="S.coefOpen=!S.coefOpen;render();return false">${P_COEFS&&P_COEFS.n?'Оновити таблицю':'Додати таблицю'}</a></div>
+      ${S.coefOpen?`<div class="pl-coef"><p class="q-meta" style="margin:0 0 6px">Скопіюй в Excel таблицю разом із заголовком (Бізнес, Категорія, січ…груд) і встав сюди — або завантаж файл.</p>
+        <textarea id="coefPaste" rows="5" placeholder="Бізнес	Категорія	янв	фев	…"></textarea>
+        <div class="pills" style="margin:8px 0 0"><button class="pill on" onclick="coefFromPaste()">Зберегти</button><label class="pill">Файл .xlsx<input type="file" accept=".xlsx,.xls" hidden onchange="coefFromFile(this.files[0]);this.value=''"></label></div></div>`:''}
+    </div></div>`;
+  }
+  // 4. продавці (згорнуто)
+  let s4='';
+  if(b){
+    const pc=planCompute(p),names=new Set(pc.names);
+    const all=new Map();Object.entries(b.full||{}).forEach(([n,f])=>all.set(n,f));
+    (S.sellers||[]).forEach(s=>{if(!all.has(s.name))all.set(s.name,s.full);});
+    const over=Object.keys(p.overDpt||{}).length+Object.keys(p.overAcc||{}).length;
+    const rows=[...all.entries()].sort((a,c)=>((pc.wD[c[0]]||0)+(pc.wA[c[0]]||0))-((pc.wD[a[0]]||0)+(pc.wA[a[0]]||0))).map(([n,f])=>{
+      const on=names.has(n),od=(p.overDpt||{})[n],oa=(p.overAcc||{})[n];
+      const w=(kind,o,v)=>`<input class="pl-in" inputmode="decimal" style="width:62px" value="${o!=null?String(o).replace('.',','):''}" placeholder="${on?(v*100).toFixed(1).replace('.',','):''}" onchange="planSetW('${kind}','${n}',this.value)"${on?'':' disabled'}>`;
+      return`<tr class="${on?'':'pl-off'}"><td><label class="pl-chk"><input type="checkbox" ${on?'checked':''} onchange="planToggle('${n}',this.checked)">${esc(_sh(f||n))}</label></td>
+        <td class="r">${w('dpt',od,pc.wD[n]||0)}</td><td class="r num">${on?fmtK((+p.dpt||0)*(pc.wD[n]||0)):''}</td>
+        <td class="r">${w('acc',oa,pc.wA[n]||0)}</td><td class="r num">${on?fmtK((+p.acc||0)*(pc.wA[n]||0)):''}</td></tr>`;}).join('');
+    s4=`<div class="pl-step"><div class="pl-step-n">4</div><div class="pl-step-b">
+      <div class="pl-step-t">Продавці</div>
+      <div class="pl-step-d">Частка кожного рахується автоматично за ${bL}. Відкрий, якщо треба прибрати когось, додати новенького або поправити частку.</div>
+      <details class="pl-det"${S.planSellersOpen?' open':''} ontoggle="S.planSellersOpen=this.open"><summary>${pc.sellers.length} продавців${over?` · ручних правок: ${over}`:''}</summary>
+        <div style="overflow-x:auto"><table class="rank-table pl-table"><thead><tr><th>Продавець</th><th class="r">Частка ДПТ, %</th><th class="r">План ДПТ</th><th class="r">Частка АСС, %</th><th class="r">План АСС</th></tr></thead><tbody>${rows}</tbody></table></div>
+        <p class="q-meta" style="margin:8px 0 0">Впишеш частку одному — решта перерахуються, щоб разом було 100%. ${over?'<a href="#" onclick="planResetW();return false">Скинути ручні правки</a>':''}</p>
+      </details></div></div>`;
+  }
+  return`<section class="card pl-setup">${s1}${s2}${s3}${s4}</section>`;
 }
 function ensurePlanView(){return curPlan()||{month:planMonth(),dpt:0,acc:0,cats:{},active:{},overDpt:{},overAcc:{},base:null};}
 
-function renderPlanProgress(){
-  const p=curPlan();
-  if(!p||!(+p.dpt||+p.acc))return`<div class="empty">На ${monthLabel(planMonth())} плану ще немає.<br><button class="btn-tag" style="margin-top:14px" onclick="S.planTab='setup';render()">Налаштувати план</button></div>`;
-  const pr=planPrFor(p.month);
-  const kd=pr.dD?pr.dD/pr.N:null;
-  const kpi=(lbl,plan,fact,pc,d,src)=>`<div class="pl-kpi"><div class="kpi-l">${lbl}</div>
-    ${pc?`<div class="pl-kv"><b>${planPct(pc.pct)}</b><span>${fmt(fact)} з ${fmt(plan)} ₴</span></div>${planBar(pc.pct,pc.expected/plan)}
-      <div class="kpi-s">За ${d} з ${pr.N} днів треба ${planPct(pc.expected/plan)} ${planMark(pc)} · прогноз <b>${fmt(pc.forecast)} ₴</b> (${planPct(pc.forecast/plan)})${pc.need>0&&pc.left>0?` · далі по ${fmt(pc.perDay)} ₴/день`:''}</div>`
-      :`<div class="pl-kv"><b>${fmt(plan)} ₴</b></div><div class="kpi-s">${src}</div>`}</div>`;
-  const hero=`<div class="pl-kpis">${+p.dpt?kpi('ДПТ · техніка + краса',+p.dpt,pr.storeDptFact,pr.dptPace,pr.dD,`Немає звіту продажів з 1 ${PLAN_MONTHS_GEN[+p.month.split('-')[1]-1]}`):''}
-    ${+p.acc?kpi('АСС+Home · аксесуари, посуд, хімія',+p.acc,pr.storeAccFact,pr.accPace,pr.dA,`Немає даних за ${monthLabel(p.month)}: потрібен звіт продажів з «Аксесуарами» або АСС «верхній рівень»`):''}</div>`;
-  const cell=(plan,fact,pc)=>plan?`<td class="r num">${fmt(plan)}</td><td class="r num">${fact==null?'—':fmt(fact)}</td><td class="r ${pc?planCls(fact,plan,pc.expected/plan):'pc-zero'}">${pc?planPct(pc.pct):'—'}</td>`:'<td></td><td></td><td></td>';
-  const rows=[...pr.rows].sort((a,b)=>(b.dpt+b.acc)-(a.dpt+a.acc)).map(r=>`<tr><td class="nm">${esc(r.full)}</td>${+p.dpt?cell(r.dpt,r.dptFact,r.dptPace):''}${+p.acc?cell(r.acc,r.accFact,r.accPace):''}
-    <td class="r"><button class="pill" onclick="planCopyOne('${r.name}')">Текст</button></td></tr>`).join('');
-  const sellersT=`<section class="card"><div class="card-h"><span class="card-t">Продавці</span><button class="pill" onclick="planCopyAll(this)">Скопіювати плани всім</button></div>
-    <div style="overflow-x:auto"><table class="rank-table pl-table"><thead><tr><th>Продавець</th>${+p.dpt?'<th class="r">План ДПТ</th><th class="r">Факт</th><th class="r">%</th>':''}${+p.acc?'<th class="r">План АСС</th><th class="r">Факт</th><th class="r">%</th>':''}<th></th></tr></thead><tbody>${rows}</tbody></table></div>
-    <p class="q-meta" style="margin:10px 18px 14px">Колір — порівняно з темпом: зелений — випереджає, червоний — відстає більше ніж на 30%.</p></section>`;
-  // категорії
-  const cats=Object.entries(pr.catsStore).sort((a,b)=>b[1].uah-a[1].uah);
-  let catsT='';
-  if(cats.length){
-    const unit=S.planUnit||'qty';
-    const cRows=cats.map(([cat,c])=>{const pc=c.factQty!=null&&c.qty?c.factQty/c.qty:null;
-      return`<tr><td>${esc(cat)}</td><td class="r num">${c.qty||'—'}</td><td class="r num">${c.factQty??'—'}</td><td class="r ${kd&&c.qty?planCls(c.factQty,c.qty,kd):'pc-zero'}">${pc==null?'—':planPct(pc)}</td><td class="r num">${fmt(c.uah)}</td><td class="r num">${c.factUah==null?'—':fmt(c.factUah)}</td><td class="r ${kd&&c.uah?planCls(c.factUah,c.uah,kd):'pc-zero'}">${c.factUah!=null&&c.uah?planPct(c.factUah/c.uah):'—'}</td></tr>`;}).join('');
-    const mCats=cats.filter(([,c])=>c.qty>0);
-    const mRows=[...pr.rows].sort((a,b)=>b.dpt-a.dpt).map(r=>`<tr><td class="nm">${esc(r.name)}</td>${mCats.map(([cat])=>{const c=r.cats[cat];if(!c)return'<td class="pc-zero">·</td>';
-      const pl=unit==='qty'?c.qty:c.uah,fa=unit==='qty'?c.factQty:c.factUah;
-      if(!pl&&!fa)return'<td class="pc-zero">·</td>';
-      return`<td class="${kd&&pl?planCls(fa,pl,kd):'pc-avg'}">${fa==null?'':`${unit==='qty'?fa:fmtK(fa)}<span class="pl-of">/</span>`}${unit==='qty'?pl:fmtK(pl)}</td>`;}).join('')}</tr>`).join('');
-    catsT=`<section class="card"><div class="card-h"><span class="card-t">Категорії магазину</span></div>
-      <div style="overflow-x:auto"><table class="rank-table pl-table"><thead><tr><th>Категорія</th><th class="r">План, шт</th><th class="r">Факт</th><th class="r">%</th><th class="r">План, ₴</th><th class="r">Факт</th><th class="r">%</th></tr></thead><tbody>${cRows}</tbody></table></div></section>
-      ${mCats.length?`<section class="card"><div class="card-h"><span class="card-t">Продавці × категорії${pr.dD?' · факт / план':' · план'}</span>
-        <div class="pills" style="margin:0"><button class="pill${unit==='qty'?' on':''}" onclick="S.planUnit='qty';render()">Штуки</button><button class="pill${unit==='uah'?' on':''}" onclick="S.planUnit='uah';render()">Гривні</button></div></div>
-        <div style="overflow-x:auto"><table class="pen-table pl-matrix"><thead><tr><th style="text-align:left">Продавець</th>${mCats.map(([cat])=>`<th title="${esc(cat)}">${esc(cat.length>14?cat.slice(0,13)+'…':cat)}</th>`).join('')}</tr></thead><tbody>${mRows}</tbody></table></div></section>`:''}`;
-  }
-  const src=`<p class="q-meta">Факт: ${pr.dD?`продажі ${esc(S.period)} (${pr.dD} з ${pr.N} днів)`:'звіту продажів за цей місяць немає'} · ${pr.dA?`АСС+Home ${pr.accMain?'зі звіту продажів':'зі звіту АСС'} (${pr.dA} з ${pr.N} днів)`:'даних АСС+Home за цей місяць немає'}. Вага продавців — з бази ${p.base&&p.base.period?esc(p.base.period):'—'}.</p>`;
-  return src+hero+sellersT+catsT;
+// Картка продавця: бізнеси смугами, категорії рядками
+function planCardHTML(r,pr,opts={}){
+  const biz=(lbl,plan,fact,pc)=>plan?`<div class="pl-b"><div class="pl-b-h"><span>${lbl}</span><span class="num">${fact!=null?`<b>${fmtK(fact)}</b> / `:''}${fmtK(plan)} ₴</span></div>${planBar(pc&&pc.pct,pc&&pc.expected/plan)}
+    ${pc?`<div class="pl-b-s"><span>${planPct(pc.pct)} ${planIco(pc)}</span><span>${pc.need>0&&pc.left>0?`по ${fmtK(pc.perDay)} ₴/день`:pc.need<=0?'виконано':''}</span></div>`:''}</div>`:'';
+  const cats=Object.entries(r.cats).filter(([,c])=>c.qty>0||(c.factQty||0)>0).sort((a,b)=>(a[1].g===b[1].g?0:a[1].g==='dpt'?-1:1)||b[1].uah-a[1].uah);
+  const tot=(r.dpt||0)+(r.acc||0),fact=(r.dptFact??null)!=null||(r.accFact??null)!=null?(r.dptFact||0)+(r.accFact||0):null;
+  return`<div class="pl-card">
+    <div class="pl-card-h"><div><b>${esc(opts.full?r.full:_sh(r.full))}</b><small>план ${fmtK(tot)} ₴</small></div>${fact!=null&&tot?`<span class="pl-card-p">${planPct(fact/tot)}</span>`:''}</div>
+    ${biz('ДПТ',r.dpt,r.dptFact,r.dptPace)}${biz('АСС+Home',r.acc,r.accFact,r.accPace)}
+    ${cats.length?`<div class="pl-cl">${cats.map(([cat,c])=>{const cp=catPace(c,pr);
+      return`<div class="pl-cr"><span class="pl-cr-n">${esc(cat)}</span><span class="num pl-cr-q">${c.factQty!=null?`<b>${c.factQty}</b> / `:''}${c.qty} шт</span><span class="num pl-cr-u">${c.factUah!=null?fmtK(c.factUah)+' / ':''}${fmtK(c.uah)} ₴</span>${planIco(cp)}</div>`;}).join('')}</div>`:''}
+    ${opts.noCopy?'':`<button class="pl-copy" onclick="planCopyOne('${r.name}')">Скопіювати план</button>`}
+  </div>`;
 }
+
+function renderPlanProgress(){
+  const p=curPlan(),pr=planPrFor(p.month);
+  const biz=(lbl,sub,plan,fact,pc,d)=>plan?`<div class="pl-sb"><div class="pl-b-h"><span><b>${lbl}</b> <small>${sub}</small></span><span class="num">${fact!=null?`<b>${fmt(fact)}</b> / `:''}${fmt(plan)} ₴</span></div>
+    ${planBar(pc&&pc.pct,pc&&pc.expected/plan)}
+    <div class="pl-b-s">${pc?`<span><b>${planPct(pc.pct)}</b> ${planIco(pc)} · треба ${planPct(pc.expected/plan)} на ${d} число</span><span>прогноз ${fmtK(pc.forecast)} ₴ · ${pc.need>0&&pc.left>0?`по ${fmtK(pc.perDay)} ₴/день`:'виконано'}</span>`:'<span>немає звіту за цей місяць</span>'}</div></div>`:'';
+  const gOf=c=>(p.cats[c]||{}).g==='acc'?1:0;
+  const cats=Object.entries(pr.catsStore).sort((a,b)=>gOf(a[0])-gOf(b[0])||b[1].uah-a[1].uah);
+  const chips=cats.map(([cat,c])=>{const cp=catPace(c,pr);return`<span class="pl-sc">${esc(cat)} <b class="num">${c.factQty!=null?c.factQty+' / ':''}${c.qty}</b> шт${planIco(cp)}</span>`;}).join('');
+  const store=`<section class="card pl-store2">
+    <div class="pl-sbs">${biz('ДПТ','техніка + краса',+p.dpt,pr.storeDptFact,pr.dptPace,pr.dD)}${biz('АСС+Home','аксесуари, посуд, хімія',+p.acc,pr.storeAccFact,pr.accPace,pr.dA)}</div>
+    ${chips?`<div class="pl-scs">${chips}</div>`:''}
+    <div class="pl-src">${pr.dD?`Факт: продажі ${esc(S.period)}`:'Звіту продажів за цей місяць ще немає'}${pr.dA&&!pr.accMain?` · АСС+Home зі звіту АСС`:''}</div></section>`;
+  const sort=S.planSort||'plan';
+  const score=r=>{const ps=[r.dptPace,r.accPace].filter(Boolean);return ps.length?Math.min(...ps.map(x=>x.pace)):9;};
+  const rows=[...pr.rows].sort(sort==='lag'?(a,b)=>score(a)-score(b):(a,b)=>(b.dpt+b.acc)-(a.dpt+a.acc));
+  const bar=`<div class="pl-sorts"><span>Продавці</span><div class="pills" style="margin:0"><button class="pill${sort==='plan'?' on':''}" onclick="S.planSort='plan';render()">За планом</button><button class="pill${sort==='lag'?' on':''}" onclick="S.planSort='lag';render()">Хто відстає</button></div></div>`;
+  return store+bar+`<div class="pl-cards">${rows.map(r=>planCardHTML(r,pr)).join('')}</div>`;
+}
+
 const fmtK=n=>n>=10000?Math.round(n/1000)+'к':n>=1000?(Math.round(n/100)/10).toString().replace('.',',')+'к':fmt(Math.round(n));
 
 // Блок плану в картці продавця
 function sellerPlanHTML(name){
   const p=P_PLANS[planDefaultMonth()];if(!p||!(+p.dpt||+p.acc))return'';
   const pr=planPrFor(p.month),x=pr&&pr.rows.find(r=>r.name===name);if(!x)return'';
-  const one=(lbl,plan,fact,pc)=>plan?`<div class="pl-mini"><div class="pl-mini-h"><span>${lbl}</span><b>${pc?planPct(pc.pct):'—'}</b></div>${planBar(pc&&pc.pct,pc&&pc.expected/plan)}
-    <div class="pl-mini-s">${fact==null?'':fmt(fact)+' з '}${fmt(plan)} ₴${pc?` · прогноз ${planPct(pc.forecast/plan)}`:''}</div></div>`:'';
-  const cats=Object.entries(x.cats).filter(([,c])=>c.qty>0).sort((a,b)=>b[1].uah-a[1].uah);
-  const kd=pr.dD?pr.dD/pr.N:null;
-  return`<section class="card"><div class="card-h"><span class="card-t">План на ${monthLabel(p.month)}</span><div class="pills" style="margin:0"><button class="pill" onclick="planCopyOne('${name}')">Скопіювати план</button><button class="pill" onclick="S.planMonth='${p.month}';go('targets')">Усі плани</button></div></div>
-    <div class="pl-body"><div class="pl-minis">${one('ДПТ',x.dpt,x.dptFact,x.dptPace)}${one('Аксесуари і Home',x.acc,x.accFact,x.accPace)}</div>
-    ${cats.length?`<div class="pl-chips">${cats.map(([cat,c])=>`<span class="pl-chip ${kd?planCls(c.factQty,c.qty,kd):''}">${esc(cat)} <b>${c.factQty!=null?c.factQty+'/':''}${c.qty}</b></span>`).join('')}</div>`:''}</div></section>`;
+  return`<section class="card"><div class="card-h"><span class="card-t">План на ${monthLabel(p.month)}</span><button class="pill" onclick="S.planMonth='${p.month}';S.planTab='progress';go('targets')">Усі плани</button></div>
+    <div class="pl-body">${planCardHTML(x,pr,{full:true,noCopy:false}).replace('<div class="pl-card">','<div class="pl-card pl-card-in">')}</div></section>`;
 }
 
 // ═══ ЗВОРОТНИЙ ЗВ'ЯЗОК ПРОДАВЦЯМ ═══
@@ -3180,13 +3211,13 @@ function planCompute(plan){
   // категорія: 50% — частка продавця в цій категорії минулого місяця, 50% — його загальна вага ДПТ
   Object.entries(plan.cats||{}).forEach(([cat,cp])=>{
     if(!(+cp.uah)&&!(+cp.qty))return;
-    const bc=(b.cats||{})[cat]||{},bs=bc.s||{},W=bc.g==='acc'?wA:wD;
-    const tot=names.reduce((a,n)=>a+Math.max(0,(bs[n]||[0])[0]),0);
-    const raw={};names.forEach(n=>{const own=tot>0?Math.max(0,(bs[n]||[0])[0])/tot:(W[n]||0);raw[n]=.5*own+.5*(W[n]||0);});
+    const bc=(b.cats||{})[cat]||{},W=(cp.g||bc.g)==='acc'?wA:wD;
+    // категорія ділиться так само, як бізнес: за вагою продавця у ДПТ або АСС+Home
+    const raw={};names.forEach(n=>{raw[n]=W[n]||0;});
     const rs=Object.values(raw).reduce((a,v)=>a+v,0)||1;
     const sh={};names.forEach(n=>sh[n]=raw[n]/rs);
     const qi=splitInt(+cp.qty||0,sh);
-    sellers.forEach(s=>{s.cats[cat]={uah:(+cp.uah||0)*sh[s.name],qty:qi[s.name]||0,share:sh[s.name],g:bc.g||'dpt'};});
+    sellers.forEach(s=>{s.cats[cat]={uah:(+cp.uah||0)*sh[s.name],qty:qi[s.name]||0,share:sh[s.name],g:cp.g||bc.g||'dpt'};});
   });
   return{sellers,wD,wA,names};
 }
@@ -3221,7 +3252,7 @@ function planProgress(plan,main,top){
   const storeAccFact=!dA?null:accMain?_tot(storeAccOf(main)):((top.store&&top.store.acc_fact)||0);
   const catsStore={};
   Object.entries(plan.cats||{}).forEach(([cat,cp])=>{if(!(+cp.uah)&&!(+cp.qty))return;const c=sda[cat];
-    catsStore[cat]={uah:+cp.uah||0,qty:+cp.qty||0,factUah:dD?(c?c[0]:0):null,factQty:dD?(c?c[1]:0):null};});
+    catsStore[cat]={g:cp.g||'dpt',uah:+cp.uah||0,qty:+cp.qty||0,factUah:dD?(c?c[0]:0):null,factQty:dD?(c?c[1]:0):null};});
   return{plan,rows,N,dD,dA,accMain,catsStore,storeDptFact,storeAccFact,
     dptPace:planPace(storeDptFact,+plan.dpt||0,dD,N),accPace:planPace(storeAccFact,+plan.acc||0,dA,N)};
 }
