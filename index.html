@@ -745,6 +745,11 @@ tbody tr:hover td{background:var(--bg3)}
 .pl-minis{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:16px;margin-bottom:12px}
 .pl-mini-h{display:flex;justify-content:space-between;font-size:13px;color:var(--t2);margin-bottom:6px}.pl-mini-h b{color:var(--t1);font-size:15px}
 .pl-mini-s{font-size:12px;color:var(--t3);margin-top:6px;font-variant-numeric:tabular-nums}
+.pl-grp td{background:var(--bg3);font-size:12px;font-weight:700;color:var(--t2)}
+.pl-sub td{font-weight:700}
+.pl-table td small{color:var(--t3);font-weight:400;font-size:11px}
+.pl-coef{border:1px dashed var(--bd2);border-radius:var(--r2);padding:12px;margin-bottom:12px}
+.pl-coef textarea{width:100%;font:12px/1.4 ui-monospace,monospace;padding:8px;border:1px solid var(--bd2);border-radius:var(--r);background:var(--bg);color:var(--t1);box-sizing:border-box}
 .pl-chips{display:flex;flex-wrap:wrap;gap:6px}
 .pl-chip{font-size:12px;padding:4px 9px;border-radius:999px;border:1px solid var(--bd);color:var(--t2)}.pl-chip b{font-variant-numeric:tabular-nums;color:inherit}
 @media(max-width:768px){.pl-store{gap:14px}.pl-body{padding:12px 14px}.pl-kv b{font-size:24px}}
@@ -1278,7 +1283,7 @@ function updateBackupHint(){
 // Зберігає галочки, ритм тижня і записи 1:1
 let _saveTimer=null;
 function currentState(){
-  return{checks:S.checks,rhythmChecks:S.rhythmChecks,rhythmWeek:S.rhythmWeek||getWeekKey(),meetings:M_LOGS,meetingsDone:M_DONE,goals:G_GOALS,feedbackSent:FB_SENT,plans:P_PLANS,deleted:M_DELETED,updatedAt:S.stateAt||0};
+  return{checks:S.checks,rhythmChecks:S.rhythmChecks,rhythmWeek:S.rhythmWeek||getWeekKey(),meetings:M_LOGS,meetingsDone:M_DONE,goals:G_GOALS,feedbackSent:FB_SENT,plans:P_PLANS,coefs:P_COEFS,deleted:M_DELETED,updatedAt:S.stateAt||0};
 }
 function saveState(fromUser=true){
   if(fromUser){S.stateAt=Date.now();S.dirty=true;}
@@ -1290,6 +1295,7 @@ function saveState(fromUser=true){
   },300);
 }
 
+window.addEventListener('pagehide',()=>{try{lsSet(LS_KEYS.state,{...currentState(),dirty:!!S.dirty});}catch(e){}});
 // Зберігає завантажені звіти
 function saveFileData(){
   if(S.sellers&&S.sellers.length){
@@ -1351,11 +1357,11 @@ function mergeState(a,b){
   const del=new Set(deleted),map=new Map();
   const mergeList=(x,y)=>{const map=new Map();[...(x||[]),...(y||[])].forEach(m=>{if(!m||del.has(String(m.id)))return;const k=String(m.id),o=map.get(k);if(!o||(m.updatedAt||0)>=(o.updatedAt||0))map.set(k,m);});return[...map.values()];};
   const n=(a.updatedAt||0)>=(b.updatedAt||0)?a:b;
-  return{checks:n.checks||{},rhythmChecks:n.rhythmChecks||{},rhythmWeek:n.rhythmWeek||null,meetingsDone:n.meetingsDone||{},meetings:mergeList(a.meetings,b.meetings),goals:mergeList(a.goals,b.goals),feedbackSent:{...(a.feedbackSent||{}),...(b.feedbackSent||{}),...(n.feedbackSent||{})},plans:mergePlans(a.plans,b.plans),deleted,updatedAt:Math.max(a.updatedAt||0,b.updatedAt||0)};
+  return{checks:n.checks||{},rhythmChecks:n.rhythmChecks||{},rhythmWeek:n.rhythmWeek||null,meetingsDone:n.meetingsDone||{},meetings:mergeList(a.meetings,b.meetings),goals:mergeList(a.goals,b.goals),feedbackSent:{...(a.feedbackSent||{}),...(b.feedbackSent||{}),...(n.feedbackSent||{})},plans:mergePlans(a.plans,b.plans),coefs:((a.coefs||{}).updatedAt||0)>=((b.coefs||{}).updatedAt||0)?(a.coefs||b.coefs||null):b.coefs,deleted,updatedAt:Math.max(a.updatedAt||0,b.updatedAt||0)};
 }
 function applyState(st){
   S.checks=st.checks||{};S.rhythmChecks=st.rhythmChecks||{};S.rhythmWeek=st.rhythmWeek||S.rhythmWeek;
-  M_LOGS=st.meetings||[];M_DONE=st.meetingsDone||{};M_DELETED=st.deleted||[];FB_SENT=st.feedbackSent||{};G_GOALS=st.goals||[];P_PLANS=st.plans||{};S.stateAt=st.updatedAt||0;
+  M_LOGS=st.meetings||[];M_DONE=st.meetingsDone||{};M_DELETED=st.deleted||[];FB_SENT=st.feedbackSent||{};G_GOALS=st.goals||[];P_PLANS=st.plans||{};P_COEFS=st.coefs||null;S.stateAt=st.updatedAt||0;
 }
 let _pushTimer=null,_pulling=false;
 function schedulePush(){if(!syncCfg())return;clearTimeout(_pushTimer);_pushTimer=setTimeout(pushState,1500);}
@@ -1449,6 +1455,7 @@ function applyData(d){
   G_GOALS=Array.isArray(st.goals)?st.goals:[];
   FB_SENT=st.feedbackSent||{};
   P_PLANS=st.plans&&typeof st.plans==='object'?st.plans:{};
+  P_COEFS=st.coefs||null;
   S.stateAt=st.updatedAt||0;
   S.dirty=!!st.dirty;
   if(d.file){S.period=d.file.period;S.fileAt=d.file.at||null;}
@@ -2545,7 +2552,7 @@ function sellerDetailHTML(s,sellers){
 
 
 // ═══ ПЛАНИ ПРОДАЖУ (UI) ═══
-let P_PLANS={};
+let P_PLANS={},P_COEFS=null;
 const planNum=v=>{const n=+String(v??'').replace(/[^\d.,-]/g,'').replace(',','.');return isFinite(n)?n:0;};
 const planMain=()=>({sellers:S.sellers,period:S.period,storeCats:S.storeCats});
 function planDefaultMonth(){
@@ -2624,6 +2631,41 @@ function planSetCat(cat,field,v){
   if(!c.uah&&!c.qty)delete p.cats[cat];
   planTouch();
 }
+function planSetK(cat,v){
+  const p=ensurePlan(),x=((p.base||{}).cats||{})[cat];p.catK=p.catK||{};
+  const t=String(v).trim();
+  let k=t===''?null:planNum(t);
+  if(k==null){delete p.catK[cat];const tk=coefFor(P_COEFS,cat,x&&x.biz,p.month);k=tk?tk.k:null;}else p.catK[cat]=k;
+  if(k!=null&&x&&(x.rev||x.units))p.cats[cat]={uah:Math.round(x.rev*k),qty:Math.round(x.units*k)};
+  planTouch();
+}
+function planFillK(){
+  const p=ensurePlan(),b=p.base;
+  if(!b||!Object.keys(b.cats||{}).length){toast('Спочатку база минулого місяця','warn');return;}
+  if(!P_COEFS||!P_COEFS.n){S.coefOpen=true;toast('Спершу додай таблицю коефіцієнтів','warn');render();return;}
+  let n=0,miss=[];p.catK=p.catK||{};
+  Object.entries(b.cats).forEach(([cat,x])=>{
+    if(!x.rev&&!x.units)return;
+    const k=p.catK[cat]!=null?p.catK[cat]:(coefFor(P_COEFS,cat,x.biz,p.month)||{}).k;
+    if(k==null){miss.push(cat);return;}
+    p.cats[cat]={uah:Math.round(x.rev*k),qty:Math.round(x.units*k)};n++;});
+  toast(`Пораховано ${n} категорій`+(miss.length?`; без коефіцієнта: ${miss.slice(0,4).join(', ')}${miss.length>4?'…':''}`:''),miss.length?'warn':'ok');
+  planTouch();
+}
+function coefSave(c){
+  if(!c.n&&!Object.keys(c.biz).length){toast('Не знайшов коефіцієнтів. Потрібні колонки: Бізнес, Категорія, 12 місяців.','err');return;}
+  P_COEFS={...c,at:new Date().toISOString(),updatedAt:Date.now()};S.coefOpen=false;
+  toast(`Коефіцієнти збережено: ${c.n} категорій`,'ok');saveState();render();
+}
+function coefFromPaste(){
+  const t=(document.getElementById('coefPaste')||{}).value||'';
+  coefSave(parseCoefRows(t.split(/\r?\n/).map(l=>l.split('\t'))));
+}
+async function coefFromFile(f){
+  if(!f)return;
+  const wb=XLSX.read(new Uint8Array(await f.arrayBuffer()),{type:'array'});
+  coefSave(parseCoefRows(XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]],{header:1,defval:''})));
+}
 function planSpreadCats(){
   const p=ensurePlan(),b=p.base;
   if(!b||!b.dptTotal){toast('Спочатку база минулого місяця','warn');return;}
@@ -2693,24 +2735,37 @@ function renderPlanSetup(){
       <label>АСС+Home (Аксесуари + Посуд + Побутова хімія), ₴${planIn(+p.acc,"planSetStore('acc',this.value)",b?fmt(b.accTotal):'',150)}${gr(+p.acc,b&&b.accTotal)}
         ${accRep&&accRep.store&&accRep.store.acc_plan?`<span class="panel-note">у звіті АСС план ${fmt(accRep.store.acc_plan)} ₴ за ${esc(accRep.period)}</span>`:''}</label>
     </div></section>`;
-  // категорії: усі ДПТ-категорії бази + ті, що є в поточному звіті
+  // категорії: ДПТ і (якщо є у звіті) АСС+Home; план = минулий місяць × коефіцієнт
   const cats=new Map();
   Object.entries((b&&b.cats)||{}).forEach(([c,x])=>cats.set(c,x));
-  (S.storeCats||[]).forEach(c=>{if(BIZ_GROUP[c.biz]==='dpt'&&!cats.has(c.cat))cats.set(c.cat,{rev:0,units:0,s:{}});});
-  Object.keys(p.cats).forEach(c=>{if(!cats.has(c))cats.set(c,{rev:0,units:0,s:{}});});
-  const catRows=[...cats.entries()].sort((a,c)=>(c[1].rev||0)-(a[1].rev||0)).map(([cat,x])=>{
-    const cp=p.cats[cat]||{},avgP=x.units?x.rev/x.units:0,ce=cat.replace(/'/g,"\\'");
-    return`<tr><td>${esc(cat)}</td><td class="r num">${x.rev?fmt(x.rev):'—'}</td><td class="r num">${x.units||'—'}</td><td class="r num pl-dim">${avgP?fmt(avgP):'—'}</td>
+  (S.storeCats||[]).forEach(c=>{if(BIZ_GROUP[c.biz]&&!cats.has(c.cat)&&(BIZ_GROUP[c.biz]==='dpt'||(b&&b.accSrc==='main')))cats.set(c.cat,{rev:0,units:0,s:{},g:BIZ_GROUP[c.biz],biz:c.biz});});
+  Object.keys(p.cats).forEach(c=>{if(!cats.has(c))cats.set(c,{rev:0,units:0,s:{},g:'dpt'});});
+  const mL=monthLabel(p.month).split(' ')[0],bL=bmL.split(' ')[0];
+  const grpRows=g=>[...cats.entries()].filter(([,x])=>(x.g||'dpt')===g).sort((a,c)=>(c[1].rev||0)-(a[1].rev||0)).map(([cat,x])=>{
+    const cp=p.cats[cat]||{},ce=cat.replace(/'/g,"\\'"),own=(p.catK||{})[cat],tk=coefFor(P_COEFS,cat,x.biz,p.month);
+    const kTitle=tk?`з таблиці: ${String(tk.k).replace('.',',')}${tk.src==='biz'?' (бізнес загалом)':''}`:'у таблиці немає';
+    return`<tr><td>${esc(cat)}${x.biz&&x.biz!=='ДП техніка'?` <small>${esc(x.biz)}</small>`:''}</td><td class="r num">${x.rev?fmt(x.rev):'—'}</td><td class="r num">${x.units||'—'}</td>
+      <td class="r" title="${kTitle}">${planIn(own,`planSetK('${ce}',this.value)`,tk?String(tk.k).replace('.',','):'—',58)}</td>
       <td class="r">${planIn(+cp.uah,`planSetCat('${ce}','uah',this.value)`,'',110)}</td><td class="r">${planIn(+cp.qty,`planSetCat('${ce}','qty',this.value)`,'',64)}</td></tr>`;}).join('');
-  const sumU=Object.values(p.cats).reduce((a,c)=>a+(+c.uah||0),0),sumQ=Object.values(p.cats).reduce((a,c)=>a+(+c.qty||0),0);
-  const diff=+p.dpt?sumU-p.dpt:0;
-  const step3=`<section class="card"><div class="card-h"><span class="card-t">3. План по категоріях ДПТ (техніка + краса)</span>
-      <div class="pills" style="margin:0"><button class="pill" onclick="planSpreadCats()">Розкласти план ДПТ як у ${bmL.split(' ')[0]}</button>${Object.keys(p.cats).length?'<button class="pill" onclick="planClearCats()">Очистити</button>':''}</div></div>
-    <div class="pl-body" style="padding-top:6px"><p class="q-meta" style="margin:0 0 8px">Введи гривні або штуки — друге поле підставиться за середньою ціною минулого місяця. Порожні категорії продавцям не плануються.</p>
-    <div style="overflow-x:auto"><table class="rank-table pl-table"><thead><tr><th>Категорія</th><th class="r">${bmL.split(' ')[0]}, ₴</th><th class="r">шт</th><th class="r">сер. ціна</th><th class="r">План, ₴</th><th class="r">План, шт</th></tr></thead>
-    <tbody>${catRows||`<tr><td colspan="6" class="pl-dim">Категорії з'являться після бази або звіту продажів</td></tr>`}</tbody>
-    <tfoot><tr><td>Разом</td><td class="r num">${b?fmt(b.dptTotal):''}</td><td></td><td></td><td class="r num">${fmt(sumU)} ₴</td><td class="r num">${fmt(sumQ)}</td></tr>
-    ${+p.dpt&&sumU?`<tr><td colspan="6" class="${Math.abs(diff)<=p.dpt*.01?'pl-up':'pl-warn'}" style="text-align:right">${Math.abs(diff)<=p.dpt*.01?'Сума категорій збігається з планом ДПТ':`Сума категорій ${diff>0?'більша':'менша'} за план ДПТ на ${fmt(Math.abs(diff))} ₴`}</td></tr>`:''}</tfoot></table></div></div></section>`;
+  const sumG=g=>[...cats.entries()].filter(([,x])=>(x.g||'dpt')===g).reduce((a,[c])=>a+(+((p.cats[c]||{}).uah)||0),0);
+  const baseG=g=>[...cats.values()].filter(x=>(x.g||'dpt')===g).reduce((a,x)=>a+(x.rev||0),0);
+  const foot=(g,lbl,field)=>{const su=sumG(g),pl=+p[field]||0;if(!su&&!baseG(g))return'';
+    return`<tr class="pl-sub"><td>${lbl}</td><td class="r num">${fmt(baseG(g))}</td><td></td><td class="r num">${baseG(g)&&su?String(Math.round(su/baseG(g)*100)/100).replace('.',','):''}</td><td class="r num">${fmt(su)} ₴</td><td></td></tr>
+      ${su&&(g==='dpt'||(b&&b.accSrc==='main'))?`<tr><td colspan="6" style="text-align:right">${pl?`<span class="${Math.abs(su-pl)<=pl*.01?'pl-up':'pl-warn'}">План магазину ${fmt(pl)} ₴ — ${Math.abs(su-pl)<=pl*.01?'збігається з сумою категорій':`різниця ${su>pl?'+':'−'}${fmt(Math.abs(su-pl))} ₴`}</span> `:''}${Math.abs(su-pl)>pl*.01?`<button class="pill" onclick="planSetStore('${field}',${Math.round(su)})">Зробити ${fmt(su)} ₴ планом ${lbl.split(' ')[0]}</button>`:''}</td></tr>`:''}`;};
+  const dRows=grpRows('dpt'),aRows=grpRows('acc');
+  const coefInfo=P_COEFS&&P_COEFS.n?`Таблиця коефіцієнтів: ${P_COEFS.n} категорій${P_COEFS.at?`, оновлено ${new Date(P_COEFS.at).toLocaleDateString('uk-UA')}`:''}`:'Таблицю коефіцієнтів ще не додано';
+  const step3=`<section class="card"><div class="card-h"><span class="card-t">3. План по категоріях = ${bL} × коефіцієнт ${mL}</span>
+      <div class="pills" style="margin:0"><button class="pill" onclick="S.coefOpen=!S.coefOpen;render()">${P_COEFS&&P_COEFS.n?'Оновити':'Додати'} коефіцієнти</button><button class="pill on" onclick="planFillK()">Порахувати всі категорії</button>${Object.keys(p.cats).length?'<button class="pill" onclick="planClearCats()">Очистити</button>':''}</div></div>
+    <div class="pl-body" style="padding-top:6px">
+      <p class="q-meta" style="margin:0 0 8px">${coefInfo}. Коефіцієнт береться з колонки «${mL}»; якщо категорії немає в таблиці — з рядка «всього» її бізнесу. Можна вписати свій коефіцієнт або змінити гривні/штуки вручну.</p>
+      ${S.coefOpen?`<div class="pl-coef"><p class="q-meta" style="margin:0 0 6px">Виділи в Excel таблицю разом із заголовком (Бізнес, Категорія, січ…груд), скопіюй і встав сюди. Або завантаж файл .xlsx.</p>
+        <textarea id="coefPaste" rows="6" placeholder="Бізнес	Категорія	янв	фев	…"></textarea>
+        <div class="pills" style="margin:8px 0 0"><button class="btn-tag" style="font-size:13px;padding:7px 14px" onclick="coefFromPaste()">Зберегти коефіцієнти</button>
+        <label class="pill">Завантажити .xlsx<input type="file" accept=".xlsx,.xls" hidden onchange="coefFromFile(this.files[0]);this.value=''"></label></div></div>`:''}
+      <div style="overflow-x:auto"><table class="rank-table pl-table"><thead><tr><th>Категорія</th><th class="r">${bL}, ₴</th><th class="r">шт</th><th class="r">Коеф.</th><th class="r">План ${mL}, ₴</th><th class="r">План, шт</th></tr></thead>
+      <tbody>${dRows?`<tr class="pl-grp"><td colspan="6">ДПТ — ДП техніка, Краса та догляд</td></tr>`+dRows:''}${foot('dpt','ДПТ разом','dpt')}
+      ${aRows?`<tr class="pl-grp"><td colspan="6">АСС+Home — Аксесуари, Посуд, Побутова хімія</td></tr>`+aRows+foot('acc','АСС+Home разом','acc'):''}
+      ${!dRows&&!aRows?`<tr><td colspan="6" class="pl-dim">Категорії з'являться після бази або звіту продажів</td></tr>`:''}</tbody></table></div></div></section>`;
   // продавці
   const pc=planCompute(p),names=new Set(pc.names);
   const all=new Map();Object.entries((b&&b.full)||{}).forEach(([n,f])=>all.set(n,f));
@@ -3016,14 +3071,14 @@ const _sum=o=>Object.values(o||{}).reduce((a,v)=>a+(+v||0),0);
 function grpCatsOf(s,g){
   if(!s)return{};
   if(s[g])return s[g];
-  const o={};(s.cats||[]).forEach(c=>{if(BIZ_GROUP[c.biz]===g&&(c.rev||c.units))o[c.cat]=[c.rev||0,c.units||0];});
+  const o={};(s.cats||[]).forEach(c=>{if(BIZ_GROUP[c.biz]===g&&(c.rev||c.units))o[c.cat]=[c.rev||0,c.units||0,c.biz];});
   return o;
 }
 function storeGrpOf(main,g){
   if(!main)return{};
   const k=g==='dpt'?'storeDpt':'storeAcc';
   if(main[k])return main[k];
-  const o={};(main.storeCats||[]).forEach(c=>{if(BIZ_GROUP[c.biz]===g)o[c.cat]=[c.rev||0,c.units||0];});
+  const o={};(main.storeCats||[]).forEach(c=>{if(BIZ_GROUP[c.biz]===g)o[c.cat]=[c.rev||0,c.units||0,c.biz];});
   return o;
 }
 const dptCatsOf=s=>grpCatsOf(s,'dpt'),accCatsOf=s=>grpCatsOf(s,'acc');
@@ -3034,13 +3089,15 @@ const _tot=o=>Object.values(o||{}).reduce((a,x)=>a+x[0],0);
 // База = звіти за минулий місяць: виторг ДПТ по продавцях і категоріях + факт АСС+Home
 function planBaseFrom(main,top){
   const base={period:main?main.period||'':'',accPeriod:top?(top.label||top.period||''):'',dpt:{},acc:{},full:{},cats:{},at:new Date().toISOString()};
+  const withAcc=mainAccOk(main)||Object.keys(storeAccOf(main)).length>0;
+  const groups=withAcc?['dpt','acc']:['dpt'];
+  const cell=(cat,g,biz)=>{const C=base.cats[cat]=base.cats[cat]||{rev:0,units:0,s:{},g};if(biz)C.biz=biz;return C;};
   ((main&&main.sellers)||[]).forEach(s=>{
     base.full[s.name]=s.full;let r=0;
-    Object.entries(dptCatsOf(s)).forEach(([cat,[rev,units]])=>{r+=rev;
-      const C=base.cats[cat]=base.cats[cat]||{rev:0,units:0,s:{}};C.s[s.name]=[rev,units];});
+    groups.forEach(g=>Object.entries(grpCatsOf(s,g)).forEach(([cat,[rev,units,biz]])=>{if(g==='dpt')r+=rev;cell(cat,g,biz).s[s.name]=[rev,units];}));
     if(r>0)base.dpt[s.name]=r;
   });
-  Object.entries(storeDptOf(main)).forEach(([cat,[rev,units]])=>{const C=base.cats[cat]=base.cats[cat]||{rev:0,units:0,s:{}};C.rev=rev;C.units=units;});
+  groups.forEach(g=>Object.entries(storeGrpOf(main,g)).forEach(([cat,[rev,units,biz]])=>{const C=cell(cat,g,biz);C.rev=rev;C.units=units;}));
   Object.values(base.cats).forEach(C=>{if(!C.rev){C.rev=Object.values(C.s).reduce((a,x)=>a+x[0],0);C.units=Object.values(C.s).reduce((a,x)=>a+x[1],0);}});
   if(mainAccOk(main)){
     base.accSrc='main';base.accPeriod=main.period||'';
@@ -3051,8 +3108,41 @@ function planBaseFrom(main,top){
     ((top&&top.sellers)||[]).forEach(s=>{if((s.acc_fact||0)>0){base.acc[s.name]=s.acc_fact;base.full[s.name]=base.full[s.name]||s.full;}});
     base.accTotal=top&&top.store?(top.store.acc_fact||0):0;
   }
-  base.dptTotal=Object.values(base.cats).reduce((a,c)=>a+(c.rev||0),0);
+  base.dptTotal=Object.values(base.cats).filter(c=>(c.g||'dpt')==='dpt').reduce((a,c)=>a+(c.rev||0),0);
   return base;
+}
+// ── Коефіцієнти розвитку категорій: план категорії = результат минулого місяця × коефіцієнт місяця плану ──
+const _cn=x=>String(x||'').toLowerCase().replace(/[’ʼ`´]/g,"'").replace(/\s+/g,' ').trim();
+const COEF_MON=[[/^(янв|січ)/,0],[/^(фев|лют)/,1],[/^(мар|бер)/,2],[/^(апр|кві|квi)/,3],[/^(май|мая|тра)/,4],[/^(июн|чер)/,5],[/^(июл|лип)/,6],[/^(авг|серп)/,7],[/^(сен|вер)/,8],[/^(окт|жов)/,9],[/^(ноя|лис)/,10],[/^(дек|гру)/,11]];
+const COEF_BIZ=b=>BIZ_GROUP[b]==='dpt'?'ДП техніка':b==='Аксесуари'?'Аксесуари':BIZ_GROUP[b]==='acc'?'Home':b;
+// Рядки таблиці (вставлені з Excel або прочитані з .xlsx): Бізнес | Категорія | 12 місяців
+function parseCoefRows(rows){
+  const num=v=>{if(typeof v==='number')return v;const n=parseFloat(String(v||'').replace(/\s/g,'').replace(',','.'));return isFinite(n)?n:null;};
+  let mi=null;const out={cats:{},biz:{}};
+  rows.forEach(r=>{
+    const cells=(r||[]).map(v=>typeof v==='string'?v.trim():v);
+    if(!mi){const m=cells.map(c=>{const t=_cn(c);const f=COEF_MON.find(([re])=>re.test(t));return f?f[1]:-1;});
+      if(m.filter(x=>x>=0).length>=6){mi=m;return;}}
+    const texts=cells.filter(c=>typeof c==='string'&&c&&num(c)==null);
+    if(texts.length<2)return;
+    const [biz,cat]=texts;
+    const k=Array(12).fill(null);
+    if(mi)mi.forEach((m,i)=>{if(m>=0){const n=num(cells[i]);if(n!=null)k[m]=n;}});
+    else{const ns=cells.map(num).filter(n=>n!=null).slice(-12);ns.forEach((n,i)=>k[i]=n);}
+    if(!k.some(x=>x!=null))return;
+    if(/^(всього|всего|итого|разом)$/i.test(cat))out.biz[_cn(biz)]=k;else out.cats[_cn(cat)]={biz,cat,k};
+  });
+  out.n=Object.keys(out.cats).length;
+  return out;
+}
+// Коефіцієнт для категорії: спершу сама категорія, інакше «всього» її бізнесу
+function coefFor(coefs,cat,biz,month){
+  if(!coefs)return null;
+  const m=+String(month).split('-')[1]-1;
+  const c=(coefs.cats||{})[_cn(cat)];
+  if(c&&c.k[m]!=null)return{k:c.k[m],src:'cat'};
+  const b=(coefs.biz||{})[_cn(COEF_BIZ(biz||'ДП техніка'))];
+  return b&&b[m]!=null?{k:b[m],src:'biz'}:null;
 }
 // Ваги: частка в базі; ручна вага (%) фіксується, решта ділиться пропорційно — сума завжди 100%
 function planWeights(auto,names,over){
@@ -3090,13 +3180,13 @@ function planCompute(plan){
   // категорія: 50% — частка продавця в цій категорії минулого місяця, 50% — його загальна вага ДПТ
   Object.entries(plan.cats||{}).forEach(([cat,cp])=>{
     if(!(+cp.uah)&&!(+cp.qty))return;
-    const bs=((b.cats||{})[cat]||{}).s||{};
+    const bc=(b.cats||{})[cat]||{},bs=bc.s||{},W=bc.g==='acc'?wA:wD;
     const tot=names.reduce((a,n)=>a+Math.max(0,(bs[n]||[0])[0]),0);
-    const raw={};names.forEach(n=>{const own=tot>0?Math.max(0,(bs[n]||[0])[0])/tot:(wD[n]||0);raw[n]=.5*own+.5*(wD[n]||0);});
+    const raw={};names.forEach(n=>{const own=tot>0?Math.max(0,(bs[n]||[0])[0])/tot:(W[n]||0);raw[n]=.5*own+.5*(W[n]||0);});
     const rs=Object.values(raw).reduce((a,v)=>a+v,0)||1;
     const sh={};names.forEach(n=>sh[n]=raw[n]/rs);
     const qi=splitInt(+cp.qty||0,sh);
-    sellers.forEach(s=>{s.cats[cat]={uah:(+cp.uah||0)*sh[s.name],qty:qi[s.name]||0,share:sh[s.name]};});
+    sellers.forEach(s=>{s.cats[cat]={uah:(+cp.uah||0)*sh[s.name],qty:qi[s.name]||0,share:sh[s.name],g:bc.g||'dpt'};});
   });
   return{sellers,wD,wA,names};
 }
@@ -3118,19 +3208,19 @@ function planProgress(plan,main,top){
   const dD=planMainOk(plan,main),accMain=!!(dD&&mainAccOk(main)),dA=accMain?dD:planAccOk(plan,top);
   const ms=(main&&main.sellers)||[];
   const rows=pc.sellers.map(p=>{
-    const s=ms.find(x=>x.name===p.name),sc=dptCatsOf(s);
+    const s=ms.find(x=>x.name===p.name),sc=dptCatsOf(s),sca={...sc,...accCatsOf(s)};
     const dptFact=dD?Object.values(sc).reduce((a,x)=>a+x[0],0):null;
     const a=dA&&!accMain&&(top.sellers||[]).find(x=>x.name===p.name);
     const accFact=!dA?null:accMain?_tot(accCatsOf(s)):(a?(a.acc_fact||0):0);
     const cats={};
-    Object.entries(p.cats).forEach(([cat,cp])=>{const c=sc[cat];cats[cat]={...cp,factUah:dD?(c?c[0]:0):null,factQty:dD?(c?c[1]:0):null};});
+    Object.entries(p.cats).forEach(([cat,cp])=>{const c=sca[cat];cats[cat]={...cp,factUah:dD?(c?c[0]:0):null,factQty:dD?(c?c[1]:0):null};});
     return{...p,dptFact,accFact,cats,dptPace:planPace(dptFact,p.dpt,dD,N),accPace:planPace(accFact,p.acc,dA,N)};
   });
-  const sd=storeDptOf(main);
+  const sd=storeDptOf(main),sda={...sd,...storeAccOf(main)};
   const storeDptFact=dD?Object.values(sd).reduce((a,x)=>a+x[0],0):null;
   const storeAccFact=!dA?null:accMain?_tot(storeAccOf(main)):((top.store&&top.store.acc_fact)||0);
   const catsStore={};
-  Object.entries(plan.cats||{}).forEach(([cat,cp])=>{if(!(+cp.uah)&&!(+cp.qty))return;const c=sd[cat];
+  Object.entries(plan.cats||{}).forEach(([cat,cp])=>{if(!(+cp.uah)&&!(+cp.qty))return;const c=sda[cat];
     catsStore[cat]={uah:+cp.uah||0,qty:+cp.qty||0,factUah:dD?(c?c[0]:0):null,factQty:dD?(c?c[1]:0):null};});
   return{plan,rows,N,dD,dA,accMain,catsStore,storeDptFact,storeAccFact,
     dptPace:planPace(storeDptFact,+plan.dpt||0,dD,N),accPace:planPace(storeAccFact,+plan.acc||0,dA,N)};
