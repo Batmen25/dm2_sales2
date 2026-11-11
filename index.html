@@ -715,6 +715,20 @@ tbody tr:hover td{background:var(--bg3)}
 .goal-act button:hover{color:var(--t1);border-color:var(--bd3)}
 .only-mob{display:none}
 
+/* ─── чат команди + повістка ─── */
+.tm-wrap{display:grid;grid-template-columns:minmax(280px,420px) 1fr;gap:16px;align-items:start}
+.tm-text textarea{width:100%;box-sizing:border-box;font:13px/1.5 var(--f-ui);padding:12px;border:1px solid var(--bd2);border-radius:var(--r2);background:var(--bg2);color:var(--t1);resize:vertical}
+.tm-imgs{display:flex;flex-direction:column;gap:14px;min-width:0}
+.tm-img{margin:0;background:var(--bg2);border:1px solid var(--bd);border-radius:var(--r2);padding:10px}
+.tm-img img{display:block;max-width:100%;height:auto;border-radius:6px;border:1px solid var(--bd)}
+.tm-chk{display:flex;gap:8px;align-items:center;font-size:13px;font-weight:600;margin-bottom:8px;cursor:pointer}
+.ag{border:1px solid var(--bd);border-radius:var(--r2);padding:12px 14px;margin:6px 0 14px;background:var(--bg2)}
+.ag-h{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:6px;flex-wrap:wrap}
+.ag-s{margin-top:8px}.ag-t{font-size:12px;font-weight:700;color:var(--t2)}
+.ag ul{margin:3px 0 0;padding-left:18px;font-size:13px;line-height:1.45;color:var(--t1)}
+.ag-last{background:var(--amber-bg);border-radius:8px;padding:6px 10px}
+@media(max-width:900px){.tm-wrap{grid-template-columns:1fr}}
+
 /* ─── плани v2 ─── */
 .pl-setup{padding:4px 0}
 .pl-step{display:flex;gap:14px;padding:18px 20px;border-bottom:1px solid var(--bd)}.pl-step:last-child{border-bottom:0}
@@ -861,7 +875,7 @@ tbody tr:hover td{background:var(--bg3)}
 <aside class="sidebar">
   <div class="sb-logo">
     <div class="sb-name" id="sbName">ДМ2 Мост-2</div>
-    <div class="sb-tag">Sales OS</div>
+    <div class="sb-tag">Sales OS · версія 12.11</div>
   </div>
   <nav class="nav" aria-label="Розділи">
     <div class="nav-group">Аналітика</div>
@@ -1392,10 +1406,16 @@ function addToHistory(history,entry,max=30){
 function mergeHistory(a,b){let h=[...(a||[])];(b||[]).forEach(e=>{const ex=h.find(x=>x.type===e.type&&x.period===e.period);if(!ex||new Date(e.at)>new Date(ex.at))h=addToHistory(h,e);});return h;}
 
 // ═══ СИНХРОНІЗАЦІЯ МІЖ ПРИСТРОЯМИ (через твій Cloudflare-сервер) ═══
-function syncCfg(){const c=lsGet(LS_KEYS.sync);return c&&c.url&&c.pin?c:null;}
+// Сайт, відкритий кнопкою з Telegram-бота: сервер передає свою адресу (?api=), а вхід — підписом Telegram, без коду
+const TG_SYNC=(()=>{try{
+  const q=new URLSearchParams(location.search),api=q.get('api');
+  const init=(window.Telegram&&Telegram.WebApp&&Telegram.WebApp.initData)||new URLSearchParams(location.hash.slice(1)).get('tgWebAppData')||sessionStorage.getItem('dm2_tginit')||'';
+  if(init)sessionStorage.setItem('dm2_tginit',init);
+  return api&&init?{url:api,tg:init}:null;}catch(e){return null;}})();
+function syncCfg(){const c=lsGet(LS_KEYS.sync);if(c&&c.url&&c.pin)return c;return TG_SYNC;}
 async function cloudReq(path,opt={}){
   const c=syncCfg();if(!c)throw new Error('синхронізацію не налаштовано');
-  const r=await fetch(c.url.replace(/\/+$/,'')+path,{...opt,headers:{'Content-Type':'application/json','X-Pin':c.pin}});
+  const r=await fetch(c.url.replace(/\/+$/,'')+path,{...opt,headers:{'Content-Type':'application/json',...(c.pin?{'X-Pin':c.pin}:{}),...(c.tg?{'X-Tg-Init':c.tg}:{})}});
   let j={};try{j=await r.json();}catch(e){}
   if(!r.ok)throw new Error(j.error||('помилка '+r.status));
   return j;
@@ -2877,10 +2897,226 @@ function sellerPlanHTML(name){
     <div class="pl-body">${planCardHTML(x,pr,{full:true,noCopy:false}).replace('<div class="pl-card">','<div class="pl-card pl-card-in">')}</div></section>`;
 }
 
+// ═══ ФІДБЕК У ЧАТ КОМАНДИ (UI): картинки-таблиці + короткий текст ═══
+const TC={bg:'#FFFFFF',head:'#F1F3F5',bench:'#F7F8FA',line:'#E3E6EA',t1:'#16171B',t2:'#5B606B',t3:'#9AA0AA',
+  hi:['#DDF3E4','#0F6B32'],ok:['#F0F9F2','#2E7D46'],avg:['#FFF4D6','#8F5C00'],lo:['#FBE2E0','#B42318'],zero:[null,'#9AA0AA']};
+// Малює таблицю на canvas → PNG. cols: [{t,w,al}], groups: [{t,span}], rows: [{c:[{t,tone,b}],bench}]
+function drawTable({title,sub,groups,cols,rows}){
+  const S2=2,pad=20,rh=30,hh=42,gh=26,F=getComputedStyle(document.body).fontFamily||'sans-serif';
+  // колонка не вужча за найдовше слово заголовка
+  {const m=document.createElement('canvas').getContext('2d');m.font=`600 11.5px ${F}`;cols.forEach(c=>{const lw=Math.max(...String(c.t).split(' ').map(w=>m.measureText(w).width));if(lw+14>c.w)c.w=Math.ceil(lw+14);});}
+  const W=pad*2+cols.reduce((a,c)=>a+c.w,0);
+  const H=pad+30+(sub?20:0)+10+(groups?gh:0)+hh+rows.length*rh+pad;
+  const cv=document.createElement('canvas');cv.width=W*S2;cv.height=H*S2;
+  const x=cv.getContext('2d');x.scale(S2,S2);
+  x.fillStyle=TC.bg;x.fillRect(0,0,W,H);
+  let y=pad;
+  x.fillStyle=TC.t1;x.font=`700 19px ${F}`;x.textBaseline='top';x.fillText(title,pad,y);y+=28;
+  if(sub){x.fillStyle=TC.t2;x.font=`400 13px ${F}`;x.fillText(sub,pad,y);y+=20;}
+  y+=10;
+  const xs=[];let cx=pad;cols.forEach(c=>{xs.push(cx);cx+=c.w;});
+  const txt=(s,i,yy,h,font,color,al)=>{x.font=font;x.fillStyle=color;x.textBaseline='middle';
+    const c=cols[i],w=c.w-12;let t=String(s??'');while(t.length>1&&x.measureText(t).width>w)t=t.slice(0,-2)+'…';
+    const a=al||c.al||'right';x.textAlign=a==='left'?'left':a==='center'?'center':'right';
+    x.fillText(t,a==='left'?xs[i]+8:a==='center'?xs[i]+c.w/2:xs[i]+c.w-8,yy+h/2+1);x.textAlign='left';};
+  if(groups){
+    let gi=0;groups.forEach(g=>{const x0=xs[gi],x1=gi+g.span<cols.length?xs[gi+g.span]:W-pad;
+      if(g.t){x.fillStyle=TC.head;x.fillRect(x0+1,y,x1-x0-2,gh-2);x.font=`700 12px ${F}`;let gt=g.t;while(gt.length>3&&x.measureText(gt).width>x1-x0-10)gt=gt.slice(0,-2)+'…';g.t=gt;x.fillStyle=TC.t1;x.textAlign='center';x.textBaseline='middle';x.fillText(g.t,(x0+x1)/2,y+gh/2);x.textAlign='left';}
+      gi+=g.span;});
+    y+=gh;
+  }
+  x.fillStyle=TC.head;x.fillRect(pad,y,W-pad*2,hh);
+  // заголовки колонок — у два рядки, якщо не влазять
+  cols.forEach((c,i)=>{x.font=`600 11.5px ${F}`;const w=c.w-10,ws=String(c.t).split(' ');
+    if(x.measureText(c.t).width<=w||ws.length<2){txt(c.t,i,y,hh,`600 11.5px ${F}`,TC.t2,c.hal||(i===0?'left':'center'));return;}
+    let l1=ws[0],k=1;while(k<ws.length&&x.measureText(l1+' '+ws[k]).width<=w)l1+=' '+ws[k++];
+    const l2=ws.slice(k).join(' ');
+    txt(l1,i,y-7,hh,`600 11.5px ${F}`,TC.t2,i===0?'left':'center');txt(l2,i,y+8,hh,`600 11.5px ${F}`,TC.t2,i===0?'left':'center');});
+  y+=hh;
+  rows.forEach(r=>{
+    if(r.bench){x.fillStyle=TC.bench;x.fillRect(pad,y,W-pad*2,rh);}
+    r.c.forEach((cell,i)=>{const tone=cell&&cell.tone&&TC[cell.tone];
+      if(tone&&tone[0]){x.fillStyle=tone[0];x.fillRect(xs[i]+1,y+1,cols[i].w-2,rh-2);}
+      txt(cell&&cell.t,i,y,rh,`${(cell&&cell.b)||r.bench?700:500} 13px ${F}`,tone?tone[1]:TC.t1,i===0?'left':null);});
+    x.strokeStyle=TC.line;x.lineWidth=1;x.beginPath();x.moveTo(pad,y+rh+.5);x.lineTo(W-pad,y+rh+.5);x.stroke();
+    y+=rh;
+  });
+  return cv.toDataURL('image/png');
+}
+const toneVs=(v,ref)=>v==null?'zero':ref>0?(v>=ref*1.05?'hi':v>=ref*.9?'ok':v>=ref*.75?'avg':'lo'):(v>0?'hi':'zero');
+const tonePace=p=>p==null?null:p>=1?'hi':p>=.9?'ok':p>=.7?'avg':'lo';
+const kfmt=n=>n==null?'—':n>=10000?Math.round(n/1000)+'к':n>=1000?(Math.round(n/100)/10+'к').replace('.',','):String(Math.round(n));
+
+function teamImages(){
+  const imgs=[];
+  const qv=S.accData&&S.accData.groups?accSelect(S.accData,S.accPeriod):null;
+  const tv=S.accTop&&S.accTop.kind==='acc2'?accSelect(S.accTop):null;
+  const P=v=>v==null?'—':Math.round(v*100)+'%';
+  // 1. ТО та частка в АСС
+  if(tv&&tv.sellers&&tv.sellers.length){
+    const sp=tv.store.acc_pct;
+    const rows=[{bench:true,c:[{t:'Магазин'},{t:fmt(tv.store.acc_fact||0)},{t:P(sp)}]}];
+    if(tv.avg&&tv.avg.acc_fact)rows.push({bench:true,c:[{t:'Середній маг. А'},{t:fmt(tv.avg.acc_fact)},{t:P(tv.avg.acc_pct)}]});
+    [...tv.sellers].sort((a,b)=>(b.acc_fact||0)-(a.acc_fact||0)).forEach(s=>rows.push({c:[{t:s.name,b:true},{t:fmt(s.acc_fact||0)},{t:P(s.acc_pct),tone:toneVs(s.acc_pct,sp)}]}));
+    imgs.push({name:'to-chastka-acc.png',title:'ТО та частка в АСС',url:drawTable({title:'ТО та частка в АСС',sub:tv.period,
+      cols:[{t:'Продавець',w:190},{t:'ТО АСС, ₴',w:120},{t:'Частка АСС',w:110,al:'center'}],rows})});
+  }
+  // 2. Якість продажів АСС
+  if(qv&&qv.sellers){
+    const gs=TEAM_Q.map(([gid,items])=>{const g=(qv.groups||[]).find(x=>x.id===gid);if(!g)return null;
+      const its=items.map(i=>g.items.find(t=>t[0]===gid+'_'+i)).filter(Boolean);return its.length?{g,its}:null;}).filter(Boolean);
+    if(gs.length){
+      const short=l=>l.replace('Кошик АСС','Кошик').replace('Скло, плівка','Скло').replace('Побутова хімія (кошик)','Хімія');
+      const cols=[{t:'Продавець',w:150}],groups=[{t:'',span:1}];
+      gs.forEach(({g,its})=>{cols.push({t:'шт',w:40,al:'center'});its.forEach(([,l])=>cols.push({t:short(l),w:66,al:'center'}));groups.push({t:({vpt:'ВПТ',tab:'Планшети'})[g.id]||g.title,span:its.length+1});});
+      const st=qv.store;
+      const line=(o,bench)=>gs.flatMap(({g,its})=>{const q=o[g.base];
+        return[{t:q!=null?fmt(q):'—'},...its.map(([k])=>bench?{t:P(o[k])}:!q?{t:'·',tone:'zero'}:{t:P(o[k]),tone:toneVs(o[k],st[k])})];});
+      const rows=[{bench:true,c:[{t:'Магазин'},...line(st,true)]}];
+      if(qv.avg&&Object.keys(qv.avg).length)rows.push({bench:true,c:[{t:'Середній маг. А'},...line(qv.avg,true)]});
+      qv.sellers.filter(s=>gs.some(({g})=>(s[g.base]||0)>0)).sort((a,b)=>(b.sm_qty||0)-(a.sm_qty||0)).forEach(s=>rows.push({c:[{t:s.name,b:true},...line(s,false)]}));
+      imgs.push({name:'yakist-acc.png',title:'Якість продажів АСС',url:drawTable({title:'Якість продажів АСС',sub:qv.period+' · колір — порівняно з магазином',groups,cols,rows})});
+    }
+  }
+  // 3. Виконання плану
+  const pr=planPrFor(planDefaultMonth());
+  if(pr&&pr.rows.length){
+    const p=pr.plan,cats=Object.entries(p.cats||{}).filter(([,c])=>c.qty>0).sort((a,b)=>(a[1].g==='acc')-(b[1].g==='acc')||b[1].uah-a[1].uah).slice(0,8).map(([c])=>c);
+    const cols=[{t:'Продавець',w:150},{t:'ДПТ',w:74,al:'center'},{t:'АСС+Home',w:84,al:'center'},...cats.map(c=>({t:c,w:84,al:'center'}))];
+    const k=pr.dD?pr.dD/pr.N:null;
+    const cc=(c)=>!c||!c.qty?{t:'·',tone:'zero'}:{t:c.factQty!=null?`${c.factQty}/${c.qty}`:String(c.qty),tone:k?(c.qty*k<1&&!c.factQty?null:tonePace(c.factQty/Math.max(c.qty*k,.5))):null};
+    const pcell=pc=>pc?{t:P(pc.pct),tone:tonePace(pc.pace)}:{t:'—'};
+    const rows=[{bench:true,c:[{t:'Магазин'},pcell(pr.dptPace),pcell(pr.accPace),...cats.map(c=>{const x=pr.catsStore[c];return{t:x&&x.factQty!=null?`${x.factQty}/${x.qty}`:x?String(x.qty):'—'};})]}];
+    [...pr.rows].sort((a,b)=>(b.dpt+b.acc)-(a.dpt+a.acc)).forEach(r=>rows.push({c:[{t:r.name,b:true},pcell(r.dptPace),pcell(r.accPace),...cats.map(c=>cc(r.cats[c]))]}));
+    imgs.push({name:'vykonannya-planu.png',title:'Виконання плану',url:drawTable({title:`Виконання плану · ${monthLabel(p.month)}`,
+      sub:pr.dD?`Факт за ${pr.dD} з ${pr.N} днів · треба бути на ${Math.round(k*100)}% · категорії: зроблено/план, шт`:'План на місяць, шт',cols,rows})});
+  }
+  // 4. Категорії ДПТ
+  if(S.sellers&&S.sellers.length&&S.storeCats){
+    const top=(S.storeCats||[]).filter(c=>BIZ_GROUP[c.biz]==='dpt'&&c.rev>0).sort((a,b)=>b.rev-a.rev).slice(0,8);
+    if(top.length){
+      const cols=[{t:'Продавець',w:150},{t:'ДПТ, ₴',w:96},...top.map(c=>({t:c.cat,w:86,al:'center'}))];
+      const tot=(S.storeCats||[]).filter(c=>BIZ_GROUP[c.biz]==='dpt').reduce((a,c)=>a+c.rev,0);
+      const rows=[{bench:true,c:[{t:'Магазин'},{t:kfmt(tot)},...top.map(c=>({t:`${c.units} · ${kfmt(c.rev)}`}))]}];
+      S.sellers.map(s=>({s,d:(s.cats||[]).filter(c=>BIZ_GROUP[c.biz]==='dpt')})).map(o=>({...o,rev:o.d.reduce((a,c)=>a+c.rev,0)})).sort((a,b)=>b.rev-a.rev).forEach(({s,d,rev})=>{
+        const w=tot?rev/tot:0;
+        rows.push({c:[{t:s.name,b:true},{t:kfmt(rev)},...top.map(tc=>{const c=d.find(x=>x.cat===tc.cat);
+          if(!c||!c.units)return{t:'0',tone:tc.units>=3&&w>=.06?'lo':'zero'};
+          const sh=tc.rev?c.rev/tc.rev:0;return{t:`${c.units} · ${kfmt(c.rev)}`,tone:sh>=w*1.4&&c.units>=2?'hi':null};})]});
+      });
+      imgs.push({name:'kategorii-dpt.png',title:'Категорії ДПТ',url:drawTable({title:'Категорії ДПТ',sub:`${S.period} · шт · виторг ₴ · зелене — продає більше за свою частку, червоне — нуль`,cols,rows})});
+    }
+  }
+  return imgs;
+}
+function teamText(){
+  const qv=S.accData&&S.accData.groups?accSelect(S.accData,S.accPeriod):null;
+  const tv=S.accTop&&S.accTop.kind==='acc2'?accSelect(S.accTop):null;
+  return teamFeedbackText({q:qv,t:tv,pr:planPrFor(planDefaultMonth()),period:S.period||(tv&&tv.period)});
+}
+let TEAM_CACHE=null;
+function renderTeamFeedback(){
+  const key=[S.fileAt,S.accData&&S.accData.at,S.accTop&&S.accTop.at,JSON.stringify(P_PLANS[planDefaultMonth()]||{}).length,S.theme].join('|');
+  if(!TEAM_CACHE||TEAM_CACHE.key!==key){let imgs=[],text='',err='';
+    try{imgs=teamImages();}catch(e){err='картинки: '+e.message;console.error(e);}
+    try{text=teamText();}catch(e){err+=(err?'; ':'')+'текст: '+e.message;console.error(e);}
+    TEAM_CACHE={key,imgs,text,err};}
+  if(TEAM_CACHE.err)return`<div class="empty">Не вдалося зібрати фідбек (${esc(TEAM_CACHE.err)}). Надішли мені скрин цього повідомлення.</div>`;
+  const {imgs,text}=TEAM_CACHE;
+  if(!imgs.length&&!text)return(syncCfg()&&!S.sellers.length?'<div class="empty">Завантажую дані з хмари…</div>':'<div class="empty">Завантаж звіти — і тут з’явиться фідбек для чату команди.</div>');
+  const canShareFiles=!!(navigator.canShare&&window.File);
+  return`<p class="q-meta">Картинки й текст для чату команди — з останніх звітів. Текст можна поправити. Галочкою вибери, які картинки надсилати.</p>
+    <div class="tm-wrap">
+      <div class="tm-text"><textarea id="tmText" rows="${Math.min(24,text.split('\n').length+2)}">${esc(text)}</textarea>
+        <div class="fb-act">
+          ${syncCfg()?`<button class="btn-tag" onclick="teamSendBot(this)">Надіслати мені в Telegram</button>`:''}
+          ${canShareFiles?`<button class="${syncCfg()?'pill':'btn-tag'}" onclick="teamShare()">Поділитися</button>`:''}
+          <button class="pill" onclick="teamCopy()">Скопіювати текст</button>
+        </div>
+        <p class="q-meta" style="margin-top:8px">${syncCfg()?'Бот надішле тобі альбом із картинками й текстом — перешли його в «шо по аксам та ДПТ».':'Щоб надсилати собі в Telegram, налаштуй синхронізацію з ботом (кнопка ☁️ вгорі).'}</p>
+      </div>
+      <div class="tm-imgs">${imgs.map((im,i)=>`<figure class="tm-img"><label class="tm-chk"><input type="checkbox" data-i="${i}" checked> ${esc(im.title)}</label>
+        <a href="${im.url}" download="${im.name}" title="Завантажити"><img src="${im.url}" alt="${esc(im.title)}"></a></figure>`).join('')}</div>
+    </div>`;
+}
+function teamPicked(){
+  const on=[...document.querySelectorAll('.tm-chk input')].filter(x=>x.checked).map(x=>+x.dataset.i);
+  return(TEAM_CACHE?TEAM_CACHE.imgs:[]).filter((_,i)=>on.includes(i));
+}
+const teamTxt=()=>(document.getElementById('tmText')||{}).value||'';
+async function teamCopy(){try{await navigator.clipboard.writeText(teamTxt());toast('Текст скопійовано','ok');}catch(e){toast('Не вдалося скопіювати','err');}}
+async function teamShare(){
+  const files=await Promise.all(teamPicked().map(async im=>new File([await (await fetch(im.url)).blob()],im.name,{type:'image/png'})));
+  const data={files,text:teamTxt()};
+  try{if(navigator.canShare&&!navigator.canShare(data)){delete data.files;}await navigator.share(data);}catch(e){}
+}
+async function teamSendBot(btn){
+  const imgs=teamPicked();btn.disabled=true;const old=btn.textContent;btn.textContent='Надсилаю…';
+  try{await cloudReq('/api/teamfb',{method:'POST',body:JSON.stringify({text:teamTxt(),images:imgs.map(im=>({name:im.name,data:im.url.split(',')[1]}))})});
+    toast('Надіслано в Telegram — перешли в чат команди','ok');}
+  catch(e){toast('Не вдалося: '+e.message,'err');}
+  btn.disabled=false;btn.textContent=old;
+}
+
+// ═══ ПОВІСТКА 1:1 ═══
+const AGENDA_Q={cover:'Як ти пропонуєш чохол? Покажи, як звучить твоя пропозиція.',glass:'Коли в розмові ти кажеш про скло — до чи після оплати?',
+  charge:'Чи питаєш, чим клієнт заряджає телефон зараз?',hear:'Пропонуєш навушники як окрему покупку чи в комплекті?',
+  mouse:'Чи даєш клієнту спробувати мишку на вітрині?',bag:'Як пояснюєш, навіщо сумка/рюкзак до ноутбука?',
+  mount:'Питаєш, де стоятиме телевізор — на стіні чи тумбі?',basket:'Що найчастіше відповідає клієнт, коли відмовляється від аксесуарів?',
+  deterg:'Чи нагадуєш про засіб для прання при видачі пральної машини?'};
+function agendaData(name){
+  const pr=planPrFor(planDefaultMonth());
+  const qv=S.accData&&S.accData.groups?accSelect(S.accData,S.accPeriod):null;
+  const tv=S.accTop&&S.accTop.kind==='acc2'?accSelect(S.accTop):null;
+  const P=v=>v==null?'—':Math.round(v*100)+'%';
+  const plan=planLines(pr,name);
+  const weak=[],good=[],qs=[];
+  if(qv){const s=(qv.sellers||[]).find(x=>x.name===name),st=qv.store||{};
+    if(s)TEAM_Q.forEach(([gid,items])=>{const g=(qv.groups||[]).find(x=>x.id===gid);if(!g||(s[g.base]||0)<2)return;
+      items.forEach(i=>{const k=gid+'_'+i;if(st[k]==null||(i==='basket'&&gid!=='vpt'))return;const it=g.items.find(t=>t[0]===k);const l=it?it[1].replace('Скло, плівка','скло').toLowerCase():i;
+        if((s[k]||0)<st[k]*.75){weak.push(`${g.title.toLowerCase()}: ${l} ${P(s[k])} (магазин ${P(st[k])}, продано ${s[g.base]} шт)`);if(AGENDA_Q[i]&&!qs.includes(AGENDA_Q[i]))qs.push(AGENDA_Q[i]);}
+        else if((s[k]||0)>=st[k]*1.1&&st[k]>0)good.push(`${g.title.toLowerCase()}: ${l} ${P(s[k])} (магазин ${P(st[k])})`);});});}
+  if(tv){const s=(tv.sellers||[]).find(x=>x.name===name),sp=tv.store&&tv.store.acc_pct;
+    if(s&&sp){if(s.acc_pct<sp*.85){weak.unshift(`частка АСС ${P(s.acc_pct)} (магазин ${P(sp)})`);qs.unshift(AGENDA_Q.basket);}else if(s.acc_pct>=sp*1.1)good.unshift(`частка АСС ${P(s.acc_pct)} (магазин ${P(sp)})`);}}
+  const logs=M_LOGS.filter(l=>l.seller===name).sort((a,b)=>new Date(b.date)-new Date(a.date));
+  const last=logs[0]||null;
+  const goals=G_GOALS.filter(g=>g.seller===name&&g.status==='active').map(g=>goalLine(g,curMain(),accNow()));
+  return{name,full:(S.sellers.find(x=>x.name===name)||{}).full||name,plan,weak:weak.slice(0,5),good:good.slice(0,4),qs:[...new Set(qs)].slice(0,3),last,goals,count:logs.length};
+}
+function agendaText(name){
+  const a=agendaData(name),L=[`Повістка 1:1 — ${a.full}`];
+  const sec=(t,arr)=>{if(arr.length){L.push('',t);arr.forEach(x=>L.push('• '+x));}};
+  if(a.last)sec(`🔁 Минула зустріч ${new Date(a.last.date).toLocaleDateString('uk-UA')} — що перевірити`,[a.last.agree||a.last.discuss||'—',...(a.last.deadline?['Дедлайн: '+a.last.deadline]:[])]);
+  sec('📅 План',a.plan);sec('👍 Що виходить',a.good);sec('🎯 Над чим працюємо',a.weak);sec('🎯 Цілі',a.goals);sec('❓ Питання для розмови',a.qs);
+  L.push('','🤝 Домовленість: що робимо до наступної зустрічі і як перевіримо?');
+  return L.join('\n');
+}
+function agendaHTML(name){
+  if(!name)return'';
+  const a=agendaData(name);
+  const sec=(t,arr,cls)=>arr.length?`<div class="ag-s${cls?' '+cls:''}"><div class="ag-t">${t}</div><ul>${arr.map(x=>`<li>${esc(x)}</li>`).join('')}</ul></div>`:'';
+  const body=(a.last?sec(`🔁 Минула зустріч ${new Date(a.last.date).toLocaleDateString('uk-UA',{day:'numeric',month:'short'})} — перевірити`,[a.last.agree||a.last.discuss||'—',...(a.last.deadline?['Дедлайн: '+a.last.deadline]:[])],'ag-last'):'<div class="ag-s"><div class="ag-t">🔁 Це перша зустріч у журналі</div></div>')
+    +sec('📅 План',a.plan)+sec('👍 Що виходить',a.good)+sec('🎯 Над чим працюємо',a.weak)+sec('🎯 Цілі',a.goals)+sec('❓ Питання для розмови',a.qs);
+  return`<div class="ag"><div class="ag-h"><b>Повістка</b><div class="pills" style="margin:0"><button class="pill" onclick="agendaCopy()">Скопіювати</button><button class="pill" onclick="agendaToForm()">У «Обговорили»</button></div></div>${body}</div>`;
+}
+function agendaRefresh(){const sel=document.getElementById('m-f-seller'),box=document.getElementById('m-agenda');if(sel&&box)box.innerHTML=M_EDIT_ID?'':agendaHTML(sel.value);}
+function agendaCopy(){const n=document.getElementById('m-f-seller').value;navigator.clipboard.writeText(agendaText(n)).then(()=>toast('Повістку скопійовано','ok'),()=>toast('Не вдалося скопіювати','err'));}
+function agendaToForm(){
+  const a=agendaData(document.getElementById('m-f-seller').value);
+  const pts=[...(a.last?['Перевірили домовленість з минулої зустрічі']:[]),...a.plan.slice(0,2),...a.weak.slice(0,3)];
+  const ta=document.getElementById('m-f-discuss');ta.value=(ta.value?ta.value+'\n':'')+pts.map(x=>'• '+x).join('\n');
+}
+
 // ═══ ЗВОРОТНИЙ ЗВ'ЯЗОК ПРОДАВЦЯМ ═══
 function renderFeedback(){
   const names=allSellerNames();
   if(!names.length)return renderEmptyState();
+  const ft=S.fbTab||'people';
+  const tabs=`<div class="pills" style="margin-bottom:14px"><button class="pill${ft==='people'?' on':''}" onclick="S.fbTab='people';render()">Особисто продавцям</button><button class="pill${ft==='team'?' on':''}" onclick="S.fbTab='team';render()">📣 Чат команди</button></div>`;
+  if(ft==='team')return tabs+renderTeamFeedback();
+  return tabs+renderFeedbackPeople(names);
+}
+function renderFeedbackPeople(names){
   const acc=accNow();
   const src=[S.period?`продажі ${S.period}`:'',S.accData&&S.accData.groups?`якість АСС ${S.accData.period}`:'',S.accTop?`верхній рівень АСС ${S.accTop.period}`:''].filter(Boolean).join('; ');
   const sentAt=n=>FB_SENT[n]&&(!S.fileAt||new Date(FB_SENT[n])>=new Date(Math.max(new Date(S.fileAt||0),new Date((S.accData&&S.accData.at)||0))))?FB_SENT[n]:null;
@@ -3310,6 +3546,100 @@ function mergePlans(a,b){
   Object.entries(b||{}).forEach(([k,v])=>{if(!o[k]||(v&&(v.updatedAt||0)>=(o[k].updatedAt||0)))o[k]=v;});
   return o;
 }
+// ═══ ФІДБЕК У ЧАТ КОМАНДИ ═══
+// Які групи і показники якості показувати команді (як у твоїй таблиці)
+const TEAM_Q=[['sm',['basket','cover','glass','charge','hear']],['lt',['basket','mouse','bag']],['tv',['basket','mount']],['vpt',['basket']]];
+const TEAM_ICO={sm:'📱',lt:'💻',tv:'📺',vpt:'🫧'};
+const TEAM_NAME={sm:'смартфони',lt:'ноутбуки',tv:'телевізори',vpt:'ПХ до великої техніки'};
+const firstName=x=>{const p=String((x&&x.full)||'').split(/\s+/);return p[1]||String((x&&x.name)||'').split(' ')[0];};
+const joinNames=a=>a.length<=1?a.join(''):a.slice(0,-1).join(', ')+' і '+a[a.length-1];
+// Якість по групі: хто нижче / вище рівня магазину
+function teamQualityGroup(q,gid,items){
+  const st=q.store||{},base=gid+'_qty';
+  const keys=items.map(i=>gid+'_'+i).filter(k=>st[k]!=null);
+  const core=keys.filter(k=>gid==='vpt'||!/_basket$/.test(k));
+  const use=core.length?core:keys;
+  if(!use.length||!(st[base]>0))return null;
+  const elig=(q.sellers||[]).filter(s=>(s[base]||0)>=2);
+  if(!elig.length)return null;
+  const rows=elig.map(s=>{
+    const r=use.filter(k=>st[k]>0).map(k=>(s[k]||0)/st[k]);
+    const avgR=r.length?r.reduce((a,v)=>a+v,0)/r.length:1;
+    const weakK=use.filter(k=>st[k]>0&&(s[k]||0)<st[k]*.75);
+    return{s,avgR,weakK};
+  });
+  const weak=rows.filter(r=>r.avgR<.75).sort((a,b)=>a.avgR-b.avgR);
+  const strong=rows.filter(r=>r.avgR>=1.1).sort((a,b)=>b.avgR-a.avgR);
+  // показники, які «просідають» у більшості відстаючих
+  const cnt={};weak.forEach(r=>r.weakK.forEach(k=>cnt[k]=(cnt[k]||0)+1));
+  const label=k=>{const g=(q.groups||[]).find(x=>x.id===gid);const it=g&&g.items.find(i=>i[0]===k);return it?it[1].replace('Скло, плівка','скло').replace(/ \(кошик\)/,'').toLowerCase():k;};
+  const weakItems=Object.entries(cnt).sort((a,b)=>b[1]-a[1]).filter(([,n])=>n>=Math.max(1,weak.length/2)).slice(0,2).map(([k])=>label(k));
+  return{gid,elig:rows.length,weak,strong,weakItems};
+}
+function teamFeedbackText({q,t,pr,period}){
+  const L=[],P=n=>Math.round((n||0)*100)+'%';
+  // однакові імена (дві Анастасії) — додаємо першу літеру прізвища
+  const fulls=new Map();[...((q&&q.sellers)||[]),...((t&&t.sellers)||[]),...((pr&&pr.rows)||[])].forEach(x=>{if(x&&x.full)fulls.set(x.name,x.full);});
+  const cnt={};[...fulls.values()].forEach(f=>{const n=f.split(/\s+/)[1];if(n)cnt[n]=(cnt[n]||0)+1;});
+  const firstName=x=>{const f=(x&&x.full)||fulls.get(x&&x.name)||'';const p=f.split(/\s+/);if(!p[1])return String((x&&x.name)||'').split(' ')[0];return cnt[p[1]]>1?`${p[1]} ${p[0][0]}.`:p[1];};
+  const per=String(period||(t&&t.period)||(q&&q.period)||'').replace(/\.20(\d\d)/g,'.$1');
+  L.push(`📊 Підсумки${per?' '+per:''}`);
+  // похвала
+  const praise=[];
+  if(t&&t.sellers&&t.sellers.length){
+    const byF=[...t.sellers].sort((a,b)=>(b.acc_fact||0)-(a.acc_fact||0)).slice(0,2);
+    praise.push(`${joinNames(byF.map(firstName))} — найбільший ТО в АСС`);
+    const sp=t.store&&t.store.acc_pct;
+    const byP=[...t.sellers].filter(s=>(s.acc_fact||0)>=20000).sort((a,b)=>(b.acc_pct||0)-(a.acc_pct||0))[0];
+    if(byP&&!byF.includes(byP)&&sp&&byP.acc_pct>sp*1.15)praise.push(`${firstName(byP)} — найвища частка АСС (${P(byP.acc_pct)})`);
+  }
+  if(q&&q.sellers){
+    const g=teamQualityGroup(q,'sm',TEAM_Q[0][1]);
+    if(g&&g.strong.length&&!praise.some(x=>x.startsWith(firstName(g.strong[0].s))))praise.push(`${firstName(g.strong[0].s)} — найкраща якість продажів смартфонів`);
+  }
+  if(pr&&pr.rows){
+    const best=pr.rows.filter(r=>r.dptPace&&r.dptPace.pace>=1.15).sort((a,b)=>b.dptPace.pace-a.dptPace.pace)[0];
+    if(best)praise.push(`${firstName(best)} — випереджає план ДПТ (${P(best.dptPace.pct)})`);
+  }
+  if(praise.length){L.push('');L.push('👏 Молодці: '+praise.join('; ')+'.');}
+  // ТО та частка
+  if(t&&t.sellers&&t.store&&t.store.acc_pct){
+    const sp=t.store.acc_pct;
+    const low=t.sellers.filter(s=>(s.acc_fact||0)>=5000&&(s.acc_pct||0)<sp*.85).sort((a,b)=>(a.acc_pct||0)-(b.acc_pct||0));
+    L.push('');L.push('💰 ТО та частка в АСС');
+    L.push(low.length?`${joinNames(low.slice(0,6).map(firstName))} — ваша частка замала (магазин ${P(sp)}).`:`Частка АСС у всіх на рівні магазину (${P(sp)}) 👍`);
+  }
+  // якість
+  if(q&&q.sellers&&q.groups){
+    const lines=[];
+    TEAM_Q.forEach(([gid,items])=>{
+      const g=teamQualityGroup(q,gid,items);if(!g)return;
+      const ico=TEAM_ICO[gid],nm=TEAM_NAME[gid];
+      if(g.elig>=4&&g.weak.length>=g.elig*.6){
+        lines.push(`${ico} У більшості магазину випадає якість продажів: ${nm}${g.weakItems.length?` (${g.weakItems.join(', ')})`:''}.`+
+          (g.strong.length&&g.strong.length<=2?` Тут якість втримують одиниці — ${joinNames(g.strong.map(r=>firstName(r.s)))}.`:''));
+      }else if(g.weak.length){
+        lines.push(`${ico} ${joinNames(g.weak.slice(0,4).map(r=>firstName(r.s)))} — зверніть увагу на ${nm}${g.weakItems.length?`: ${g.weakItems.join(', ')}`:''}.`);
+      }else if(g.elig>=3)lines.push(`${ico} ${nm[0].toUpperCase()+nm.slice(1)} — якість тримаємо 👍`);
+    });
+    if(lines.length){L.push('');L.push('🎯 Якість продажів АСС');lines.forEach(x=>L.push(x));}
+  }
+  // план
+  if(pr&&(pr.dptPace||pr.accPace)){
+    L.push('');L.push(`📅 План на ${monthLabel(pr.plan.month).split(' ')[0]}`);
+    const one=(lbl,pc,plan)=>pc?`${lbl} ${P(pc.pct)} (треба ${P(pc.expected/plan)}) ${planMark(pc)}`:'';
+    L.push([one('ДПТ',pr.dptPace,+pr.plan.dpt),one('АСС+Home',pr.accPace,+pr.plan.acc)].filter(Boolean).join(' · '));
+    const lag=pr.rows.filter(r=>[r.dptPace,r.accPace].some(p=>p&&p.pace<.85));
+    if(lag.length)L.push(`Відстають від темпу: ${joinNames(lag.slice(0,6).map(firstName))}.`);
+    if(pr.dD){
+      const k=pr.dD/pr.N;
+      const cats=Object.entries(pr.catsStore||{}).filter(([,c])=>c.qty>=3&&c.factQty!=null&&c.factQty<c.qty*k*.85).sort((a,b)=>b[1].uah-a[1].uah).slice(0,3);
+      if(cats.length)L.push('Підтягуємо: '+cats.map(([cat,c])=>`${cat.toLowerCase()} ${c.factQty} з ${c.qty} шт`).join(', ')+'.');
+    }
+  }
+  return L.join('\n');
+}
+
 
 
 
@@ -3501,6 +3831,7 @@ function mOpenModal(sellerName){
   document.getElementById('m-f-discuss').value='';
   document.getElementById('m-f-agree').value='';
   document.getElementById('m-f-deadline').value='';
+  agendaRefresh();
   document.getElementById('m-modal').classList.remove('hidden');
 }
 
@@ -3580,7 +3911,7 @@ function renderMeetings(){
           schedHtml+=`<div class="sched-person">
             <div class="sched-avatar" style="background:${color}">${mSellerInitials(seller)}</div>
             <span class="sched-name">${seller}</span>
-            <button class="sched-log-btn" onclick="mOpenModal('${seller}')">+ Запис</button>
+            <button class="sched-log-btn" onclick="mOpenModal('${seller}')">Повістка і запис</button>
             <button class="sched-done-btn${isDone?' done':''}" onclick="mToggleDone('${key}',this)">✓</button>
           </div>`;
         });
@@ -3775,6 +4106,7 @@ S.theme=savedTheme==='dark'?'dark':'light';
 applyTheme();
 
 // Initial render + Cloud Load
+if(location.hash==='#teamfb'||new URLSearchParams(location.search).get('view')==='teamfb'){S.fbTab='team';S.view='feedback';}
 render();
 loadLocal();
 migrateFromOldCloud();
@@ -3788,7 +4120,8 @@ migrateFromOldCloud();
       <button onclick="mCloseModal()" style="font-size:18px;color:var(--t3);border:none;background:transparent;cursor:pointer;line-height:1">✕</button>
     </div>
     <label class="m-form-label">Продавець</label>
-    <select id="m-f-seller" class="m-select"></select>
+    <select id="m-f-seller" class="m-select" onchange="agendaRefresh()"></select>
+    <div id="m-agenda"></div>
     <label class="m-form-label">Дата зустрічі</label>
     <input type="date" id="m-f-date" class="m-input">
     <label class="m-form-label">💬 Що обговорили</label>
