@@ -715,6 +715,11 @@ tbody tr:hover td{background:var(--bg3)}
 .goal-act button:hover{color:var(--t1);border-color:var(--bd3)}
 .only-mob{display:none}
 
+.sched-bar{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:12px}
+.sched-note{font-size:13px;color:var(--t2);background:var(--amber-bg);border-radius:var(--r2);padding:9px 12px;margin-bottom:10px}.sched-note a{color:var(--tag-deep);font-weight:600}
+.sched-add{margin-left:auto;font:inherit;font-size:12px;padding:4px 8px;border:1px dashed var(--bd2);border-radius:8px;background:var(--bg);color:var(--t2)}
+.sched-day-h{display:flex;align-items:center;gap:8px}
+
 .ar-card{padding:0}
 .ar-h{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:14px 18px;cursor:pointer;flex-wrap:wrap}
 .ar-h small{display:block;font-size:12px;color:var(--t3)}.ar-h>div:first-child b{font-size:15px;text-transform:capitalize}
@@ -882,7 +887,7 @@ tbody tr:hover td{background:var(--bg3)}
 <aside class="sidebar">
   <div class="sb-logo">
     <div class="sb-name" id="sbName">ДМ2 Мост-2</div>
-    <div class="sb-tag">Sales OS · версія 12.11-2</div>
+    <div class="sb-tag">Sales OS · версія 13.11</div>
   </div>
   <nav class="nav" aria-label="Розділи">
     <div class="nav-group">Аналітика</div>
@@ -1355,7 +1360,7 @@ function updateBackupHint(){
 // Зберігає галочки, ритм тижня і записи 1:1
 let _saveTimer=null;
 function currentState(){
-  return{checks:S.checks,rhythmChecks:S.rhythmChecks,rhythmWeek:S.rhythmWeek||getWeekKey(),meetings:M_LOGS,meetingsDone:M_DONE,goals:G_GOALS,feedbackSent:FB_SENT,plans:P_PLANS,coefs:P_COEFS,archive:A_ARCH,deleted:M_DELETED,updatedAt:S.stateAt||0};
+  return{checks:S.checks,rhythmChecks:S.rhythmChecks,rhythmWeek:S.rhythmWeek||getWeekKey(),meetings:M_LOGS,meetingsDone:M_DONE,goals:G_GOALS,feedbackSent:FB_SENT,plans:P_PLANS,coefs:P_COEFS,archive:A_ARCH,schedule:M_SCHED,deleted:M_DELETED,updatedAt:S.stateAt||0};
 }
 function saveState(fromUser=true){
   if(fromUser){S.stateAt=Date.now();S.dirty=true;}
@@ -1436,11 +1441,11 @@ function mergeState(a,b){
   const del=new Set(deleted),map=new Map();
   const mergeList=(x,y)=>{const map=new Map();[...(x||[]),...(y||[])].forEach(m=>{if(!m||del.has(String(m.id)))return;const k=String(m.id),o=map.get(k);if(!o||(m.updatedAt||0)>=(o.updatedAt||0))map.set(k,m);});return[...map.values()];};
   const n=(a.updatedAt||0)>=(b.updatedAt||0)?a:b;
-  return{checks:n.checks||{},rhythmChecks:n.rhythmChecks||{},rhythmWeek:n.rhythmWeek||null,meetingsDone:n.meetingsDone||{},meetings:mergeList(a.meetings,b.meetings),goals:mergeList(a.goals,b.goals),feedbackSent:{...(a.feedbackSent||{}),...(b.feedbackSent||{}),...(n.feedbackSent||{})},plans:mergePlans(a.plans,b.plans),coefs:((a.coefs||{}).updatedAt||0)>=((b.coefs||{}).updatedAt||0)?(a.coefs||b.coefs||null):b.coefs,archive:mergeArchive(a.archive,b.archive),deleted,updatedAt:Math.max(a.updatedAt||0,b.updatedAt||0)};
+  return{checks:n.checks||{},rhythmChecks:n.rhythmChecks||{},rhythmWeek:n.rhythmWeek||null,meetingsDone:n.meetingsDone||{},meetings:mergeList(a.meetings,b.meetings),goals:mergeList(a.goals,b.goals),feedbackSent:{...(a.feedbackSent||{}),...(b.feedbackSent||{}),...(n.feedbackSent||{})},plans:mergePlans(a.plans,b.plans),coefs:((a.coefs||{}).updatedAt||0)>=((b.coefs||{}).updatedAt||0)?(a.coefs||b.coefs||null):b.coefs,archive:mergeArchive(a.archive,b.archive),schedule:(((a.schedule||{}).updatedAt||0)>=((b.schedule||{}).updatedAt||0)?a.schedule:b.schedule)||null,deleted,updatedAt:Math.max(a.updatedAt||0,b.updatedAt||0)};
 }
 function applyState(st){
   S.checks=st.checks||{};S.rhythmChecks=st.rhythmChecks||{};S.rhythmWeek=st.rhythmWeek||S.rhythmWeek;
-  M_LOGS=st.meetings||[];M_DONE=st.meetingsDone||{};M_DELETED=st.deleted||[];FB_SENT=st.feedbackSent||{};G_GOALS=st.goals||[];P_PLANS=st.plans||{};P_COEFS=st.coefs||null;A_ARCH=mergeArchive(A_ARCH,st.archive);S.stateAt=st.updatedAt||0;
+  M_LOGS=st.meetings||[];M_DONE=st.meetingsDone||{};M_DELETED=st.deleted||[];FB_SENT=st.feedbackSent||{};G_GOALS=st.goals||[];P_PLANS=st.plans||{};P_COEFS=st.coefs||null;A_ARCH=mergeArchive(A_ARCH,st.archive);M_SCHED=st.schedule||M_SCHED;S.stateAt=st.updatedAt||0;
 }
 let _pushTimer=null,_pulling=false;
 function schedulePush(){if(!syncCfg())return;clearTimeout(_pushTimer);_pushTimer=setTimeout(pushState,1500);}
@@ -1536,6 +1541,7 @@ function applyData(d){
   P_PLANS=st.plans&&typeof st.plans==='object'?st.plans:{};
   P_COEFS=st.coefs||null;
   A_ARCH=st.archive||{};
+  M_SCHED=st.schedule||null;
   S.stateAt=st.updatedAt||0;
   S.dirty=!!st.dirty;
   if(d.file){S.period=d.file.period;S.fileAt=d.file.at||null;}
@@ -3933,10 +3939,28 @@ const SELLER_COLORS={
   'Мехтієв Р.':'#d97706','Гаврихів Р.':'#059669'
 };
 
-const M_SCHEDULE={
+// Графік 1:1 за замовчуванням; тепер його можна змінювати на сайті (зберігається і синхронізується)
+const M_SCHEDULE_DEFAULT={
   A:{'Пн':['Устинова Л.'],'Вт':['Кисельов Д.','Гаврихів Р.'],'Ср':[],'Чт':[],'Пт':['Пачковський І.','Фесенко Я.'],'Сб':['Дудник А.','Азаров Д.'],'Нд':['Бородай О.']},
-  B:{'Пн':['Мехтієв Р.'],'Вт':['Миценко А.','Куценко М.','Синицина Г.'],'Ср':[],'Чт':[],'Пт':['Соболєв А.','Кравцова А.'],'Сб':[],'Нд':['Кисельов Д.']}
+  B:{'Пн':[],'Вт':['Куценко М.','Синицина Г.'],'Ср':[],'Чт':[],'Пт':['Соболєв А.','Кравцова А.'],'Сб':[],'Нд':['Кисельов Д.']}
 };
+let M_SCHED=null;
+const mSched=()=>M_SCHED&&M_SCHED.A?M_SCHED:M_SCHEDULE_DEFAULT;
+// Команда = продавці з останніх звітів (продажі + АСС); якщо звітів немає — з графіка
+function teamNames(){
+  const set=new Set();
+  (S.sellers||[]).forEach(s=>set.add(s.name));
+  [S.accTop,S.accData].forEach(a=>{try{const v=a&&a.periods?accSelect(a):null;(v&&v.sellers||[]).forEach(s=>set.add(s.name));}catch(e){}});
+  if(!set.size)['A','B'].forEach(w=>Object.values(mSched()[w]).flat().forEach(n=>set.add(n)));
+  return[...set].sort((a,b)=>a.localeCompare(b,'uk'));
+}
+const sellerColor=n=>SELLER_COLORS[n]||(()=>{let h=0;for(const c of String(n))h=(h*31+c.charCodeAt(0))%360;return`hsl(${h},55%,42%)`;})();
+function mSchedEdit(week,day,name,add){
+  const sc=JSON.parse(JSON.stringify(mSched()));
+  const L=sc[week][day]=sc[week][day]||[];
+  if(add){if(name&&!L.includes(name))L.push(name);}else sc[week][day]=L.filter(x=>x!==name);
+  M_SCHED={...sc,updatedAt:Date.now()};saveState();render();
+}
 const M_OFF_DAYS=['Ср','Чт'];
 
 let M_LOGS=[];
@@ -3969,7 +3993,7 @@ function mOpenModal(sellerName){
   M_EDIT_ID=null;
   const sel=document.getElementById('m-f-seller');
   if(sel){
-    const allSellers=Object.keys(SELLER_COLORS);
+    const allSellers=teamNames();if(sellerName&&!allSellers.includes(sellerName))allSellers.push(sellerName);
     sel.innerHTML=allSellers.map(s=>`<option value="${s}">${s}</option>`).join('');
     if(sellerName)sel.value=sellerName;
   }
@@ -4014,7 +4038,7 @@ function mDeleteLog(id){
 
 function mRenderLogEntry(log){
   const d=new Date(log.date).toLocaleDateString('uk-UA',{day:'numeric',month:'short',year:'numeric'});
-  const color=SELLER_COLORS[log.seller]||'#5b9bff';
+  const color=sellerColor(log.seller);
   return`<div class="log-entry">
     <div class="log-header">
       <div class="sched-avatar" style="background:${color};width:28px;height:28px;font-size:12px;flex-shrink:0">${mSellerInitials(log.seller)}</div>
@@ -4043,18 +4067,21 @@ function renderMeetings(){
     let schedHtml='';
     ['A','B'].forEach(week=>{
       schedHtml+=`<div class="week-group"><div class="week-lbl">🔄 Тиждень ${week}</div>`;
-      Object.entries(M_SCHEDULE[week]).forEach(([day,sellers])=>{
+      Object.entries(mSched()[week]).forEach(([day,sellers])=>{
         const isOff=M_OFF_DAYS.includes(day);
         if(isOff){
           schedHtml+=`<div class="sched-day is-off"><div class="sched-day-h"><span class="sched-day-name">${day}</span><span style="font-size:12px;color:var(--t3)">Вихідний</span></div></div>`;
           return;
         }
-        schedHtml+=`<div class="sched-day${sellers.length?' has-meetings':''}"><div class="sched-day-h"><span class="sched-day-name">${day}</span></div>`;
+        const ed=S.schedEdit,team=teamNames();
+        schedHtml+=`<div class="sched-day${sellers.length?' has-meetings':''}"><div class="sched-day-h"><span class="sched-day-name">${day}</span>${ed?`<select class="sched-add" onchange="if(this.value)mSchedEdit('${week}','${day}',this.value,true)"><option value="">+ додати продавця</option>${team.filter(n=>!sellers.includes(n)).map(n=>`<option>${n}</option>`).join('')}</select>`:''}</div>`;
         sellers.forEach(seller=>{
+          const gone=team.length&&!team.includes(seller);
+          if(ed){schedHtml+=`<div class="sched-person"><div class="sched-avatar" style="background:${sellerColor(seller)}">${mSellerInitials(seller)}</div><span class="sched-name">${seller}${gone?' <small style="color:var(--red)">немає у звітах</small>':''}</span><button class="sched-log-btn" onclick="mSchedEdit('${week}','${day}','${seller}',false)">Прибрати</button></div>`;return;}
           const key=`${week}_${day}_${seller}`;
           const isDone=!!M_DONE[key];
-          const color=SELLER_COLORS[seller]||'#5b9bff';
-          schedHtml+=`<div class="sched-person">
+          const color=sellerColor(seller);
+          schedHtml+=`<div class="sched-person"${gone?' style="opacity:.5"':''}>
             <div class="sched-avatar" style="background:${color}">${mSellerInitials(seller)}</div>
             <span class="sched-name">${seller}</span>
             <button class="sched-log-btn" onclick="mOpenModal('${seller}')">Повістка і запис</button>
@@ -4065,7 +4092,12 @@ function renderMeetings(){
       });
       schedHtml+='</div>';
     });
-    content=`<button onclick="mOpenModal()" style="margin-bottom:16px;padding:9px 18px;border-radius:var(--r);background:var(--blue-bg);border:1px solid var(--blue-bd);color:var(--blue);font-size:13px;font-weight:600;cursor:pointer">+ Новий запис 1:1</button>${schedHtml}`;
+    const inSched=new Set(['A','B'].flatMap(w=>Object.values(mSched()[w]).flat()));
+    const free=teamNames().filter(n=>!inSched.has(n));
+    const gone=[...inSched].filter(n=>S.sellers&&S.sellers.length&&!teamNames().includes(n));
+    const note=(free.length?`<div class="sched-note">Без дня для 1:1: <b>${free.join(', ')}</b>${S.schedEdit?'':` — <a href="#" onclick="S.schedEdit=true;render();return false">призначити</a>`}</div>`:'')
+      +(gone.length&&!S.schedEdit?`<div class="sched-note">У графіку, але немає у звітах: <b>${gone.join(', ')}</b> — <a href="#" onclick="S.schedEdit=true;render();return false">прибрати</a></div>`:'');
+    content=`<div class="sched-bar"><button onclick="mOpenModal()" style="padding:9px 18px;border-radius:var(--r);background:var(--blue-bg);border:1px solid var(--blue-bd);color:var(--blue);font-size:13px;font-weight:600;cursor:pointer">+ Новий запис 1:1</button><button class="pill${S.schedEdit?' on':''}" onclick="S.schedEdit=!S.schedEdit;render()">${S.schedEdit?'Готово':'✎ Змінити графік'}</button></div>${note}${schedHtml}`;
   } else {
     const sorted=[...M_LOGS].sort((a,b)=>new Date(b.date)-new Date(a.date));
     content=sorted.length?sorted.map(l=>mRenderLogEntry(l)).join(''):'<div class="empty">Ще немає записів</div>';
